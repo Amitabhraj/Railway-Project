@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block url_name %}Voltage Data{% endblock %}
+{% block url_title %}Upload CSV File{% endblock %}
+{% block breadcrum %} 
+<li class="breadcrumb-item">
+    <a href="index.html">
+<i class="fa fa-file"></i></a>
+</li>
+
+<li class="breadcrumb-item">
+    CSV
+</li>
+
+<li class="breadcrumb-item">
+    <a href="/user/voltage_data">Upload Volatage Data</a>
+</li>
+{% endblock %}
+{% block title %}Voltage Data{% endblock %}
+
+
+
+{% block body %}
+
+
+{% for message in messages %}
+<div id="alert" class="alert alert-success mx-2">{{message}}
+</div>
+  
+<script type="text/javascript">
+setTimeout(function () {
+    $('#alert').alert('close');
+}, 3000);
+</script>
+{% endfor %}
+
+
+<div class="mx-2">
+	<form action="/user/data_upload/" method="POST"enctype="multipart/form-data">{% csrf_token %}
+
+		<div class="form-outline form-white mb-4" style="color:blue;" >
+		<label class="form-label" for="csv">Upload CSV File</label>
+		<input type="file" name="csv" id="csv" class="form-control form-control-lg" required>
+		</div>
+
+		<button class="btn btn-danger">Submit</button>
+
+	</form>
+</div>
+
+
+{% endblock %}222

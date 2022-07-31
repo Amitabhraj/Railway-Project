@@ -42,7 +42,7 @@
   </center>
 </form>
 {% if show %}
-    <canvas id="pieChart1" height="450px"></canvas>
+    <canvas id="pieChart1" height="200px" width="100%"></canvas>
 {% else %}
 <br>
 <center><h2>No Data To Display</h2></center>
@@ -58,36 +58,39 @@ var ctxP = canvasP.getContext('2d');
 var myPieChart = new Chart(ctxP, {
    type: 'bar',
    data: {
+    {% if post %}
       labels: [{% for m in months %}'{{m}}',{% endfor %}],
-      datasets: [{
-        {% for rating_data in rating_data %}
-            label: "{{rating_data}}",
+    {% else %}
+    labels: ['All Data'],
+    {% endif %}
+      datasets: [
+        {
+            label: "Unsatisfactory",
             backgroundColor: "blue",
-            data: [3,3,1,4]
+            data: {{unsatis}}
         },
-        {% endfor %}
         {
-            label: "Red",
+            label: "Satisfactory",
             backgroundColor: "red",
-            data: [4,10,5,4]
+            data: {{satis}}
         },
         {
-            label: "Green",
+            label: "Excellent",
             backgroundColor: "green",
-            data: [3,3,3,4]
+            data: {{excel}}
         },
         {
-            label: "black",
+            label: "nan",
             backgroundColor: "black",
-            data: [3,3,3,4]
+            data: {{nan}}
         }]
    },
    options: {
       legend: {
          display: true,
-         position: "right"
+         position: "top"
       }
-   }
+}
 });
 
 canvasP.onclick = function(e) {

@@ -308,41 +308,55 @@ def rating(request):
 
         start_month_str = str(start_month.month).zfill(2)
         end_month_str = str(end_month.month).zfill(2)
+        start_day = (monthrange(int(f'{start_month.year}'), int(f'{start_month.month}'))[1])
         end_day = (monthrange(int(f'{end_month.year}'), int(f'{end_month.month}'))[1])
 
         actual_start_date = f"{start_month.year}-{start_month_str}-01 00:00:00.00+00:00"
+
+        initial_end_date = f"{end_month.year}-{end_month_str}-01 00:00:00.00+00:00"
         actual_end_date = f"{end_month.year}-{end_month_str}-{end_day} 00:00:00.00+00:00"
 
 #####################
 
         months = []
 
+        unsatis = []
+        satis = []
+        excel = []
+        nan = []
+
         for i in range(start_month.month,end_month.month+1):
+            print(i)
+            dataa = Main_Data_Upload.objects.filter(registration_date__month=i)
+            data = []
+            for dd in dataa:
+                data.append(dd.rating)
+            unsatis.append(data.count('Unsatisfactory'))
+            satis.append(data.count('Satisfactory'))
+            nan.append(data.count('nan'))
+            excel.append(data.count('Excellent'))
+
             months.append(calendar.month_name[i])
 
-        print(months)
+        # month_diff = end_month.month - start_month.month
 
-        month_diff = end_month.month - start_month.month
-
-        data = Main_Data_Upload.objects.filter(registration_date__range=[f'{actual_start_date}',f'{actual_end_date}'])
-
-        main_data=[]
-        for f_d in data:
-            main_data.append(f_d.rating)
+        # main_data=[]
+        # for f_d in data:
+        #     main_data.append(f_d.rating)
 
 
-        rating_data = set(main_data)
-        rating_count = []
-        for ff in rating_data:
-            rating_count.append(main_data.count(ff))
+        # rating_data = set(main_data)
+        # rating_count = []
+        # for ff in rating_data:
+        #     rating_count.append(main_data.count(ff))
 
-        sum_rating_count= sum(rating_count)
-        percentage_rating = []
-        for r in rating_count:
-            percentage_rating.append(int(r)/sum_rating_count*100)
+        # sum_rating_count= sum(rating_count)
+        # percentage_rating = []
+        # for r in rating_count:
+        #     percentage_rating.append(int(r)/sum_rating_count*100)
 
 
-        if len(percentage_rating) == 0:
+        if sum(excel) == 0 and sum(nan) == 0 and sum(unsatis) == 0 and sum(satis) == 0:
             show = False
         else:
             show=True
@@ -350,39 +364,47 @@ def rating(request):
         context = {
             'show':show,
             'post':True,
-            'percentage_rating':percentage_rating,
-            'rating_data':rating_data,
-            'months':months
+            'months':months,
+            'unsatis':unsatis,
+            'satis':satis,
+            'excel':excel,
+            'nan':nan
         }
 
     else:
-        main_rating_data=[]    
+        rating_data=[] 
+        main_rating_data = []
         full_rating_data = Main_Data_Upload.objects.values_list('rating')
         for f_d in full_rating_data:
-            main_rating_data.append(f_d)
+            for r_d in f_d:
+                main_rating_data.append(r_d)
 
 
-        rating_data = set(Main_Data_Upload.objects.values_list('rating'))
-        rating_data.remove(('nan',))
-        rating_count = []
-        for ff in rating_data:
-            rating_count.append(main_rating_data.count(ff))
+        unsatis = []
+        satis = []
+        nan = []
+        excel = []
 
-        sum_rating_count= sum(rating_count)
-        percentage_rating = []
-        for r in rating_count:
-            percentage_rating.append(int(r)/sum_rating_count*100)
 
-        if len(percentage_rating) == 0:
+        unsatis.append(main_rating_data.count('Unsatisfactory'))
+        satis.append(main_rating_data.count('Satisfactory'))
+        nan.append(main_rating_data.count('nan'))
+        excel.append(main_rating_data.count('Excellent'))
+
+
+        if sum(excel) == 0 and sum(nan) == 0 and sum(unsatis) == 0 and sum(satis) == 0:
             show = False
         else:
             show=True
 
+
         context ={
             'show':show,
-            'post':True,
-            'percentage_rating':percentage_rating,
-            'rating_data':rating_data
+            'post':False,
+            'unsatis':unsatis,
+            'satis':satis,
+            'excel':excel,
+            'nan':nan
             }
     return render(request, 'rating.html',context)
 

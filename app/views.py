@@ -46,11 +46,24 @@ def upload_data(request):
         df = pd.read_csv(str(BASE_DIR)+"/media/data/data/" + str(csv_data))
         length = len(df)
         for i in range(0, length):
+            if df['Registration_Date'][i] == " " or type(df['Registration_Date'][i]) == float:
+                register_date = None
+            else:
+                split_date = df['Registration_Date'][i].split(' ')
+                register_date = datetime.datetime.strptime(f'{split_date[0]}', '%d-%m-%y')
+
+            if df['Closing_Date'][i] == " " or type(df['Closing_Date'][i]) == float:
+                closing_date = None
+            else:
+                split_date_2 = df['Closing_Date'][i].split(' ')
+                closing_date = datetime.datetime.strptime(f'{split_date_2[0]}', '%d-%m-%y')
+
             Main_Data_Upload(
+
                 sl_no = df['SL_NO'][i],
                 reference_no = df['Ref_No'][i],
-                registration_date = df['Registration_Date'][i],
-                closing_date = df['Closing_Date'][i],
+                registration_date = register_date,
+                closing_date = closing_date,
                 disposal_time = df['Disposal_Time'][i],
                 mode = df['Mode'][i],
                 train_station = df['Train_Station'][i],
@@ -212,35 +225,185 @@ def edit_profile(request):
 ########### Dashboard Section ####################
 #################################################
 
+from datetime import date
 
 @login_required
 def dashboard(request):
-    main_data_count= Main_Data_Upload.objects.all().count()
-    
-    ##### Full Main data ############
-    main_data=[]    
-    full_data = Main_Data_Upload.objects.values_list('problem_type')
-    for f_d in full_data:
-        main_data.append(f_d)
+    if request.method == "POST":
+        start_date = request.POST.get('start_date','')
+        end_date = request.POST.get('end_date','')
+
+        data = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"])
+        
+
+        main_data=[]
+        for f_d in data:
+            main_data.append(f_d.problem_type)
+
+        data = set(main_data)
+        occur = []
+        for ff in data:
+            occur.append(main_data.count(ff))
+
+        if len(occur) == 0:
+            show = False
+        else:
+            show=True
+
+        context = {
+            'show':show,
+            'post':True,
+            'main_data':main_data,
+            'data':data,
+            'occur':occur
+        }
+
+    else:
+        #### Full Main data ############
+        main_data=[]    
+        full_data = Main_Data_Upload.objects.values_list('problem_type')
+        for f_d in full_data:
+            main_data.append(f_d)
 
 
-   ############## Set Data ######################
-    data = set(Main_Data_Upload.objects.values_list('problem_type'))
-    occur = []
-    for ff in data:
-        occur.append(main_data.count(ff))
-
-    # for data in data:
-    #     print(data)
+       ############## Set Data ######################
+        data = set(Main_Data_Upload.objects.values_list('problem_type'))
+        occur = []
+        for ff in data:
+            occur.append(main_data.count(ff))
 
 
-    context = {
-        'main_data_count':main_data_count,
-        'main_data':main_data,
-        'data':data,
-        'occur':occur
-    }
+        if len(occur) == 0:
+            show = False
+        else:
+            show=True
+
+
+        context = {
+            'show':show,
+            'post':False,
+            'main_data':main_data,
+            'data':data,
+            'occur':occur
+        }
     return render(request, 'dashboard.html',context)
+
+
+
+
+
+import calendar
+from calendar import monthrange
+
+def rating(request):
+   ###########################################
+   ########## Bar Graph rating ###############
+   ###########################################
+    if request.method == "POST":
+        start_date = request.POST.get('start_date','')
+        end_date = request.POST.get('end_date','')
+
+        start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+
+        start_month_str = str(start_month.month).zfill(2)
+        end_month_str = str(end_month.month).zfill(2)
+        end_day = (monthrange(int(f'{end_month.year}'), int(f'{end_month.month}'))[1])
+
+        actual_start_date = f"{start_month.year}-{start_month_str}-01 00:00:00.00+00:00"
+        actual_end_date = f"{end_month.year}-{end_month_str}-{end_day} 00:00:00.00+00:00"
+
+#####################
+
+        months = []
+
+        for i in range(start_month.month,end_month.month+1):
+            months.append(calendar.month_name[i])
+
+        print(months)
+
+        month_diff = end_month.month - start_month.month
+
+        data = Main_Data_Upload.objects.filter(registration_date__range=[f'{actual_start_date}',f'{actual_end_date}'])
+
+        main_data=[]
+        for f_d in data:
+            main_data.append(f_d.rating)
+
+
+        rating_data = set(main_data)
+        rating_count = []
+        for ff in rating_data:
+            rating_count.append(main_data.count(ff))
+
+        sum_rating_count= sum(rating_count)
+        percentage_rating = []
+        for r in rating_count:
+            percentage_rating.append(int(r)/sum_rating_count*100)
+
+
+        if len(percentage_rating) == 0:
+            show = False
+        else:
+            show=True
+
+        context = {
+            'show':show,
+            'post':True,
+            'percentage_rating':percentage_rating,
+            'rating_data':rating_data,
+            'months':months
+        }
+
+    else:
+        main_rating_data=[]    
+        full_rating_data = Main_Data_Upload.objects.values_list('rating')
+        for f_d in full_rating_data:
+            main_rating_data.append(f_d)
+
+
+        rating_data = set(Main_Data_Upload.objects.values_list('rating'))
+        rating_data.remove(('nan',))
+        rating_count = []
+        for ff in rating_data:
+            rating_count.append(main_rating_data.count(ff))
+
+        sum_rating_count= sum(rating_count)
+        percentage_rating = []
+        for r in rating_count:
+            percentage_rating.append(int(r)/sum_rating_count*100)
+
+        if len(percentage_rating) == 0:
+            show = False
+        else:
+            show=True
+
+        context ={
+            'show':show,
+            'post':True,
+            'percentage_rating':percentage_rating,
+            'rating_data':rating_data
+            }
+    return render(request, 'rating.html',context)
+
+
+
+
+def complain_type(request, complain):
+    print(complain)
+    complain_type = complain
+    problem_types = Main_Data_Upload.objects.values_list('coach_number',
+                                                        'problem_type',
+                                                        'sub_type',
+                                                        'disposal_time',
+                                                        'rating','complaint_discription')
+    problem_type = []
+    for p in problem_types:
+        if p[1] == complain_type:
+            problem_type.append(p)
+    context = {'complain_type':complain_type, 'problem_type':problem_type}
+    return render(request, 'complain_type.html',context)
+
 
 
 

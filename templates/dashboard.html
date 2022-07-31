@@ -162,7 +162,26 @@
 
 <div class="chart-container">
   <center><h4><u>Data Show Graph For Railway Complaint Type</u></h4></center>
+
+<form action="/user/dashboard/" method="POST">{% csrf_token %}
+  <center class="center">
+
+    <label for="start_date"><b>From:</b></label>
+    <input type="date" name="start_date">
+    
+    <label for="end_date"><b>To:</b></label>
+    <input name="end_date" type="date">
+
+
+    <button type="submit" class="btn btn-danger">Submit</button>
+  </center>
+</form>
+{% if show %}
     <canvas id="pieChart" height="450px"></canvas>
+{% else %}
+<br>
+<center><h2>No Data To Display</h2></center>
+{% endif %}
 </div>
 
 
@@ -175,8 +194,11 @@ var ctxP = canvasP.getContext('2d');
 var myPieChart = new Chart(ctxP, {
    type: 'pie',
    data: {
-      labels: [{% for data in data %}
-      {% for d in data %} '{{d}}', {% endfor %} {% endfor %}],
+    {% if post %}
+      labels: [{% for d in data %}'{{d}}', {% endfor %}],
+    {% else %}
+    labels: [{% for data in data %}{% for d in data %}'{{d}}', {% endfor %}{% endfor %}],
+    {% endif %}
       datasets: [{
          data: [{% for occur in occur %}{{occur}},{% endfor %}],
          backgroundColor: ["#64B5F6", "#FFD54F", "#2196F3", "#FFC107", "#1976D2", "#FFA000", "#0D47A1"],
@@ -198,7 +220,7 @@ canvasP.onclick = function(e) {
       {% for data in data %}
       {% for d in data %}
       case '{{d}}':
-         window.open('/{{d}}');
+         window.open('/user/complain/{{d}}');
          break;
       {% endfor %}
       {% endfor %}
@@ -206,10 +228,26 @@ canvasP.onclick = function(e) {
 }
 </script>
 
+
 </div>
 </div>
 </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

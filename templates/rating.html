@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+
+
+
+
+
+
+
+<div class="col-xl-8 col-md-12">
+<div class="card">
+<div class="card-header">
+<h4>Railway Data</h4>
+<span class="text-muted">This is Graph Show for Railway </span>
+</div>
+
+<div class="card-blockk">
+<div id="sales-analytics" style="height:100%;">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+<script src='https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js
+'></script>
+
+
+
+<div class="chart-container">
+  <center><h4><u>Data Show Graph For Railway Complaint Type</u></h4></center>
+
+<form action="/user/rating/" method="POST">{% csrf_token %}
+  <center class="center">
+
+    <label for="start_date"><b>From:</b></label>
+    <input type="date" name="start_date">
+    
+    <label for="end_date"><b>To:</b></label>
+    <input name="end_date" type="date">
+
+
+    <button type="submit" class="btn btn-danger">Submit</button>
+  </center>
+</form>
+{% if show %}
+    <canvas id="pieChart1" height="450px"></canvas>
+{% else %}
+<br>
+<center><h2>No Data To Display</h2></center>
+{% endif %}
+</div>
+
+
+
+
+<script>
+var canvasP = document.getElementById("pieChart1");
+var ctxP = canvasP.getContext('2d');
+var myPieChart = new Chart(ctxP, {
+   type: 'bar',
+   data: {
+      labels: [{% for m in months %}'{{m}}',{% endfor %}],
+      datasets: [{
+        {% for rating_data in rating_data %}
+            label: "{{rating_data}}",
+            backgroundColor: "blue",
+            data: [3,3,1,4]
+        },
+        {% endfor %}
+        {
+            label: "Red",
+            backgroundColor: "red",
+            data: [4,10,5,4]
+        },
+        {
+            label: "Green",
+            backgroundColor: "green",
+            data: [3,3,3,4]
+        },
+        {
+            label: "black",
+            backgroundColor: "black",
+            data: [3,3,3,4]
+        }]
+   },
+   options: {
+      legend: {
+         display: true,
+         position: "right"
+      }
+   }
+});
+
+canvasP.onclick = function(e) {
+   var slice = myPieChart.getElementAtEvent(e);
+   if (!slice.length) return; // return if not clicked on slice
+   var label = slice[0]._model.label;
+   switch (label) {
+      // add case for each label/slice
+      case 'black':
+         window.open('/black');
+         break;
+      case 'black':
+         window.open('/bar');
+         break;
+      // add rests ...
+   }
+}
+</script>
+
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+{% endblock %}
+
+
+
+

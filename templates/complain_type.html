@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block url_name %}Data Based on Complain Type{% endblock %}
+{% block url_title %}Complain Type{% endblock %}
+{% block breadcrum %}
+
+<li class="breadcrumb-item">
+  <a href="index.html">
+<i class="fa fa-home"></i></a>
+</li>
+
+<li class="breadcrumb-item">
+    See The Data for Complain Type
+</li>
+
+<li class="breadcrumb-item">
+    <a href="/user/complain/{{complain_type}}">Data Based on Complain Type</a>
+</li>
+{% endblock %}
+{% block title %}Data Based on Complain Type{% endblock %}
+
+
+
+{% block body %}
+
+
+<style>
+@media (max-width: 991px) {
+  .responsive > thead th {
+    display: none;
+  }
+  .responsive > tbody td,
+  .responsive > tbody th {
+    display: block;
+  }
+  .responsive > tbody > tr:nth-child(even) td,
+  .responsive > tbody > tr:nth-child(even) th {
+    background-color: #eee;
+  }
+  [row-header] {
+    position: relative;
+    width: 50%;
+    vertical-align: middle;
+  }
+  [row-header]:before {
+    content: attr(row-header);
+    display: inline-block;
+    vertical-align: middle;
+    text-align: left;
+    width: 50%;
+    padding-right:30px;
+  }
+}
+</style>
+<div class="table-responsive">
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Sl No.</th>
+        <th>Coach Number</th>
+        <th>Type</th>
+        <th>Sub type</th>
+        <th>disposal Time</th>
+        <th>Rating</th>
+        <th>Complaint Description</th>
+      </tr>
+    </thead>
+    <tbody>
+{% for p in problem_type %}
+      <tr>
+        <th scope="row">{{forloop.counter}}</th>
+
+
+        {% if p.0 == nan or p.0 == " " %}
+        <td>N/D</td>
+        {% else %}
+        <td>{{p.0|floatformat}}</td>
+        {% endif %}
+
+
+        <td>{{p.1}}</td>
+        <td>{{p.2}}</td>
+        <td>{{p.3}}</td>
+
+
+        {% if p.4 == "nan" or p.4 == "" %}
+        <td>N/D</td>
+        {% else %}
+        <td>{{p.4}}</td>
+        {% endif %}
+
+        {% if p.5 == "nan" or p.5 == "" %}
+        <td>N/D</td>
+        {% else %}
+        <td>{{p.5}}</td>
+        {% endif %}
+
+      </tr>
+{% endfor %}
+    </tbody>
+  </table>
+</div>
+
+
+{% endblock %}
+
+
+
+

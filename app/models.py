@@ -1,5 +1,6 @@
 from django.db import models,migrations
 from django.contrib.auth.models import User
+from django.utils import timezone
 # Create your models here.
 
 
@@ -9,8 +10,8 @@ class Main_Data_Upload(models.Model):
     unique_id = models.FloatField(default=None, null=True, blank=True)
     sl_no = models.FloatField(default=None, null=True, blank=True)
     reference_no = models.FloatField(default=None, null=True, blank=True)
-    registration_date = models.DateTimeField(auto_now=True, null=True, blank=True)
-    closing_date = models.DateTimeField(auto_now=True, null=True, blank=True)
+    registration_date = models.DateTimeField(default=None,null=True, blank=True)
+    closing_date = models.DateTimeField(default=None,null=True, blank=True)
     disposal_time = models.CharField(max_length=10000000,default=None, null=True, blank=True)
     mode = models.CharField(max_length=10000000,default=None, null=True, blank=True)
     train_station = models.FloatField(null=True, blank=True)

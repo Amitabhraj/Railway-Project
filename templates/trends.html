@@ -54,7 +54,7 @@
 var canvasP = document.getElementById("pieChart1");
 var ctxP = canvasP.getContext('2d');
 var myPieChart = new Chart(ctxP, {
-   type: 'bar',
+   type: 'line',
    data: {
     {% if post %}
       labels: [{% for m in months %}'{{m}}',{% endfor %}],

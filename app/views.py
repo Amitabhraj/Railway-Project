@@ -22,6 +22,10 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
+from datetime import date, timedelta
+from dateutil.rrule import rrule, MONTHLY
+import calendar
+from calendar import monthrange
 import datetime as DT
 from railway.settings import BASE_DIR
 
@@ -225,7 +229,6 @@ def edit_profile(request):
 ########### Dashboard Section ####################
 #################################################
 
-from datetime import date, timedelta
 
 @login_required
 def dashboard(request):
@@ -290,10 +293,6 @@ def dashboard(request):
 
 
 
-
-
-import calendar
-from calendar import monthrange
 
 def rating(request):
    ########## Bar Graph rating ###############
@@ -378,11 +377,9 @@ def rating(request):
 
 
 
-
-
-
 def trend(request):
     if request.method == "POST":
+        post = True
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
@@ -392,6 +389,7 @@ def trend(request):
         delta = end_month - start_month
 
         sdate = date(int(start_month.year), int(start_month.month), int(start_month.day))
+        edate = date(int(end_month.year), int(end_month.month), int(end_month.day))
 
 
 
@@ -407,6 +405,7 @@ def trend(request):
         miscellaneous = []
         staff_behave = []
         dates = []
+########
 
         if delta.days <= 0:
             return HttpResponse("<center><h1>Please Enter Right Date Range</h1></center>")
@@ -426,7 +425,7 @@ def trend(request):
                 security.append(security_data.count())
 
 
-                medical_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Mediacal Assistance")
+                medical_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Medical Assistance")
                 medical_assis.append(medical_data.count())
 
 
@@ -434,7 +433,7 @@ def trend(request):
                 punctuality.append(punctuality_data.count())
 
 
-                water_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Water Availablity")
+                water_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Water Availability")
                 water_avail.append(water_data.count())
 
 
@@ -452,121 +451,164 @@ def trend(request):
 
                 staff_behave_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Staff Behaviour")
                 staff_behave.append(staff_behave_data.count())
+
+            total = []
+            total.append(coach_clean)
+            total.append(bed_roll)
+            total.append(security)
+            total.append(medical_assis)
+            total.append(punctuality)
+            total.append(water_avail)
+            total.append(electrical_equip)
+            total.append(coach_maintain)
+            total.append(miscellaneous)
+            total.append(staff_behave)
+            print(total)
 
 
         elif delta.days >=46:
-            for i in range(delta.days+1):
-                day = sdate + timedelta(days=i)
-                dates.append(str(day.day)+" "+str(calendar.month_name[day.month])+","+ str(day.year))
-                
-                coach_clean_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Coach - Cleanliness")
+            strt_dt = sdate
+            end_dt = edate
+            datess = [dt for dt in rrule(MONTHLY, dtstart=strt_dt, until=end_dt)]
+            for d in datess:
+                dates.append(calendar.month_name[int(d.month)] +","+ str(d.year))
+                coach_clean_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Coach - Cleanliness")
                 coach_clean.append(coach_clean_data.count())
 
-                bed_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Bed Roll")
+                bed_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Bed Roll")
                 bed_roll.append(bed_data.count())
 
-                security_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Security")
+                security_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Security")
                 security.append(security_data.count())
 
 
-                medical_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Mediacal Assistance")
+                medical_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Medical Assistance")
                 medical_assis.append(medical_data.count())
 
 
-                punctuality_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Punctuality")
+                punctuality_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Punctuality")
                 punctuality.append(punctuality_data.count())
 
 
-                water_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Water Availablity")
+                water_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Water Availability")
                 water_avail.append(water_data.count())
 
 
-                electrical_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Electrical Equipment")
+                electrical_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Electrical Equipment")
                 electrical_equip.append(electrical_data.count())
 
 
-                coach_maintain_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Coach - Maintenance")
+                coach_maintain_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Coach - Maintenance")
                 coach_maintain.append(coach_maintain_data.count())
 
 
-                miscellaneous_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Miscellaneous")
+                miscellaneous_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Miscellaneous")
                 miscellaneous.append(miscellaneous_data.count())
 
 
-                staff_behave_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Staff Behaviour")
+                staff_behave_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Staff Behaviour")
                 staff_behave.append(staff_behave_data.count())
-
-
-
-        months = []
-
-        unsatis = []
-        satis = []
-        excel = []
-        nan = []
-
-        for i in range(start_month.month,end_month.month+1):
-            dataa = Main_Data_Upload.objects.filter(registration_date__month=i)
-            data = []
-            for dd in dataa:
-                data.append(dd.rating)
-            unsatis.append(data.count('Unsatisfactory'))
-            satis.append(data.count('Satisfactory'))
-            nan.append(data.count('nan'))
-            excel.append(data.count('Excellent'))
-
-            months.append(calendar.month_name[i])
-
-        if sum(excel) == 0 and sum(nan) == 0 and sum(unsatis) == 0 and sum(satis) == 0:
-            show = False
-        else:
-            show=True
-
-        context = {
-            'show':show,
-            'post':True,
-            'months':months,
-            'unsatis':unsatis,
-            'satis':satis,
-            'excel':excel,
-            'nan':nan
-        }
+            total = []
+            total.append(coach_clean)
+            total.append(bed_roll)
+            total.append(security)
+            total.append(medical_assis)
+            total.append(punctuality)
+            total.append(water_avail)
+            total.append(electrical_equip)
+            total.append(coach_maintain)
+            total.append(miscellaneous)
+            total.append(staff_behave)
+            print(total)
 
     else:
-        rating_data=[] 
-        main_rating_data = []
-        full_rating_data = Main_Data_Upload.objects.values_list('rating')
-        for f_d in full_rating_data:
-            for r_d in f_d:
-                main_rating_data.append(r_d)
+        coach_clean = []
+        bed_roll = []
+        security = []
+        medical_assis = []
+        punctuality = []
+        water_avail = []
+        electrical_equip = []
+        coach_maintain = []
+        miscellaneous = []
+        staff_behave = []
+        dates = []
+        post = False
+        for i in range(0,31):
+            day = datetime.datetime.now() - datetime.timedelta(i)
+            dates.append(str(day.day)+" "+str(calendar.month_name[day.month])+","+ str(day.year))
+            
+            coach_clean_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Coach - Cleanliness")
+            coach_clean.append(coach_clean_data.count())
+
+            bed_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Bed Roll")
+            bed_roll.append(bed_data.count())
+
+            security_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Security")
+            security.append(security_data.count())
 
 
-        unsatis = []
-        satis = []
-        nan = []
-        excel = []
+            medical_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Medical Assistance")
+            medical_assis.append(medical_data.count())
 
 
-        unsatis.append(main_rating_data.count('Unsatisfactory'))
-        satis.append(main_rating_data.count('Satisfactory'))
-        nan.append(main_rating_data.count('nan'))
-        excel.append(main_rating_data.count('Excellent'))
+            punctuality_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Punctuality")
+            punctuality.append(punctuality_data.count())
 
 
-        if sum(excel) == 0 and sum(nan) == 0 and sum(unsatis) == 0 and sum(satis) == 0:
-            show = False
-        else:
-            show=True
+            water_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Water Availability")
+            water_avail.append(water_data.count())
 
 
-        context ={
-            'show':show,
-            'post':False,
-            'unsatis':unsatis,
-            'satis':satis,
-            'excel':excel,
-            'nan':nan
-            }
+            electrical_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Electrical Equipment")
+            electrical_equip.append(electrical_data.count())
+
+
+            coach_maintain_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Coach - Maintenance")
+            coach_maintain.append(coach_maintain_data.count())
+
+
+            miscellaneous_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Miscellaneous")
+            miscellaneous.append(miscellaneous_data.count())
+
+
+            staff_behave_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Staff Behaviour")
+            staff_behave.append(staff_behave_data.count())
+        total = []
+        total.append(coach_clean)
+        total.append(bed_roll)
+        total.append(security)
+        total.append(medical_assis)
+        total.append(punctuality)
+        total.append(water_avail)
+        total.append(electrical_equip)
+        total.append(coach_maintain)
+        total.append(miscellaneous)
+        total.append(staff_behave)
+        print(total)
+
+    all_type=['Coach - Cleanliness','Bed Roll','Security','Medical Assistance',
+              'Punctuality','Water Availability','Electrical Equipment','Coach - Maintenance',
+              'Miscellaneous','Staff Behaviour']
+
+
+    context ={
+        'show':True,
+        'post':post,
+        'coach_clean':coach_clean,
+        'bed_roll':bed_roll,
+        'security':security,
+        'medical_assis':medical_assis,
+        'punctuality':punctuality,
+        'water_avail':water_avail,
+        'electrical_equip':electrical_equip,
+        'coach_maintain':coach_maintain,
+        'miscellaneous':miscellaneous,
+        'staff_behave':staff_behave,
+        'dates':dates,
+        'total':total,
+        'all_type':all_type
+        }
     return render(request, 'trends.html',context)
 
 

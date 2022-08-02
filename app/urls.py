@@ -15,6 +15,7 @@ urlpatterns = [
     path('user/complain/<str:complain>/', views.complain_type, name="complain_type"),
     path('user/rating/', views.rating, name="rating"),
     path('user/trend/', views.trend, name="trend"),
+    path('user/sub_type/<str:subtype>/', views.sub_type, name="sub_type"),
     # path('register_individual/', views.register_individual, name="register_individual"),
     # path('user/forget_password/', views.forget_password, name="forget_password"),
     # path('user/user_detail/user_profile/', views.user_detail, name="user_detail"),

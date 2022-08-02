@@ -72,6 +72,10 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 
             ],
+            'libraries':{
+                'custom': 'app.custom',
+            
+            }
         },
     },
 ]

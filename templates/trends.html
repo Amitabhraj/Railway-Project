@@ -8,7 +8,6 @@
 
 
 
-
 <form action="/user/trend/" method="POST">{% csrf_token %}
   <center class="center"><h5>Filter Data:-</h5>&nbsp;&nbsp;&nbsp;&nbsp;
 
@@ -99,18 +98,14 @@
 </div>
 </div>
 
+<center><u><h2>Sub Type Lists</h2></u></center>
+
+{{demo_sub}}
 
 
-
-
-
-
-
-
-
-
-
-
+{% for sub_type in sub_type %}
+<a href="/user/sub_type/{{sub_type}}/"><button class="btn btn-dark mx-1 my-2">{{sub_type}}</button></a>
+{% endfor %}
 
 
 

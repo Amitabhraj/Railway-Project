@@ -585,11 +585,27 @@ def trend(request):
         total.append(coach_maintain)
         total.append(miscellaneous)
         total.append(staff_behave)
-        print(total)
 
     all_type=['Coach - Cleanliness','Bed Roll','Security','Medical Assistance',
               'Punctuality','Water Availability','Electrical Equipment','Coach - Maintenance',
               'Miscellaneous','Staff Behaviour']
+
+    sub_type = Main_Data_Upload.objects.values_list('sub_type')
+    subtype=[]
+    for s in sub_type:
+        for st in s:
+            subtype.append(st)
+
+    main_sub_type = []
+    for sub in subtype:
+        main_sub_type.append(sub.split('/'))
+    for i in range(len(main_sub_type)):
+        if len(main_sub_type[i]) >= 2:
+            subtype[i] = " ".join(main_sub_type[i])
+
+    sts = (set(subtype))
+    demo_sub = set(sub_type)
+
 
 
     context ={
@@ -607,11 +623,57 @@ def trend(request):
         'staff_behave':staff_behave,
         'dates':dates,
         'total':total,
-        'all_type':all_type
+        'all_type':all_type,
+        'sub_type':sts,
+        'demo_sub':demo_sub
         }
     return render(request, 'trends.html',context)
 
 
+
+
+
+def sub_type(request,subtype):
+    if subtype == "Luggage Left Behind Unclaimed Suspected Articles":
+        subtype = "Luggage Left Behind/Unclaimed/Suspected Articles"
+
+    elif subtype == "Harassment Extortion by Security Personnel Railway personnel":
+        subtype = "Harassment/Extortion by Security Personnel/Railway personnel"
+
+    elif subtype == "Tap leaking/Tap not working":
+        subtype = "Tap leaking/Tap not working"
+
+    elif subtype == "Window Seat Broken":
+        subtype = "Window/Seat Broken"
+
+    elif subtype == "Window Door locking problem":
+        subtype = "Window/Door locking problem"
+
+    elif subtype == "Unauthorized person in Ladies Disabled Coach SLR Reserve Coach":
+        subtype = "Unauthorized person in Ladies/Disabled Coach/SLR/Reserve Coach"
+
+    elif subtype == "Jerks Abnormal Sound":
+        subtype = "Jerks/Abnormal Sound"
+
+    elif subtype == "Theft of Passengers Belongings Snatching":
+        subtype = "Theft of Passengers Belongings/Snatching"
+
+    elif subtype == "Nuisance by Hawkers Beggar Eunuch Passenger":
+        subtype = "Nuisance by Hawkers/Beggar/Eunuch/Passenger"
+
+    elif subtype == "Smoking Drinking Alcohol Narcotics":
+        subtype = "Smoking/Drinking Alcohol/Narcotics"
+
+    elif subtype == "Passenger Missing Not responding call":
+        subtype = "Passenger Missing/Not responding call"
+
+    if request.method == "POST":
+        pass
+    else:
+        pass
+
+    context = {}
+    return render(request,'sub_type.html',context)
 
 
 
@@ -626,7 +688,7 @@ def complain_type(request, complain):
                                                         'rating','complaint_discription')
     problem_type = []
     for p in problem_types:
-        if p[1] == complain_type:
+        if p[1] == complain_type or p[2] == complain_type:
             problem_type.append(p)
     context = {'complain_type':complain_type, 'problem_type':problem_type}
     return render(request, 'complain_type.html',context)

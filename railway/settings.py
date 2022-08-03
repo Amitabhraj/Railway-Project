@@ -28,6 +28,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+
+APPEND_SLASH = False
+
+
 GOOGLE_API_KEY='AIzaSyD0NoVlROXY5_af_PTr0-xQRtbIk07hCJM'
 
 # Application definition

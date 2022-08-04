@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block body %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+<script src='https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js
+'></script>
+
+
+<form action="/user/bottom_train_data_pie_chart/" method="POST">{% csrf_token %}
+  <center class="center">
+
+    <label for="start_date"><b>From:</b></label>
+    <input type="date" name="start_date" required>
+    
+    <label for="end_date"><b>To:</b></label>
+    <input name="end_date" type="date" required>
+
+
+    <button type="submit" class="btn btn-danger">Submit</button>
+  </center>
+</form>
+
+<br>
+<div class="col-xl-8 col-md-12">
+<div class="card">
+<div class="card-header">
+<h4>Railway Data</h4>
+<span class="text-muted">This is Graph Show for Railway </span>
+</div>
+
+<div class="card-blockk">
+<div id="sales-analytics" style="height:100%;">
+
+<div class="chart-container">
+  <center><h4><u>Data Show Graph For Bottom 10 Train Number Complaint Wise</u></h4></center>
+
+<canvas id="myChart" height="110px" width="100%"></canvas>
+<br>
+
+
+
+
+<script>
+var canvasP = document.getElementById("myChart");
+var ctxP = canvasP.getContext('2d');
+var myPieChart = new Chart(ctxP, {
+   type: 'pie',
+   data: {
+      labels: [{% for m in bottom_train %}'{{m}}',{% endfor %}],
+      datasets: [
+        {   
+            data: {{bottom_data_count}},
+            backgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"],
+            hoverBackgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"]
+       }]
+   },
+   options: {
+    legend: {
+         display: true,
+         position: "top"
+      },
+
+}
+});
+
+canvasP.onclick = function(e) {
+   var slice = myPieChart.getElementAtEvent(e);
+   if (!slice.length) return; // return if not clicked on slice
+   var label = slice[0]._model.label;
+   switch (label) {
+      // add case for each label/slice
+      {% for p_t in bottom_train %}
+      case '{{p_t}}':
+         window.open('/user/complain/{{p_t}}');
+         break;
+      {% endfor %}
+   }
+}
+</script>
+
+
+
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+
+{% endblock %}
+
+

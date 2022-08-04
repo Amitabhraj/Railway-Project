@@ -220,7 +220,7 @@ body .pcoded[pcoded-device-type="phone"][vertical-nav-type="expanded"] .pcoded-n
                             </li>
                             <li class="user-profile header-notification">
                                 <a href="#!" class="waves-effect waves-light">
-                                    <img src="/media/{{logo}}" width="55" height="42" class="img-radius" alt="User-Profile-Image">
+                                    {{request.user.username}}
                                     <span style="text-transform: capitalize; ">{{username}}</span>
                                     <i class="ti-angle-down"></i>
                                 </a>
@@ -268,7 +268,7 @@ body .pcoded[pcoded-device-type="phone"][vertical-nav-type="expanded"] .pcoded-n
                                         <div class="img-radius" id="img-radius" width=>
                                         </div>
                                     <div class="user-details">
-                                        <span id="more-details" style="font-size:1.1rem">{{username}}<i class="fa fa-caret-down" style="font-size:0.9rem"></i></span>
+                                        <span id="more-details" style="font-size:1.1rem">{{request.user.username}}<i class="fa fa-caret-down" style="font-size:0.9rem"></i></span>
                                     </div>
                                 </div>
                         
@@ -288,15 +288,7 @@ body .pcoded[pcoded-device-type="phone"][vertical-nav-type="expanded"] .pcoded-n
                                     </ul>
                                 </div>
                             </div>
-                            <!-- <div class="p-15 p-b-0">
-                                <form class="form-material">
-                                    <div class="form-group form-primary">
-                                        <input type="text" name="footer-email" class="form-control" required="">
-                                        <span class="form-bar"></span>
-                                        <label class="float-label"><i class="fa fa-search m-r-10"></i>Search Friend</label>
-                                    </div>
-                                </form>
-                            </div> -->
+
                             <div class="pcoded-navigation-label" data-i18n="nav.category.navigation">Home</div>
                             <ul class="pcoded-item pcoded-left-item">
                                 <li class="">
@@ -306,106 +298,40 @@ body .pcoded[pcoded-device-type="phone"][vertical-nav-type="expanded"] .pcoded-n
                                         <span class="pcoded-mcaret"></span>
                                     </a>
                                 </li>
- <!--                                <li class="pcoded-hasmenu">
-                                    <a href="javascript:void(0)" class="waves-effect waves-dark">
-                                        <span class="pcoded-micon"><i class="ti-layout-grid2-alt"></i></span>
-                                        <span class="pcoded-mtext"  data-i18n="nav.basic-components.main">Components</span>
-                                        <span class="pcoded-mcaret"></span>
-                                    </a>
-                                    <ul class="pcoded-submenu">
-                                        <li class=" ">
-                                            <a href="accordion.html" class="waves-effect waves-dark">
-                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                                <span class="pcoded-mtext" data-i18n="nav.basic-components.alert">Accordion</span>
-                                                <span class="pcoded-mcaret"></span>
-                                            </a>
-                                        </li>
-                                        <li class=" ">
-                                            <a href="breadcrumb.html" class="waves-effect waves-dark">
-                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                                <span class="pcoded-mtext" data-i18n="nav.basic-components.breadcrumbs">Breadcrumbs</span>
-                                                <span class="pcoded-mcaret"></span>
-                                            </a>
-                                        </li>
-                                        <li class=" ">
-                                            <a href="button.html" class="waves-effect waves-dark">
-                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                                <span class="pcoded-mtext" data-i18n="nav.basic-components.alert">Button</span>
-                                                <span class="pcoded-mcaret"></span>
-                                            </a>
-                                        </li>
-                                        <li class=" ">
-                                            <a href="tabs.html" class="waves-effect waves-dark">
-                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                                <span class="pcoded-mtext" data-i18n="nav.basic-components.breadcrumbs">Tabs</span>
-                                                <span class="pcoded-mcaret"></span>
-                                            </a>
-                                        </li>
-                                        <li class=" ">
-                                            <a href="color.html" class="waves-effect waves-dark">
-                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                                <span class="pcoded-mtext" data-i18n="nav.basic-components.alert">Color</span>
-                                                <span class="pcoded-mcaret"></span>
-                                            </a>
-                                        </li>
-                                        <li class=" ">
-                                            <a href="label-badge.html" class="waves-effect waves-dark">
-                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                                <span class="pcoded-mtext" data-i18n="nav.basic-components.breadcrumbs">Label Badge</span>
-                                                <span class="pcoded-mcaret"></span>
-                                            </a>
-                                        </li>
-                                        <li class=" ">
-                                            <a href="tooltip.html" class="waves-effect waves-dark">
-                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                                <span class="pcoded-mtext" data-i18n="nav.basic-components.alert">Tooltip</span>
-                                                <span class="pcoded-mcaret"></span>
-                                            </a>
-                                        </li>
-                                        <li class=" ">
-                                            <a href="typography.html" class="waves-effect waves-dark">
-                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                                <span class="pcoded-mtext" data-i18n="nav.basic-components.breadcrumbs">Typography</span>
-                                                <span class="pcoded-mcaret"></span>
-                                            </a>
-                                        </li>
-                                        <li class=" ">
-                                            <a href="notification.html" class="waves-effect waves-dark">
-                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                                <span class="pcoded-mtext" data-i18n="nav.basic-components.alert">Notification</span>
-                                                <span class="pcoded-mcaret"></span>
-                                            </a>
-                                        </li>
-                                        <li class=" ">
-                                            <a href="icon-themify.html" class="waves-effect waves-dark">
-                                                <span class="pcoded-micon"><i class="ti-angle-right"></i></span>
-                                                <span class="pcoded-mtext" data-i18n="nav.basic-components.breadcrumbs">Themify</span>
-                                                <span class="pcoded-mcaret"></span>
-                                            </a>
-                                        </li> -->
-                            
                                     </ul>
                                 </li>
                             </ul>
                     
-                            <div class="pcoded-navigation-label" data-i18n="nav.category.forms">Analytics</div>
+                            <div class="pcoded-navigation-label" data-i18n="nav.category.forms">Charts</div>
                             <ul class="pcoded-item pcoded-left-item">
+
                                 <li>
-                                    <a href="/user/voltage_chart" class="waves-effect waves-dark">
-                                        <span class="mx-3"><i style="font-weight:bold"> &#9889;</i> </span>
-                                        <span class="pcoded-mtext" data-i18n="nav.form-components.main">Voltage Chart</span>
-                                        <span class="pcoded-mcaret"></span>
+                                    <a href="/user/rating" class="waves-effect waves-dark">
+                                        <span data-i18n="nav.dash.main">rating Chart</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/user/trend" class="waves-effect waves-dark">
+                                        <span data-i18n="nav.form-components.main">Analysic of all trends</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/user/train_wise_data" class="waves-effect waves-dark">
+                                        <span data-i18n="nav.form-components.main">Train Number Wise Complaint</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/user/bottom_train_data_pie_chart" class="waves-effect waves-dark">
+                                        <span data-i18n="nav.form-components.main">Bottom 10 Train-->Complaint Wise (pie Chart)</span>
                                     </a>
                                 </li>
 
-
                                 <li>
-                                    <a href="map-google.html" class="waves-effect waves-dark">
-                                        <span class="pcoded-micon"><i class="ti-layers"></i><b>FC</b></span>
-                                        <span class="pcoded-mtext" data-i18n="nav.form-components.main">Maps</span>
-                                        <span class="pcoded-mcaret"></span>
+                                    <a href="/user/bottom_train_data_pie_chart" class="waves-effect waves-dark">
+                                        <span data-i18n="nav.form-components.main">Bottom 10 Train-->Complaint Wise (Bar Chart)</span>
                                     </a>
                                 </li>
+
                             </ul>
                                     </ul>
                                 </li>
@@ -414,12 +340,12 @@ body .pcoded[pcoded-device-type="phone"][vertical-nav-type="expanded"] .pcoded-n
 
 
 
-                        <div class="pcoded-navigation-label" data-i18n="nav.category.forms">Upgrade To Premium</div>
+                        <div class="pcoded-navigation-label" data-i18n="nav.category.forms">Upload data</div>
                             <ul class="pcoded-item pcoded-left-item">
                                 <li>
-                                    <a href="/user/premium_purchase" class="waves-effect waves-dark">
-                                        <span class="pcoded-micon"><i class="fa fa-rupee"></i><b>FC</b></span>
-                                        <span class="pcoded-mtext" data-i18n="nav.form-components.main">Purchase Premium</span>
+                                    <a href="/user/data_upload" class="waves-effect waves-dark">
+                                        <span class="pcoded-micon"><i class="fa fa-file"></i><b>FC</b></span>
+                                        <span class="pcoded-mtext" data-i18n="nav.form-components.main">Upload data</span>
                                         <span class="pcoded-mcaret"></span>
                                     </a>
                                 </li>

@@ -78,7 +78,7 @@ input[password]::-ms-reveal {display : none ;}
 
 
 <nav class="navbar navbar-expand-lg">
-<a class="navbar-brand mx-4" id="nav" style="font-weight:500;font-size:3.4vh;color:white">Sarva Suvidhaen Pvt Ltd</a>
+<a href="/" class="navbar-brand mx-4" id="nav" style="font-weight:500;font-size:3.4vh;color:white">Sarva Suvidhaen Pvt Ltd</a>
 </nav>
 
 
@@ -93,7 +93,7 @@ input[password]::-ms-reveal {display : none ;}
    
 
 {% for message in messages %}
-<div id="alert" class="alert alert-success">{{message}}
+<div id="alert" class="alert alert-{{ message.tags }}">{{message}}
 </div>
   
 <script type="text/javascript">

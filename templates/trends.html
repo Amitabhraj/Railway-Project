@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load custom %}
+
+{% block body %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src='https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js
+'></script>
+
+
+
+<form action="/user/trend/" method="POST">{% csrf_token %}
+  <center class="center"><h5>Filter Data:-</h5>&nbsp;&nbsp;&nbsp;&nbsp;
+
+    <label for="start_date"><b>From:</b></label>
+    <input type="date" name="start_date">
+    
+    <label for="end_date"><b>To:</b></label>
+    <input name="end_date" type="date">
+
+
+    <button type="submit" class="btn btn-danger my-2">Submit</button>
+  </center>
+</form>
+
+
+<div class="col-xl-8 col-md-12">
+<div class="card">
+<div class="card-header">
+<h4>Railway Data</h4>
+<span class="text-muted">This is Graph Show for Railway </span>
+</div>
+
+
+{% for t in total %}
+
+<div class="card-blockk">
+<div id="sales-analytics" style="height:100%;">
+
+
+<div class="chart-container" style="width:100%">
+  <center><h4><u>Data Show Graph For {{all_type|index:forloop.counter0}}</u></h4></center>
+
+
+{% if show %}
+    <a target="blank"href="/user/complain/{{all_type|index:forloop.counter0}}"><canvas id="myChart{{forloop.counter}}" height="120px" width="100%"></canvas></a>
+{% else %}
+<br>
+<center><h2>No Data To Display</h2></center>
+{% endif %}
+</div>
+
+
+
+
+<script>
+  const labels{{forloop.counter}} = [{% for d in dates %} '{{d}}', {% endfor %}];
+  const data{{forloop.counter}} = {
+    labels: labels{{forloop.counter}},
+    datasets: [{
+      label: 'My First dataset',
+      backgroundColor: 'rgb(255, 99, 132)',
+      borderColor: 'rgb(255, 99, 132)',
+      data: {{total|index:forloop.counter0}},
+    }]
+  };
+  const config{{forloop.counter}} = {
+    type: 'line',
+    data: data{{forloop.counter}},
+    options: {
+      responsive:true,
+    }
+  };
+</script>
+
+
+
+
+<script>
+  const myChart{{forloop.counter}} = new Chart(
+    document.getElementById('myChart{{forloop.counter}}'),
+    config{{forloop.counter}}
+  );
+</script>
+
+</div>
+</div>
+
+
+
+<br>
+<br>
+<br>
+
+{% endfor %}
+
+
+
+</div>
+</div>
+
+<center><u><h2>Sub Type Lists</h2></u></center>
+
+{% for sub_type in sub_type %}
+<a href="/user/sub_type/{{sub_type}}/"><button class="btn btn-dark mx-1 my-2">{{sub_type}}</button></a>
+{% endfor %}
+
+
+
+
+{% endblock %}

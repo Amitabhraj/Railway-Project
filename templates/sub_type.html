@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block body %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src='https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js
+'></script>
+
+
+
+<form action="/user/sub_type/{{subtype}}/" method="POST">{% csrf_token %}
+  <center class="center">
+
+    <label for="start_date"><b>From:</b></label>
+    <input type="date" name="start_date">
+    
+    <label for="end_date"><b>To:</b></label>
+    <input name="end_date" type="date">
+
+
+    <button type="submit" class="btn btn-danger">Submit</button>
+  </center>
+</form>
+
+<div class="col-xl-8 col-md-12">
+<div class="card">
+<div class="card-header">
+<h4>Railway Data</h4>
+<span class="text-muted">This is Graph Show for Railway </span>
+</div>
+
+<div class="card-blockk">
+<div id="sales-analytics" style="height:100%;">
+
+<div class="chart-container">
+  <center><h4><u>Data Show Graph For <b>{{subtypes}}</b></u></h4></center>
+
+
+{% if show %}
+    <a target="__blank" href="/user/complain/{{subtype}}/"><canvas id="myChart" height="120px" width="100%"></canvas></a>
+{% else %}
+<br>
+<center><h2>No Data To Display</h2></center>
+{% endif %}
+</div>
+
+
+
+
+<script>
+  const labels = [{% for d in dates %} '{{d}}', {% endfor %}];
+  const data = {
+    labels: labels,
+    datasets: [{
+      label: '{{subtype}}',
+      backgroundColor: 'rgb(255, 99, 132)',
+      borderColor: 'rgb(255, 99, 132)',
+      data: {{data_count}},
+    }]
+  };
+  const config = {
+    type: 'line',
+    data: data,
+    options: {
+      responsive:true,
+    }
+  };
+</script>
+
+
+
+
+<script>
+  const myChart = new Chart(
+    document.getElementById('myChart'),
+    config
+  );
+</script>
+
+
+
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+
+{% endblock %}
+
+

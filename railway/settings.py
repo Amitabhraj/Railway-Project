@@ -28,6 +28,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+
+APPEND_SLASH = True
+
+
 GOOGLE_API_KEY='AIzaSyD0NoVlROXY5_af_PTr0-xQRtbIk07hCJM'
 
 # Application definition
@@ -72,6 +76,10 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 
             ],
+            'libraries':{
+                'custom': 'app.custom',
+            
+            }
         },
     },
 ]

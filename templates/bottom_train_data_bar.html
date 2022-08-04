@@ -2,14 +2,8 @@
 {% block body %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
 
-
-
-
-<form action="/user/train_wise_data/" method="POST">{% csrf_token %}
+<form action="/user/bottom_train_data_pie_chart/" method="POST">{% csrf_token %}
   <center class="center">
-
-    <label for="train_number"><b>Train Number</b></label>
-    <input class="form-control my-2 mx-1" type="text" name="train_number" required>
 
     <label for="start_date"><b>From:</b></label>
     <input type="date" name="start_date" required>
@@ -34,23 +28,10 @@
 <div id="sales-analytics" style="height:100%;">
 
 <div class="chart-container">
-{% if data_show %}
-  <center><h4><u>Data Show Graph For Train Number {{train_number}}</u></h4></center>
-{% else %}
-{% endif %}
+  <center><h4><u>Data Show Graph For Bottom 10 Train Number Complaint Wise</u></h4></center>
 
-{% if post %}
-{% if data_show %}
-    <canvas id="myChart" height="110px" width="100%"></canvas>
-{% else %}
+<canvas id="myChart" height="110px" width="100%"></canvas>
 <br>
-<center><h2>Currenly No Data for this Train Number</h2></center>
-{% endif %}
-{% else %}
-<br>
-<center><h3>Kindly Enter Train Number and Filter With Date Range To see Data</h3></center>
-{% endif %}
-</div>
 
 
 
@@ -61,13 +42,13 @@ var ctxP = canvasP.getContext('2d');
 var myPieChart = new Chart(ctxP, {
    type: 'bar',
    data: {
-      labels: [{% for m in problem_type %}'{{m}}',{% endfor %}],
+      labels: [{% for m in bottom_train %}'{{m}}',{% endfor %}],
       datasets: [
         {   
-            label:"Complaint Number",
-            data: {{data_count}},
-            backgroundColor: ["#64B5F6", "#FFD54F", "#2196F3", "#FFC107", "#1976D2", "#FFA000", "#0D47A1"],
-            hoverBackgroundColor: ["#B2EBF2", "#FFCCBC", "#4DD0E1", "#FF8A65", "#00BCD4", "#FF5722", "#0097A7"]
+            label:'Bottom 10 Train Complaint Wise',
+            data: {{bottom_data_count}},
+            backgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"],
+            hoverBackgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"]
        }]
    },
    options: {
@@ -75,6 +56,13 @@ var myPieChart = new Chart(ctxP, {
          display: true,
          position: "top"
       },
+      scales: {
+          yAxes: [{
+              ticks: {
+                  beginAtZero: true
+              }
+          }]
+      }
 
 }
 });
@@ -85,7 +73,7 @@ canvasP.onclick = function(e) {
    var label = slice[0]._model.label;
    switch (label) {
       // add case for each label/slice
-      {% for p_t in problem_type %}
+      {% for p_t in bottom_train %}
       case '{{p_t}}':
          window.open('/user/complain/{{p_t}}');
          break;

@@ -6,7 +6,6 @@ from django.contrib.auth.views import LogoutView, LoginView
 
 urlpatterns = [
     path('', views.redircte, name="redirect"),
-    path('user/fill_data/', views.fill_data, name="fill_data"),
     path('login/', views.user_login, name="login"),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('register_user/', views.register_user, name="register_user"),
@@ -17,6 +16,8 @@ urlpatterns = [
     path('user/trend/', views.trend, name="trend"),
     path('user/sub_type/<str:subtype>/', views.sub_type, name="sub_type"),
     path('user/train_wise_data/', views.train_wise_data, name="train_wise_data"),
+    path('user/bottom_train_data_pie_chart/', views.bottom_train_data_pie, name="bottom_train_data_pie"),
+    path('user/bottom_train_data_bar_chart/', views.bottom_train_data_bar, name="bottom_train_data_bar"),
     # path('register_individual/', views.register_individual, name="register_individual"),
     # path('user/forget_password/', views.forget_password, name="forget_password"),
     # path('user/user_detail/user_profile/', views.user_detail, name="user_detail"),

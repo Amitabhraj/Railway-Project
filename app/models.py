@@ -38,7 +38,7 @@ class Main_Data_Upload(models.Model):
     feedback_remark = models.TextField(max_length=100000000, default=None, null=True, blank=True)
     upcoming_station = models.CharField(max_length=10000000,default=None, null=True, blank=True)
     mobile_number_or_email = models.CharField(max_length=10000000,default=None, null=True, blank=True)
-    physical_coach_number = models.FloatField( default=None, null=True, blank=True)
+    physical_coach_number = models.FloatField(default=None, null=True, blank=True)
 
 
 
@@ -49,5 +49,13 @@ class Main_Data_Upload(models.Model):
         return str(self.coach_number)
 
 
+
+
+
+class PhoneNumber(models.Model):
+    mobile_number = models.IntegerField(default=None, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.mobile_number)
 
 

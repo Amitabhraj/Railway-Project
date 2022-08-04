@@ -5,4 +5,9 @@ register = template.Library()
 def index(indexable, i):
     return indexable[i]
 
+
+
+@register.filter
+def convertint(str_w):
+    return int(str_w)
     

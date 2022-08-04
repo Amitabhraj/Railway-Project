@@ -80,10 +80,12 @@ var myPieChart = new Chart(ctxP, {
    type: 'pie',
    data: {
       labels: [{% for d in data %}'{{d}}',{% endfor %}],
-      datasets: [{
+      datasets: [
+
+      {
          data: [{% for occur in occur %}{{occur}},{% endfor %}],
-         backgroundColor: ["#64B5F6", "#FFD54F", "#2196F3", "#FFC107", "#1976D2", "#FFA000", "#0D47A1"],
-         hoverBackgroundColor: ["#B2EBF2", "#FFCCBC", "#4DD0E1", "#FF8A65", "#00BCD4", "#FF5722", "#0097A7"]
+         backgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"],
+         hoverBackgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"]
       }]
    },
    options: {

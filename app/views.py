@@ -38,7 +38,7 @@ def redircte(request):
 
 ##############################################################################################
 
-
+from django.views.decorators.csrf import csrf_exempt
 import os
 from twilio.rest import Client
 
@@ -49,6 +49,7 @@ from twilio.rest import Client
 
 
 @login_required
+@csrf_exempt
 def upload_data(request):
     if request.method == "POST":
         csv_data = request.FILES.get('csv')
@@ -102,17 +103,24 @@ def upload_data(request):
                 physical_coach_number = df['Physical_Coach_No'][i]
             ).save()
 
-        account_sid = 'AC37cad0e9482615a332fce6a6b3d96a5a' 
-        auth_token = 'd57b5cff62922c9769603303cd3cf825' 
-        client = Client(account_sid, auth_token) 
+        # mobile_number = PhoneNumber.objects.all()
+        # phone_number = []
+        # for m_n in mobile_number:
+        #     phone_number.append("whatsapp:+91"+str(m_n.mobile_number))
+
+        # account_sid = 'AC37cad0e9482615a332fce6a6b3d96a5a' 
+        # auth_token = 'd57b5cff62922c9769603303cd3cf825' 
+        # client = Client(account_sid, auth_token) 
+
+        # print(request.POST['From'])
          
-        message = client.messages.create( 
-                                      from_='whatsapp:+14155238886',  
-                                      body='hello',
-                                      to='whatsapp:+918409913276' 
-                                  ) 
+        # message = client.messages.create( 
+        #                               from_='whatsapp:+14155238886',  
+        #                               body='whatsapp://send?phone=<Your Sandbox Number>&text=<your URL-encoded sandbox keyword>',
+        #                               to= 'whatsapp:+919800761882'
+        #                           ) 
          
-        print(message.sid)
+        # print(message.sid)
 
         return redirect(request.path)
 
@@ -783,13 +791,15 @@ def complain_type(request, complain):
         complain = complain
     complain_type = complain
     problem_types = Main_Data_Upload.objects.values_list('coach_number',
+                                                        'train_station',
                                                         'problem_type',
                                                         'sub_type',
                                                         'disposal_time',
                                                         'rating','complaint_discription')
     problem_type = []
+    print(type(complain_type))
     for p in problem_types:
-        if p[1] == complain_type or p[2] == complain_type:
+        if p[2] == complain_type or p[3] == complain_type or str(int(p[1])) == complain_type:
             problem_type.append(p)
     context = {'complain_type':complain_type, 'problem_type':problem_type}
     return render(request, 'complain_type.html',context)
@@ -807,10 +817,12 @@ def train_wise_data(request):
         for t in s:
             Type.append(t)
 
+    train_numbers = []
+
     problem_type = set(Type)
 
     if request.method == "POST":
-        train_number = int(request.POST.get('train_number',''))
+        train_number = request.POST.get('train_number','')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
@@ -824,17 +836,20 @@ def train_wise_data(request):
 
         if delta.days <=0:
             return HttpResponse("<h1>Please Enter valid Date Range</h1>")
+        
+        splitted_train_number = train_number.split(',')
+        for t_r in splitted_train_number:
+            train_numbers.append(int(t_r))
+
 
         for p_t in problem_type:
-            data = Main_Data_Upload.objects.filter(train_station=train_number,problem_type=p_t,registration_date__gte=start_date,registration_date__lte=end_date)
+            data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,problem_type=p_t,registration_date__gte=start_date,registration_date__lte=end_date)
             data_count.append(data.count())
 
         if sum(data_count) == 0:
             data_show = False
         else:
             data_show = True
-
-        print(data_count)
 
         context = {
                     'problem_type':problem_type,
@@ -854,336 +869,176 @@ def train_wise_data(request):
 
 
 
-def voltage_chart(request):
+def bottom_train_data_pie(request):
+    bottom_train = []
+    bottom_data_count = []
+    if request.method == "POST":
+        post=True
+        start_date = request.POST.get('start_date','')
+        end_date = request.POST.get('end_date','')
 
-    ###### Past 24 Hours #########
-    float_past_24_hour_list=[]
-    past_24_hour_list=[]
-    list_voltage_past_24_hour=[]
-    today = DT.date.today()
+        start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
-    for i in range(0,24):
-        past_24_hour_ago = str(datetime.datetime.now() - datetime.timedelta(hours = i))
-        splitted=past_24_hour_ago.split(" ")
-        w1=splitted[0].split("-")
-        w2=splitted[1].split(":")
-        year=round(int(w1[0]))
-        month=round(int(w1[1]))
-        day = round(int(w1[2]))
-        hour = round(int(w2[0]))
-        minute = round(int(w2[1]))
-        if hour >=12:
-            format = "PM"
-        elif hour == 0:
-            format = "AM"
-        else:
-            format = "AM"
-        past_24_hour_list.append(str(hour) + ":" + str(minute) + " " +format)
+        delta = end_month - start_month
 
-        vol = Voltage_Data_Upload.objects.filter(user=request.user.id, year=year, month=month, day=day, hour = hour).aggregate(total=Sum('voltage_data'))['total']
-        vol_count = Voltage_Data_Upload.objects.filter(user=request.user.id, year=year, month=month, day=day, hour = hour).count()
-        print(vol)
+        sdate = date(int(start_month.year), int(start_month.month), int(start_month.day))
+        edate = date(int(end_month.year), int(end_month.month), int(end_month.day))
 
-        if vol == None:
-            float_past_24_hour_list.append(0)
-        else:
-            float_past_24_hour_list.append(vol/vol_count)
-    for f_past in float_past_24_hour_list:
-        list_voltage_past_24_hour.append(round(f_past))
+        if delta.days <=0:
+            return HttpResponse("<h1>Please Enter valid Date Range</h1>")
+        
+        data_count=[]
+        problem_type = Main_Data_Upload.objects.values_list('problem_type')
+        train_numbers = Main_Data_Upload.objects.all()
 
-    past_24_hour_list.reverse()
-    list_voltage_past_24_hour.reverse()
+        Type=[]
+        for s in problem_type:
+            for t in s:
+                Type.append(t)
 
+        train_number = []
+        str_train_number = [] 
+        for t_n in train_numbers:
+            train_number.append(t_n.train_station)
+            str_train_number.append(str(t_n.train_station))
 
+        problem_types = set(Type)
 
+        for tr_n in train_number:
+            a = Main_Data_Upload.objects.filter(problem_type__in=problem_types,train_station=tr_n,registration_date__gte=start_date,registration_date__lte=end_date)
+            data_count.append(a.count())
 
+        make_dict = dict(zip(str_train_number,data_count))
+        a1_sorted_keys = sorted(make_dict, key=make_dict.get, reverse=True)
+        for r in a1_sorted_keys:
+            bottom_train.append(int(float(r)))
+            bottom_data_count.append(make_dict[r])
 
-    # ###### Past 7 Days #########
-    float_past_7_day_list=[]
-    past_7_day_list=[]
-    list_voltage_past_7_day=[]
-    today = DT.date.today()
-
-    for i in range(0,7):
-        past_7_day_ago = str(datetime.datetime.now() - datetime.timedelta(days = i))
-        splitted=past_7_day_ago.split(" ")
-        w1=splitted[0].split("-")
-        w2=splitted[1].split(":")
-        year=round(int(w1[0]))
-        month=round(int(w1[1]))
-        day = round(int(w1[2]))
-        hour = round(int(w2[0]))
-        month_name = calendar.month_name[month]
-        past_7_day_list.append(str(day) + " " + str(month_name) + "," + str(year))
-
-        vol_past_7_day = Voltage_Data_Upload.objects.filter(user=request.user.id, year=year, month=month, day=day).aggregate(total=Sum('voltage_data'))['total']
-        vol_past_7_day_count = Voltage_Data_Upload.objects.filter(user=request.user.id, year=year, month=month, day=day).count()
-
-        if vol_past_7_day == None:
-            float_past_7_day_list.append(0)
-        else:
-            float_past_7_day_list.append(vol_past_7_day/vol_past_7_day_count)
-    for f_past in float_past_7_day_list:
-        list_voltage_past_7_day.append(round(f_past))
-
-    past_7_day_list.reverse()
-    list_voltage_past_7_day.reverse()
-
-
-
-
-
-
-
-    # ###### Past 30 days #########
-    float_past_30_day_list=[]
-    past_30_day_list=[]
-    list_voltage_past_30_day=[]
-    today = DT.date.today()
-
-    for i in range(0,30):
-        past_30_day_ago = str(datetime.datetime.now() - datetime.timedelta(days = i))
-        splitted=past_30_day_ago.split(" ")
-        w1=splitted[0].split("-")
-        w2=splitted[1].split(":")
-        year=round(int(w1[0]))
-        month=round(int(w1[1]))
-        day = round(int(w1[2]))
-        month_name = calendar.month_name[month]
-        past_30_day_list.append(str(day) + " " + str(month_name) + "," + str(year))
-
-        vol_past_30_day = Voltage_Data_Upload.objects.filter(user=request.user.id, year=year, month=month, day=day).aggregate(total=Sum('voltage_data'))['total']
-        vol_past_30_day_count = Voltage_Data_Upload.objects.filter(user=request.user.id, year=year, month=month, day=day).count()
-
-        if vol_past_30_day == None:
-            float_past_30_day_list.append(0)
-        else:
-            float_past_30_day_list.append(vol_past_30_day/vol_past_30_day_count)
-    
-    for f_past in float_past_30_day_list:
-        list_voltage_past_30_day.append(round(f_past))
-
-    past_30_day_list.reverse()
-    list_voltage_past_30_day.reverse()
-
-
-
-
-    ###### Past 12 Months Data #########
-    float_past_365_day_list=[]
-    past_365_day_list=[]
-    past_12_month_data=[]
-    past_12_month_number = []
-    past_12_month_string= []
-    past_12_month_year = []
-    list_voltage_past_365_day=[]
-    current_date = dt.today()
-    for i in range(0,12):
-        past_months = str(current_date - relativedelta(months=i))
-        w=past_months.split("-")
-        year=int(w[0])
-        month=int(w[1])
-
-        past_12_month_number.append(str(month)+"/"+str(year))
-        past_12_month_year.append(year)
-        past_12_month_string.append(calendar.month_name[month] + " (" + str(year) + ")")
-        past_12_month_data = dict(zip(past_12_month_number, past_12_month_string))
-
-        past_365_day_list.append(calendar.month_name[month] + "," + str(year))
-
-        vol_past_365_day = Voltage_Data_Upload.objects.filter(user=request.user.id, year=year, month=month).aggregate(total=Sum('voltage_data'))['total']
-        vol_past_365_day_count = Voltage_Data_Upload.objects.filter(user=request.user.id, year=year, month=month).count()
-
-        if vol_past_365_day == None:
-            float_past_365_day_list.append(0)
-        else:
-            float_past_365_day_list.append(vol_past_365_day/vol_past_365_day_count)
-    
-    for f_past in float_past_365_day_list:
-        list_voltage_past_365_day.append(round(f_past))
-
-    past_365_day_list.reverse()
-    list_voltage_past_365_day.reverse()
-
-
-
-    ##### Past 12 Month name and Month Number ######
-
-
-
-    context={
-        'past_24_hour':past_24_hour_list,
-        'past_24_hour_voltage':list_voltage_past_24_hour,
-        'past_7_day':past_7_day_list,
-        'voltage_past_7_day':list_voltage_past_7_day,
-        'past_30_day':past_30_day_list,
-        'voltage_past_30_day':list_voltage_past_30_day,
-        'past_12_month':past_365_day_list,
-        'voltage_past_12_month':list_voltage_past_365_day,
-        'past_12_month_data':past_12_month_data,
-        'past_12_month_year':past_12_month_year
-
-    }
-    return render(request, 'base/voltage_chart.html', context)
-
-
-
-
-#################################################
-########### Search By Month ####################
-#################################################
-def voltage_search_by_month(request, month_num, year):
-    float_month_day_list=[]
-    list_voltage_month_day=[]
-    this_month_day=[]
-    days_in_month = int()
-    if month_num == 1 or month_num == 3 or  month_num == 5 or month_num == 7 or month_num == 8 or month_num == 10 or month_num == 12:
-        days_in_month = 31
-
-    elif month_num == 2:
-        if year % 4 == 0:
-            days_in_month = 29
-        else:
-            days_in_month = 28
     else:
-        days_in_month = 30
+        post = False
+        data_count=[]
+        problem_type = Main_Data_Upload.objects.values_list('problem_type')
+        train_numbers = Main_Data_Upload.objects.all()
 
-    for i in range(1,days_in_month+1):
+        Type=[]
+        for s in problem_type:
+            for t in s:
+                Type.append(t)
 
-        vol_month_day = Voltage_Data_Upload.objects.filter(user=request.user.id, year=year, month=month_num, day=i).aggregate(total=Sum('voltage_data'))['total']
-        vol_month_day_count = Voltage_Data_Upload.objects.filter(user=request.user.id, year=year, month=month_num, day=i).count()
+        train_number = []
+        str_train_number = [] 
+        for t_n in train_numbers:
+            train_number.append(t_n.train_station)
+            str_train_number.append(str(t_n.train_station))
 
-        this_month_day.append(str(i) + " " + calendar.month_name[month_num] + "," + str(year))
-        month_this = calendar.month_name[month_num] + "," + str(year)
+        problem_types = set(Type)
 
-        if vol_month_day == None:
-            float_month_day_list.append(0)
-        else:
-            float_month_day_list.append(vol_month_day/vol_month_day_count)
+        for tr_n in train_number:
+            a = Main_Data_Upload.objects.filter(problem_type__in=problem_types,train_station=tr_n)
+            data_count.append(a.count())
+
+        make_dict = dict(zip(str_train_number,data_count))
+        a1_sorted_keys = sorted(make_dict, key=make_dict.get, reverse=True)
+        for r in a1_sorted_keys:
+            bottom_train.append(int(float(r)))
+            bottom_data_count.append(make_dict[r])
     
-    for f_past in float_month_day_list:
-        list_voltage_month_day.append(round(f_past))
-
-
-    print(float_month_day_list)
-    print(list_voltage_month_day)
-
     context = {
-        'this_month_day':this_month_day,
-        'list_voltage_month_day':list_voltage_month_day,
-        'month_this':month_this
-    }
-    return render(request, 'base/voltage_data_month.html',context)
+                'bottom_train':bottom_train[0:10],
+                'post':post,
+                'bottom_data_count':bottom_data_count[0:10],
+               }
+    return render(request, "bottom_train_data_pie.html",context)
 
 
 
 
 
-#################################################
-########### Fill Full data Section ####################
-#################################################
-
-def fill_data(request):
-    if request.user.is_authenticated:
-        if request.method == "POST":
-            phone_number = request.POST.get('phone', None)
-            pin_code = request.POST.get('pin', None)
-            pan_number = request.POST.get('pan', None)
-            system_warranty = request.POST.get('system_w', None)
-            panel_warranty = request.POST.get('pannel_w', None)
-            panel_company = request.POST.get('panel_c', '')
-            setup_capacity = request.POST.get('setup_c', None)
-            location = request.POST.get('location', '')
-            type_of_user = request.POST.get('who', '')
-            if type_of_user == "individual":
-                type_of_user = "Individual"
-                company_name = ""
-                system_warranty = None
-                pannel_warranty = None
-                panel_company = ""
-                setup_capacity = None
-                pan_number = None
-                logo = request.FILES.get('logo','')
-            else:
-                company_name = request.POST.get('c_name', '')
-                type_of_user = "Company"
-                logo = request.FILES.get('logo','logo')
-
-            if pan_number == "":
-                pan_number = None
-            else:
-                pan_number = pan_number
-
-            if setup_capacity == "":
-                setup_capacity = None
-            else:
-                setup_capacity = setup_capacity
-
-            if system_warranty == "":
-                system_warranty  = None
-            else:
-                system_warranty = system_warranty
-
-            if panel_warranty == "":
-                panel_warranty = None
-            else:
-                panel_warranty = panel_warranty
-
-            if phone_number == "":
-                phone_number = None
-            else:
-                phone_number = phone_number
-
-            if pin_code == "":
-                pin_code = None
-            else:
-                pin_code = pin_code
 
 
-            user_pro = User.objects.get(id=request.user.id)
 
-            if user_pro and not Profile.objects.filter(username=request.user.id):
-                print(logo)
-                prof=Profile(
-                    username=user_pro,
-                    email = request.user.email,
-                    phone_number = phone_number,
-                    pan_number = pan_number,
-                    type_of_user = type_of_user,
-                    location = location,
-                    pin_code = pin_code,
-                    logo=logo,
-                    company_name = company_name,
-                    setup_capacity = setup_capacity,
-                    panel_warranty = panel_warranty,
-                    system_warranty = system_warranty,
-                    panel_company = panel_company
-                    )
-                prof.save()
-                return redirect('/user/dashboard')
-            else:
+def bottom_train_data_bar(request):
+    bottom_train = []
+    bottom_data_count = []
+    if request.method == "POST":
+        post=True
+        start_date = request.POST.get('start_date','')
+        end_date = request.POST.get('end_date','')
 
-                update_profile=Profile.objects.get(username=request.user.id)
+        start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
-                update_profile.type_of_user = type_of_user
-                update_profile.company_name = company_name
-                update_profile.phone_number = phone_number
-                update_profile.pin_code = pin_code
-                update_profile.pan_number = pan_number
-                update_profile.location = location
-                update_profile.setup_capacity = setup_capacity
-                update_profile.panel_company = panel_company
-                update_profile.panel_warranty = panel_warranty
-                update_profile.system_warranty = system_warranty
-                update_profile.logo = logo
+        delta = end_month - start_month
 
-                update_profile.save()
-                return redirect('/user/dashboard')
+        sdate = date(int(start_month.year), int(start_month.month), int(start_month.day))
+        edate = date(int(end_month.year), int(end_month.month), int(end_month.day))
+
+        if delta.days <=0:
+            return HttpResponse("<h1>Please Enter valid Date Range</h1>")
+        
+        data_count=[]
+        problem_type = Main_Data_Upload.objects.values_list('problem_type')
+        train_numbers = Main_Data_Upload.objects.all()
+
+        Type=[]
+        for s in problem_type:
+            for t in s:
+                Type.append(t)
+
+        train_number = []
+        str_train_number = [] 
+        for t_n in train_numbers:
+            train_number.append(t_n.train_station)
+            str_train_number.append(str(t_n.train_station))
+
+        problem_types = set(Type)
+
+        for tr_n in train_number:
+            a = Main_Data_Upload.objects.filter(problem_type__in=problem_types,train_station=tr_n,registration_date__gte=start_date,registration_date__lte=end_date)
+            data_count.append(a.count())
+
+        make_dict = dict(zip(str_train_number,data_count))
+        a1_sorted_keys = sorted(make_dict, key=make_dict.get, reverse=True)
+        for r in a1_sorted_keys:
+            bottom_train.append(int(float(r)))
+            bottom_data_count.append(make_dict[r])
+
     else:
-        pass
+        post = False
+        data_count=[]
+        problem_type = Main_Data_Upload.objects.values_list('problem_type')
+        train_numbers = Main_Data_Upload.objects.all()
 
+        Type=[]
+        for s in problem_type:
+            for t in s:
+                Type.append(t)
 
+        train_number = []
+        str_train_number = [] 
+        for t_n in train_numbers:
+            train_number.append(t_n.train_station)
+            str_train_number.append(str(t_n.train_station))
 
+        problem_types = set(Type)
+
+        for tr_n in train_number:
+            a = Main_Data_Upload.objects.filter(problem_type__in=problem_types,train_station=tr_n)
+            data_count.append(a.count())
+
+        make_dict = dict(zip(str_train_number,data_count))
+        a1_sorted_keys = sorted(make_dict, key=make_dict.get, reverse=True)
+        for r in a1_sorted_keys:
+            bottom_train.append(int(float(r)))
+            bottom_data_count.append(make_dict[r])
+    
+    context = {
+                'bottom_train':bottom_train[0:10],
+                'post':post,
+                'bottom_data_count':bottom_data_count[0:10],
+               }
+    return render(request, "bottom_train_data_bar.html",context)
 
 
 

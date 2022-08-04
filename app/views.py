@@ -39,11 +39,16 @@ def redircte(request):
 ##############################################################################################
 
 
+import os
+from twilio.rest import Client
+
+
 ##############################################
 ################# Main Data ###############
 ##############################################
 
 
+@login_required
 def upload_data(request):
     if request.method == "POST":
         csv_data = request.FILES.get('csv')
@@ -96,6 +101,19 @@ def upload_data(request):
                 mobile_number_or_email = df['Mobile_No_Email_Id'][i],
                 physical_coach_number = df['Physical_Coach_No'][i]
             ).save()
+
+        account_sid = 'AC37cad0e9482615a332fce6a6b3d96a5a' 
+        auth_token = 'd57b5cff62922c9769603303cd3cf825' 
+        client = Client(account_sid, auth_token) 
+         
+        message = client.messages.create( 
+                                      from_='whatsapp:+14155238886',  
+                                      body='hello',
+                                      to='whatsapp:+918409913276' 
+                                  ) 
+         
+        print(message.sid)
+
         return redirect(request.path)
 
     return render(request, 'data_upload.html')
@@ -232,18 +250,25 @@ def edit_profile(request):
 
 @login_required
 def dashboard(request):
+    main_data=[]
     if request.method == "POST":
+        post = True
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
-        data = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"])
-        
+        start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
-        main_data=[]
-        for f_d in data:
+        delta = end_month - start_month
+
+        if delta.days <= 0:
+            return HttpResponse('<h1>Please Enter Valid Date Range</h1>')
+
+        data_filter = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"])
+        for f_d in data_filter:
             main_data.append(f_d.problem_type)
-
         data = set(main_data)
+
         occur = []
         for ff in data:
             occur.append(main_data.count(ff))
@@ -252,25 +277,17 @@ def dashboard(request):
             show = False
         else:
             show=True
-
-        context = {
-            'show':show,
-            'post':True,
-            'main_data':main_data,
-            'data':data,
-            'occur':occur
-        }
 
     else:
-        #### Full Main data ############
-        main_data=[]    
-        full_data = Main_Data_Upload.objects.values_list('problem_type')
+        post  = False
+        #### Full Main data ############    
+        full_data = Main_Data_Upload.objects.all()
         for f_d in full_data:
-            main_data.append(f_d)
-
+            main_data.append(f_d.problem_type)
+        data = set(main_data)
+        
 
        ############## Set Data ######################
-        data = set(Main_Data_Upload.objects.values_list('problem_type'))
         occur = []
         for ff in data:
             occur.append(main_data.count(ff))
@@ -282,9 +299,9 @@ def dashboard(request):
             show=True
 
 
-        context = {
+    context = {
             'show':show,
-            'post':False,
+            'post':post,
             'main_data':main_data,
             'data':data,
             'occur':occur
@@ -293,7 +310,7 @@ def dashboard(request):
 
 
 
-
+@login_required
 def rating(request):
    ########## Bar Graph rating ###############
     if request.method == "POST":
@@ -303,12 +320,17 @@ def rating(request):
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
+        delta = end_month - start_month
+
         months = []
 
         unsatis = []
         satis = []
         excel = []
         nan = []
+
+        if delta.days <=0:
+            return HttpResponse('<h1>Please Enter Valid Date Range</h1>')
 
         for i in range(start_month.month,end_month.month+1):
             print(i)
@@ -377,6 +399,8 @@ def rating(request):
 
 
 
+
+@login_required
 def trend(request):
     if request.method == "POST":
         post = True
@@ -632,54 +656,131 @@ def trend(request):
 
 
 
-
+@login_required
 def sub_type(request,subtype):
     if subtype == "Luggage Left Behind Unclaimed Suspected Articles":
-        subtype = "Luggage Left Behind/Unclaimed/Suspected Articles"
+        subtypes = "Luggage Left Behind/Unclaimed/Suspected Articles"
 
     elif subtype == "Harassment Extortion by Security Personnel Railway personnel":
-        subtype = "Harassment/Extortion by Security Personnel/Railway personnel"
+        subtypes = "Harassment/Extortion by Security Personnel/Railway personnel"
 
     elif subtype == "Tap leaking/Tap not working":
-        subtype = "Tap leaking/Tap not working"
+        subtypes = "Tap leaking/Tap not working"
 
     elif subtype == "Window Seat Broken":
-        subtype = "Window/Seat Broken"
+        subtypes = "Window/Seat Broken"
 
     elif subtype == "Window Door locking problem":
-        subtype = "Window/Door locking problem"
+        subtypes = "Window/Door locking problem"
 
     elif subtype == "Unauthorized person in Ladies Disabled Coach SLR Reserve Coach":
-        subtype = "Unauthorized person in Ladies/Disabled Coach/SLR/Reserve Coach"
+        subtypes = "Unauthorized person in Ladies/Disabled Coach/SLR/Reserve Coach"
 
     elif subtype == "Jerks Abnormal Sound":
-        subtype = "Jerks/Abnormal Sound"
+        subtypes = "Jerks/Abnormal Sound"
 
     elif subtype == "Theft of Passengers Belongings Snatching":
-        subtype = "Theft of Passengers Belongings/Snatching"
+        subtypes = "Theft of Passengers Belongings/Snatching"
 
     elif subtype == "Nuisance by Hawkers Beggar Eunuch Passenger":
-        subtype = "Nuisance by Hawkers/Beggar/Eunuch/Passenger"
+        subtypes = "Nuisance by Hawkers/Beggar/Eunuch/Passenger"
 
     elif subtype == "Smoking Drinking Alcohol Narcotics":
-        subtype = "Smoking/Drinking Alcohol/Narcotics"
+        subtypes = "Smoking/Drinking Alcohol/Narcotics"
 
     elif subtype == "Passenger Missing Not responding call":
-        subtype = "Passenger Missing/Not responding call"
+        subtypes = "Passenger Missing/Not responding call"
+
+    else:
+        subtypes = subtype
+
+    dates = []
+    data_count = []
 
     if request.method == "POST":
-        pass
-    else:
-        pass
+        start_date = request.POST.get('start_date','')
+        end_date = request.POST.get('end_date','')
 
-    context = {}
+        start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+
+        delta = end_month - start_month
+
+        sdate = date(int(start_month.year), int(start_month.month), int(start_month.day))
+        edate = date(int(end_month.year), int(end_month.month), int(end_month.day))
+
+        if delta.days <=45:
+            for i in range(delta.days+1):
+                day = sdate + timedelta(days=i)
+                dates.append(str(day.day)+" "+str(calendar.month_name[day.month])+","+ str(day.year))
+                sub_type_data = Main_Data_Upload.objects.filter(sub_type=f"{subtypes}",registration_date__day=day.day,registration_date__month=day.month,registration_date__year=day.year)
+                data_count.append(sub_type_data.count())
+            print(data_count)
+        elif delta.days <=0:
+            return HttpResponse("<h1>Please Enter valid Date Range</h1>")
+        elif delta.days >=46:
+            strt_dt = sdate
+            end_dt = edate
+            datess = [dt for dt in rrule(MONTHLY, dtstart=strt_dt, until=end_dt)]
+            for d in datess:
+                dates.append(calendar.month_name[int(d.month)] +","+ str(d.year))
+                sub_type_data = Main_Data_Upload.objects.filter(sub_type=f"{subtypes}",registration_date__month=d.month,registration_date__year=d.year)
+                data_count.append(sub_type_data.count())
+
+    else:
+        for i in range(0,31):
+            day = datetime.datetime.now() - datetime.timedelta(i)
+            dates.append(str(day.day)+" "+str(calendar.month_name[day.month])+","+ str(day.year))    
+            sub_type_data = Main_Data_Upload.objects.filter(sub_type=f"{subtypes}",registration_date__day=day.day,registration_date__month=day.month,registration_date__year=day.year)
+            data_count.append(sub_type_data.count())
+    context = {
+                'show':True,
+                'data_count':data_count,
+                'dates':dates,
+                'subtype':subtype,
+                'subtypes':subtypes
+              }
     return render(request,'sub_type.html',context)
 
 
 
 
 def complain_type(request, complain):
-    print(complain)
+    if complain == "Luggage Left Behind Unclaimed Suspected Articles":
+        complain = "Luggage Left Behind/Unclaimed/Suspected Articles"
+
+    elif complain == "Harassment Extortion by Security Personnel Railway personnel":
+        complain = "Harassment/Extortion by Security Personnel/Railway personnel"
+
+    elif complain == "Tap leaking/Tap not working":
+        complain = "Tap leaking/Tap not working"
+
+    elif complain == "Window Seat Broken":
+        complain = "Window/Seat Broken"
+
+    elif complain == "Window Door locking problem":
+        complain = "Window/Door locking problem"
+
+    elif complain == "Unauthorized person in Ladies Disabled Coach SLR Reserve Coach":
+        complain = "Unauthorized person in Ladies/Disabled Coach/SLR/Reserve Coach"
+
+    elif complain == "Jerks Abnormal Sound":
+        complain = "Jerks/Abnormal Sound"
+
+    elif complain == "Theft of Passengers Belongings Snatching":
+        complain = "Theft of Passengers Belongings/Snatching"
+
+    elif complain == "Nuisance by Hawkers Beggar Eunuch Passenger":
+        complain = "Nuisance by Hawkers/Beggar/Eunuch/Passenger"
+
+    elif complain == "Smoking Drinking Alcohol Narcotics":
+        complain = "Smoking/Drinking Alcohol/Narcotics"
+
+    elif complain == "Passenger Missing Not responding call":
+        complain = "Passenger Missing/Not responding call"
+
+    else:
+        complain = complain
     complain_type = complain
     problem_types = Main_Data_Upload.objects.values_list('coach_number',
                                                         'problem_type',
@@ -693,6 +794,60 @@ def complain_type(request, complain):
     context = {'complain_type':complain_type, 'problem_type':problem_type}
     return render(request, 'complain_type.html',context)
 
+
+
+
+
+
+def train_wise_data(request):
+    data_count=[]
+    problem_type = Main_Data_Upload.objects.values_list('problem_type')
+    Type=[]
+    for s in problem_type:
+        for t in s:
+            Type.append(t)
+
+    problem_type = set(Type)
+
+    if request.method == "POST":
+        train_number = int(request.POST.get('train_number',''))
+        start_date = request.POST.get('start_date','')
+        end_date = request.POST.get('end_date','')
+
+        start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+
+        delta = end_month - start_month
+
+        sdate = date(int(start_month.year), int(start_month.month), int(start_month.day))
+        edate = date(int(end_month.year), int(end_month.month), int(end_month.day))
+
+        if delta.days <=0:
+            return HttpResponse("<h1>Please Enter valid Date Range</h1>")
+
+        for p_t in problem_type:
+            data = Main_Data_Upload.objects.filter(train_station=train_number,problem_type=p_t,registration_date__gte=start_date,registration_date__lte=end_date)
+            data_count.append(data.count())
+
+        if sum(data_count) == 0:
+            data_show = False
+        else:
+            data_show = True
+
+        print(data_count)
+
+        context = {
+                    'problem_type':problem_type,
+                    'post':True,
+                    'data_count':data_count,
+                    'train_number':train_number,
+                    'data_show':data_show
+                   }
+
+    else:
+        post = False
+        context = {'post':post}
+    return render(request, "train_wise_data.html",context)
 
 
 

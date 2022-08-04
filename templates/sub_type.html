@@ -1,28 +1,12 @@
 {% extends 'base.html' %}
 {% block body %}
-
-
-<!--  sale analytics start -->
-<div class="col-xl-8 col-md-12">
-<div class="card">
-<div class="card-header">
-<h4>Railway Data</h4>
-<span class="text-muted">This is Graph Show for Railway </span>
-</div>
-
-<div class="card-blockk">
-<div id="sales-analytics" style="height:100%;">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
 <script src='https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js
 '></script>
 
 
 
-<div class="chart-container">
-  <center><h4><u>Data Show Graph For Railway Complaint Type</u></h4></center>
-
-<form action="/user/dashboard/" method="POST">{% csrf_token %}
+<form action="/user/sub_type/{{subtype}}/" method="POST">{% csrf_token %}
   <center class="center">
 
     <label for="start_date"><b>From:</b></label>
@@ -35,8 +19,23 @@
     <button type="submit" class="btn btn-danger">Submit</button>
   </center>
 </form>
+
+<div class="col-xl-8 col-md-12">
+<div class="card">
+<div class="card-header">
+<h4>Railway Data</h4>
+<span class="text-muted">This is Graph Show for Railway </span>
+</div>
+
+<div class="card-blockk">
+<div id="sales-analytics" style="height:100%;">
+
+<div class="chart-container">
+  <center><h4><u>Data Show Graph For <b>{{subtypes}}</b></u></h4></center>
+
+
 {% if show %}
-    <canvas id="pieChart" height="450px"></canvas>
+    <a target="__blank" href="/user/complain/{{subtype}}/"><canvas id="myChart" height="120px" width="100%"></canvas></a>
 {% else %}
 <br>
 <center><h2>No Data To Display</h2></center>
@@ -47,45 +46,36 @@
 
 
 <script>
-
-var canvasP = document.getElementById("pieChart");
-var ctxP = canvasP.getContext('2d');
-var myPieChart = new Chart(ctxP, {
-   type: 'pie',
-   data: {
-    {% if post %}
-      labels: [{% for d in data %}'{{d}}', {% endfor %}],
-    {% else %}
-    labels: [{% for data in data %}{% for d in data %}'{{d}}', {% endfor %}{% endfor %}],
-    {% endif %}
-      datasets: [{
-         data: [{% for occur in occur %}{{occur}},{% endfor %}],
-         backgroundColor: ["#64B5F6", "#FFD54F", "#2196F3", "#FFC107", "#1976D2", "#FFA000", "#0D47A1"],
-         hoverBackgroundColor: ["#B2EBF2", "#FFCCBC", "#4DD0E1", "#FF8A65", "#00BCD4", "#FF5722", "#0097A7"]
-      }]
-   },
-   options: {
-      responsive: true,
-  }
-});
-
-
-canvasP.onclick = function(e) {
-   var slice = myPieChart.getElementAtEvent(e);
-   if (!slice.length) return; // return if not clicked on slice
-   var label = slice[0]._model.label;
-   switch (label) {
-      // add case for each label/slice
-      {% for data in data %}
-      {% for d in data %}
-      case '{{d}}':
-         window.open('/user/complain/{{d}}');
-         break;
-      {% endfor %}
-      {% endfor %}
-   }
-}
+  const labels = [{% for d in dates %} '{{d}}', {% endfor %}];
+  const data = {
+    labels: labels,
+    datasets: [{
+      label: '{{subtype}}',
+      backgroundColor: 'rgb(255, 99, 132)',
+      borderColor: 'rgb(255, 99, 132)',
+      data: {{data_count}},
+    }]
+  };
+  const config = {
+    type: 'line',
+    data: data,
+    options: {
+      responsive:true,
+    }
+  };
 </script>
+
+
+
+
+<script>
+  const myChart = new Chart(
+    document.getElementById('myChart'),
+    config
+  );
+</script>
+
+
 
 
 </div>

@@ -42,7 +42,7 @@
 
 
 {% if show %}
-    <a target="blank"href="/user/complain/{{all_type|index:forloop.counter0}}"><canvas id="myChart{{forloop.counter}}" height="200px" width="100%"></canvas></a>
+    <a target="blank"href="/user/complain/{{all_type|index:forloop.counter0}}"><canvas id="myChart{{forloop.counter}}" height="120px" width="100%"></canvas></a>
 {% else %}
 <br>
 <center><h2>No Data To Display</h2></center>
@@ -99,9 +99,6 @@
 </div>
 
 <center><u><h2>Sub Type Lists</h2></u></center>
-
-{{demo_sub}}
-
 
 {% for sub_type in sub_type %}
 <a href="/user/sub_type/{{sub_type}}/"><button class="btn btn-dark mx-1 my-2">{{sub_type}}</button></a>

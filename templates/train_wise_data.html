@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block body %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+
+
+
+
+<form action="/user/train_wise_data/" method="POST">{% csrf_token %}
+  <center class="center">
+
+    <label for="train_number"><b>Train Number</b></label>
+    <input class="form-control my-2 mx-1" type="number" name="train_number" required>
+
+    <label for="start_date"><b>From:</b></label>
+    <input type="date" name="start_date" required>
+    
+    <label for="end_date"><b>To:</b></label>
+    <input name="end_date" type="date" required>
+
+
+    <button type="submit" class="btn btn-danger">Submit</button>
+  </center>
+</form>
+
+<br>
+<div class="col-xl-8 col-md-12">
+<div class="card">
+<div class="card-header">
+<h4>Railway Data</h4>
+<span class="text-muted">This is Graph Show for Railway </span>
+</div>
+
+<div class="card-blockk">
+<div id="sales-analytics" style="height:100%;">
+
+<div class="chart-container">
+{% if data_show %}
+  <center><h4><u>Data Show Graph For Train Number {{train_number}}</u></h4></center>
+{% else %}
+{% endif %}
+
+{% if post %}
+{% if data_show %}
+    <canvas id="myChart" height="110px" width="100%"></canvas>
+{% else %}
+<br>
+<center><h2>Currenly No Data for this Train Number</h2></center>
+{% endif %}
+{% else %}
+<br>
+<center><h3>Kindly Enter Train Number and Filter With Date Range To see Data</h3></center>
+{% endif %}
+</div>
+
+
+
+
+<script>
+var canvasP = document.getElementById("myChart");
+var ctxP = canvasP.getContext('2d');
+var myPieChart = new Chart(ctxP, {
+   type: 'bar',
+   data: {
+      labels: [{% for m in problem_type %}'{{m}}',{% endfor %}],
+      datasets: [
+        {   
+            label:"Complaint Number",
+            data: {{data_count}},
+            backgroundColor: ["#64B5F6", "#FFD54F", "#2196F3", "#FFC107", "#1976D2", "#FFA000", "#0D47A1"],
+            hoverBackgroundColor: ["#B2EBF2", "#FFCCBC", "#4DD0E1", "#FF8A65", "#00BCD4", "#FF5722", "#0097A7"]
+       }]
+   },
+   options: {
+    legend: {
+         display: true,
+         position: "top"
+      },
+
+}
+});
+
+canvasP.onclick = function(e) {
+   var slice = myPieChart.getElementAtEvent(e);
+   if (!slice.length) return; // return if not clicked on slice
+   var label = slice[0]._model.label;
+   switch (label) {
+      // add case for each label/slice
+      {% for p_t in problem_type %}
+      case '{{p_t}}':
+         window.open('/user/complain/{{p_t}}');
+         break;
+      {% endfor %}
+   }
+}
+</script>
+
+
+
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+
+{% endblock %}
+
+

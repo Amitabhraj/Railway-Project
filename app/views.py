@@ -141,7 +141,7 @@ def upload_data(request):
         message = client.messages.create( 
                                       from_='whatsapp:+14155238886',  
                                       body='File has been uploaded on the Server--> on date ',
-                                      to= phonenumber
+                                      to= phone_number
                                   ) 
          
         print(message.sid)

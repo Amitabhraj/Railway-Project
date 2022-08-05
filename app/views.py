@@ -28,7 +28,9 @@ import calendar
 from calendar import monthrange
 import datetime as DT
 from railway.settings import BASE_DIR
-
+from django.views.decorators.csrf import csrf_exempt
+import os
+from twilio.rest import Client
 
 # Create your views here.
 
@@ -38,9 +40,33 @@ def redircte(request):
 
 ##############################################################################################
 
-from django.views.decorators.csrf import csrf_exempt
-import os
-from twilio.rest import Client
+
+
+
+@login_required
+def user_profile(request):
+    user = User.objects.get(id=request.user.id)
+    context = {'user':user}
+    return render(request,'user_profile.html',context)
+
+
+@login_required
+def change_password(request):
+    if request.method == "POST":
+        current_password = request.POST.get('c-password','')
+        future_password = request.POST.get('f-password','')
+        user = User.objects.get(id=request.user.id)
+        user_password = user.check_password(current_password)
+        if user_password:
+            user.set_password(future_password)
+            user.save()
+            messages.success(request,'You Have Successfully Changed Your Password')
+            return redirect(request.path)
+        else:
+            messages.error(request,'You Current Password is Wrong, Please Try Again')
+            return redirect(request.path)
+    context = {}
+    return render(request,'change_password.html',context)
 
 
 ##############################################
@@ -68,59 +94,57 @@ def upload_data(request):
                 split_date_2 = df['Closing_Date'][i].split(' ')
                 closing_date = datetime.datetime.strptime(f'{split_date_2[0]}', '%d-%m-%y')
 
-            Main_Data_Upload(
+            # Main_Data_Upload(
 
-                sl_no = df['SL_NO'][i],
-                reference_no = df['Ref_No'][i],
-                registration_date = register_date,
-                closing_date = closing_date,
-                disposal_time = df['Disposal_Time'][i],
-                mode = df['Mode'][i],
-                train_station = df['Train_Station'][i],
-                channel = df['Channel'][i],
-                Type = df['TYPE'][i],
-                coach_number = df['COACH_NO'][i],
-                rake_number = df['RAKE_NO'][i],
-                staff_name = df['STAFF_NAME'][i],
-                problem_type = df['Type'][i],
-                sub_type = df['Sub_Type'][i],
-                commodity = df['Commodity'][i],
-                zone = df['Zone'][i],
-                div = df['Div'][i],
-                dept = df['Dept'][i],
-                breach = df['Breach'][i],
-                rating = df['Rating'][i],
-                status = df['Status'][i],
-                complaint_discription = df['Complaint_Description'][i],
-                remark = df['Remarks'][i],
-                number_of_time_forwarded = df['No_of_times_forwarded'][i],
-                pnr_utc_number = df['PNR_UTS_no'][i],
-                coach_type = df['Coach_Type'][i],
-                coach_number_no = df['Coach_No'][i],
-                feedback_remark = df['Feedback_Remarks'][i],
-                upcoming_station = df['Upcoming_Station'][i],
-                mobile_number_or_email = df['Mobile_No_Email_Id'][i],
-                physical_coach_number = df['Physical_Coach_No'][i]
-            ).save()
+            #     sl_no = df['SL_NO'][i],
+            #     reference_no = df['Ref_No'][i],
+            #     registration_date = register_date,
+            #     closing_date = closing_date,
+            #     disposal_time = df['Disposal_Time'][i],
+            #     mode = df['Mode'][i],
+            #     train_station = df['Train_Station'][i],
+            #     channel = df['Channel'][i],
+            #     Type = df['TYPE'][i],
+            #     coach_number = df['COACH_NO'][i],
+            #     rake_number = df['RAKE_NO'][i],
+            #     staff_name = df['STAFF_NAME'][i],
+            #     problem_type = df['Type'][i],
+            #     sub_type = df['Sub_Type'][i],
+            #     commodity = df['Commodity'][i],
+            #     zone = df['Zone'][i],
+            #     div = df['Div'][i],
+            #     dept = df['Dept'][i],
+            #     breach = df['Breach'][i],
+            #     rating = df['Rating'][i],
+            #     status = df['Status'][i],
+            #     complaint_discription = df['Complaint_Description'][i],
+            #     remark = df['Remarks'][i],
+            #     number_of_time_forwarded = df['No_of_times_forwarded'][i],
+            #     pnr_utc_number = df['PNR_UTS_no'][i],
+            #     coach_type = df['Coach_Type'][i],
+            #     coach_number_no = df['Coach_No'][i],
+            #     feedback_remark = df['Feedback_Remarks'][i],
+            #     upcoming_station = df['Upcoming_Station'][i],
+            #     mobile_number_or_email = df['Mobile_No_Email_Id'][i],
+            #     physical_coach_number = df['Physical_Coach_No'][i]
+            # ).save()
 
-        # mobile_number = PhoneNumber.objects.all()
-        # phone_number = []
-        # for m_n in mobile_number:
-        #     phone_number.append("whatsapp:+91"+str(m_n.mobile_number))
+        mobile_number = PhoneNumber.objects.all()
+        phone_number = []
+        for m_n in mobile_number:
+            phone_number.append("whatsapp:+91"+str(m_n.mobile_number))
 
-        # account_sid = 'AC37cad0e9482615a332fce6a6b3d96a5a' 
-        # auth_token = 'd57b5cff62922c9769603303cd3cf825' 
-        # client = Client(account_sid, auth_token) 
-
-        # print(request.POST['From'])
+        account_sid = 'AC37cad0e9482615a332fce6a6b3d96a5a' 
+        auth_token = 'd57b5cff62922c9769603303cd3cf825' 
+        client = Client(account_sid, auth_token) 
          
-        # message = client.messages.create( 
-        #                               from_='whatsapp:+14155238886',  
-        #                               body='whatsapp://send?phone=<Your Sandbox Number>&text=<your URL-encoded sandbox keyword>',
-        #                               to= 'whatsapp:+919800761882'
-        #                           ) 
+        message = client.messages.create( 
+                                      from_='whatsapp:+14155238886',  
+                                      body='File has been uploaded on the Server--> on date ',
+                                      to= phonenumber
+                                  ) 
          
-        # print(message.sid)
+        print(message.sid)
 
         return redirect(request.path)
 

@@ -28,7 +28,9 @@ import calendar
 from calendar import monthrange
 import datetime as DT
 from railway.settings import BASE_DIR
-
+from django.views.decorators.csrf import csrf_exempt
+import os
+from twilio.rest import Client
 
 # Create your views here.
 
@@ -38,9 +40,33 @@ def redircte(request):
 
 ##############################################################################################
 
-from django.views.decorators.csrf import csrf_exempt
-import os
-from twilio.rest import Client
+
+
+
+@login_required
+def user_profile(request):
+    user = User.objects.get(id=request.user.id)
+    context = {'user':user}
+    return render(request,'user_profile.html',context)
+
+
+@login_required
+def change_password(request):
+    if request.method == "POST":
+        current_password = request.POST.get('c-password','')
+        future_password = request.POST.get('f-password','')
+        user = User.objects.get(id=request.user.id)
+        user_password = user.check_password(current_password)
+        if user_password:
+            user.set_password(future_password)
+            user.save()
+            messages.success(request,'You Have Successfully Changed Your Password')
+            return redirect(request.path)
+        else:
+            messages.error(request,'You Current Password is Wrong, Please Try Again')
+            return redirect(request.path)
+    context = {}
+    return render(request,'change_password.html',context)
 
 
 ##############################################
@@ -103,24 +129,22 @@ def upload_data(request):
                 physical_coach_number = df['Physical_Coach_No'][i]
             ).save()
 
-        # mobile_number = PhoneNumber.objects.all()
-        # phone_number = []
-        # for m_n in mobile_number:
-        #     phone_number.append("whatsapp:+91"+str(m_n.mobile_number))
+        mobile_number = PhoneNumber.objects.all()
+        phone_number = []
+        for m_n in mobile_number:
+            phone_number.append("whatsapp:+91"+str(m_n.mobile_number))
 
-        # account_sid = 'AC37cad0e9482615a332fce6a6b3d96a5a' 
-        # auth_token = 'd57b5cff62922c9769603303cd3cf825' 
-        # client = Client(account_sid, auth_token) 
-
-        # print(request.POST['From'])
+        account_sid = 'AC37cad0e9482615a332fce6a6b3d96a5a' 
+        auth_token = 'd57b5cff62922c9769603303cd3cf825' 
+        client = Client(account_sid, auth_token) 
          
-        # message = client.messages.create( 
-        #                               from_='whatsapp:+14155238886',  
-        #                               body='whatsapp://send?phone=<Your Sandbox Number>&text=<your URL-encoded sandbox keyword>',
-        #                               to= 'whatsapp:+919800761882'
-        #                           ) 
+        message = client.messages.create( 
+                                      from_='whatsapp:+14155238886',  
+                                      body='File has been uploaded on the Server--> on date ',
+                                      to= phonenumber
+                                  ) 
          
-        # print(message.sid)
+        print(message.sid)
 
         return redirect(request.path)
 
@@ -795,13 +819,19 @@ def complain_type(request, complain):
                                                         'problem_type',
                                                         'sub_type',
                                                         'disposal_time',
-                                                        'rating','complaint_discription')
+                                                        'rating',
+                                                        'registration_date',
+                                                        'complaint_discription')
     problem_type = []
     print(type(complain_type))
     for p in problem_types:
-        if p[2] == complain_type or p[3] == complain_type or str(int(p[1])) == complain_type:
+        if p[2] == complain_type or p[3] == complain_type or str(int(p[1])) == complain_type or str(calendar.month_name[p[6].month]) == str(complain_type):
             problem_type.append(p)
-    context = {'complain_type':complain_type, 'problem_type':problem_type}
+        if complain_type == "All_data":
+            all_data = True
+        else:
+            all_data=False
+    context = {'complain_type':complain_type, 'problem_type':problem_type,'all_data':all_data}
     return render(request, 'complain_type.html',context)
 
 

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block url_name %}User Profile{% endblock %}
+{% block url_title %}your Profile{% endblock %}
+{% block breadcrum %} 
+<li class="breadcrumb-item">
+       <a href="index.html"> 
+<i class="fa fa-user"></i></a>
+</li>
+
+<li class="breadcrumb-item">
+    Profile
+</li>
+
+<li class="breadcrumb-item">
+    <a href="/user/user_detail/user_profile">See Your Profile</a>
+</li>
+{% endblock %}
+{% block title %}Your Profile{% endblock %}
+
+
+
+{% block body %}
+<section style="background-color: transparent;">
+  <div class="container py-1">
+    <div class="row">
+      <div class="col-lg-4">
+        <div class="card mb-4">
+          <div class="card-body text-center">
+            <h5 class="my-2" style="text-transform: capitalize;">{{user.username}}</h5>
+            <p class="text-muted mb-2">{{user.type_of_user}}</p>
+            <div class="d-flex justify-content-center mb-2">
+              <a href="/user/change_password/change"><button type="button" class="btn btn-primary">Change Password</button></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-sm-3">
+                <p class="mb-0">Full Name</p>
+              </div>
+              <div class="col-sm-9">
+                <p class="text-muted mb-0" style="text-transform: capitalize;">{{user.username}}</p>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-sm-3">
+                <p class="mb-0">Email</p>
+              </div>
+              <div class="col-sm-9">
+                <p class="text-muted mb-0">{{user.email}}</p>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-sm-3">
+                <p class="mb-0">joined Date</p>
+              </div>
+              <div class="col-sm-9">
+                <p class="text-muted mb-0" style="text-transform: capitalize;">{{user.date_joined}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+{% endblock %}

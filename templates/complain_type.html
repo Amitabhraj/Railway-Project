@@ -54,6 +54,9 @@
 </style>
 <div class="table-responsive">
   <table class="table table-bordered">
+{% if all_data %}
+<center><h3>Kindly Select any month Range To See Rating Wise Data Monthly</h3><center>
+{% else %}
     <thead>
       <tr>
         <th>Sl No.</th>
@@ -63,6 +66,7 @@
         <th>Sub type</th>
         <th>disposal Time</th>
         <th>Rating</th>
+        <th>Registration Date</th>
         <th>Complaint Description</th>
       </tr>
     </thead>
@@ -90,15 +94,13 @@
         <td>{{p.5}}</td>
         {% endif %}
 
-        {% if p.6 == "nan" or p.6 == "" %}
-        <td>N/D</td>
-        {% else %}
         <td>{{p.6}}</td>
-        {% endif %}
+        <td>{{p.7}}</td>
 
       </tr>
 {% endfor %}
     </tbody>
+{% endif %}
   </table>
 </div>
 

@@ -45,7 +45,7 @@ var myPieChart = new Chart(ctxP, {
       labels: [{% for m in bottom_train %}'{{m}}',{% endfor %}],
       datasets: [
         {   
-            label:'Bottom 10 Train Complaint Wise',
+            label:'Complaint Number',
             data: {{bottom_data_count}},
             backgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"],
             hoverBackgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"]

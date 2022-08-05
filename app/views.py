@@ -795,13 +795,19 @@ def complain_type(request, complain):
                                                         'problem_type',
                                                         'sub_type',
                                                         'disposal_time',
-                                                        'rating','complaint_discription')
+                                                        'rating',
+                                                        'registration_date',
+                                                        'complaint_discription')
     problem_type = []
     print(type(complain_type))
     for p in problem_types:
-        if p[2] == complain_type or p[3] == complain_type or str(int(p[1])) == complain_type:
+        if p[2] == complain_type or p[3] == complain_type or str(int(p[1])) == complain_type or str(calendar.month_name[p[6].month]) == str(complain_type):
             problem_type.append(p)
-    context = {'complain_type':complain_type, 'problem_type':problem_type}
+        if complain_type == "All_data":
+            all_data = True
+        else:
+            all_data=False
+    context = {'complain_type':complain_type, 'problem_type':problem_type,'all_data':all_data}
     return render(request, 'complain_type.html',context)
 
 

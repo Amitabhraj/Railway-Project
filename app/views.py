@@ -78,7 +78,7 @@ def change_password(request):
 @csrf_exempt
 def upload_data(request):
     if request.method == "POST":
-        now = datetime.now()
+        now = datetime.datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         print("date and time =", dt_string) 
         csv_data = request.FILES.get('csv')

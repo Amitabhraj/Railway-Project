@@ -66,7 +66,7 @@ class CsvFile(models.Model):
 
 
     def __str__(self):
-        return ste(self.csv_data)
+        return str(self.csv_data)
 
 
 

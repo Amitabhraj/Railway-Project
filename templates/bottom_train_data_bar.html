@@ -5,6 +5,9 @@
 <form action="/user/bottom_train_data_pie_chart/" method="POST">{% csrf_token %}
   <center class="center">
 
+    <label for="train_count"><b>Enter Train Count:</b></label>
+    <input type="number" name="train_count" required>
+
     <label for="start_date"><b>From:</b></label>
     <input type="date" name="start_date" required>
     
@@ -28,7 +31,7 @@
 <div id="sales-analytics" style="height:100%;">
 
 <div class="chart-container">
-  <center><h4><u>Data Show Graph For Bottom 10 Train Number Complaint Wise</u></h4></center>
+  <center><h4><u>Data Show Graph For Bottom {{train_count}} Train Number Complaint Wise</u></h4></center>
 
 <canvas id="myChart" height="110px" width="100%"></canvas>
 <br>

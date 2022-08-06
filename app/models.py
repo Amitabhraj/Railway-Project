@@ -6,7 +6,6 @@ from django.utils import timezone
 
 
 class Main_Data_Upload(models.Model):
-    csv_data = models.FileField(upload_to="data/railway/", null=True, blank=True)
     unique_id = models.FloatField(default=None, null=True, blank=True)
     sl_no = models.FloatField(default=None, null=True, blank=True)
     reference_no = models.FloatField(default=None, null=True, blank=True)
@@ -57,5 +56,18 @@ class PhoneNumber(models.Model):
 
     def __str__(self):
         return str(self.mobile_number)
+
+
+
+
+
+class CsvFile(models.Model):
+    csv_data = models.FileField(upload_to="data/railway/", null=True, blank=True)
+
+
+    def __str__(self):
+        return ste(self.csv_data)
+
+
 
 

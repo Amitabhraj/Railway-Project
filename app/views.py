@@ -135,19 +135,19 @@ def upload_data(request):
         mobile_number = PhoneNumber.objects.all()
         phone_number = []
         for m_n in mobile_number:
-            phone_number.append("whatsapp:+91"+str(m_n.mobile_number))
+            phone_number.append("whatsapp:+91"+str(m_n))
 
         account_sid = 'AC37cad0e9482615a332fce6a6b3d96a5a' 
         auth_token = 'd57b5cff62922c9769603303cd3cf825' 
         client = Client(account_sid, auth_token) 
-         
-        message = client.messages.create( 
-                                      from_='whatsapp:+14155238886',  
-                                      body=f'File has been uploaded on the Server--> on date:- {dt_string}',
-                                      to= phone_number
-                                  ) 
-         
-        print(message.sid)
+
+        for p_n in phone_number:
+            message = client.messages.create( 
+                                          from_='whatsapp:+14155238886',  
+                                          body=f'File has been uploaded on the Server--> on date:- {dt_string}',
+                                          to= f'{p_n}'
+                                      ) 
+
 
         return redirect(request.path)
 
@@ -645,6 +645,19 @@ def trend(request):
         total.append(miscellaneous)
         total.append(staff_behave)
 
+        dates.reverse()
+        coach_clean.reverse()
+        bed_roll.reverse()
+        security.reverse()
+        medical_assis.reverse()
+        punctuality.reverse()
+        water_avail.reverse()
+        electrical_equip.reverse()
+        coach_maintain.reverse()
+        miscellaneous.reverse()
+        staff_behave.reverse()
+
+
     all_type=['Coach - Cleanliness','Bed Roll','Security','Medical Assistance',
               'Punctuality','Water Availability','Electrical Equipment','Coach - Maintenance',
               'Miscellaneous','Staff Behaviour']
@@ -861,7 +874,7 @@ def train_wise_data(request):
     problem_type = set(Type)
 
     if request.method == "POST":
-        train_number = request.POST.getlist('train_number','')
+        train_number = request.POST.getlist('train_number')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
@@ -876,13 +889,12 @@ def train_wise_data(request):
         if delta.days <=0:
             return HttpResponse("<h1>Please Enter valid Date Range</h1>")
         
-        # splitted_train_number = train_number.split(',')
-        # for t_r in splitted_train_number:
-        #     train_numbers.append(int(t_r))
-
+        trains = []
+        for t_r in train_number:
+            trains.append(int(t_r))
 
         for p_t in problem_type:
-            data = Main_Data_Upload.objects.filter(train_station__in=train_number,problem_type=p_t,registration_date__gte=start_date,registration_date__lte=end_date)
+            data = Main_Data_Upload.objects.filter(train_station__in=trains,problem_type=p_t,registration_date__gte=start_date,registration_date__lte=end_date)
             data_count.append(data.count())
 
         if sum(data_count) == 0:

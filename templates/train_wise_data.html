@@ -1,15 +1,52 @@
 {% extends 'base.html' %}
+{% load custom %}
 {% block body %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+
+
+<script>
+$(document).ready(function() {
+    $('#select-all').click(function() {
+        var checked = this.checked;
+        $('input[type="checkbox"]').each(function() {
+        this.checked = checked;
+    });
+    })
+});
+</script>
+
+
+
 
 
 
 
 <form action="/user/train_wise_data/" method="POST">{% csrf_token %}
   <center class="center">
+    <section class="pb-4">
+      <div class="bg-white border rounded-5">
 
-    <label for="train_number"><b>Train Number</b></label>
-    <input class="form-control my-2 mx-1" type="text" name="train_number" required>
+
+
+<div class="form-check">
+  <label><h5>Select All</h5></label>
+  <input type="checkbox" id="select-all"><br>
+      {% for t_n in train_number %}
+      {% for train_number in t_n %}
+
+  <input type="checkbox" name="train_number" class="check-box mx-2" value="{{train_number|convertint}}">
+  <label>
+    {{train_number | convertint}}
+  </label>
+
+      {% endfor %}
+      {% endfor %}
+</div>
+
+
+
 
     <label for="start_date"><b>From:</b></label>
     <input type="date" name="start_date" required>
@@ -35,7 +72,8 @@
 
 <div class="chart-container">
 {% if data_show %}
-  <center><h4><u>Data Show Graph For Train Number {{train_number}}</u></h4></center>
+  <center><h4><u>Data Show Graph For Train Number 
+    {% for t_r in train_number %} {% for train_number in t_r %} {{train_number|convertint}}, {% endfor %}{% endfor %}</u></h4></center>
 {% else %}
 {% endif %}
 

@@ -5,5 +5,5 @@ from .models import *
 
 admin.site.register(Main_Data_Upload)
 admin.site.register(PhoneNumber)
-
+admin.site.register(CsvFile)
 

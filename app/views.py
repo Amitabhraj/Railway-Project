@@ -78,8 +78,12 @@ def change_password(request):
 @csrf_exempt
 def upload_data(request):
     if request.method == "POST":
+        now = datetime.datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        print("date and time =", dt_string) 
         csv_data = request.FILES.get('csv')
-        df = pd.read_csv(str(BASE_DIR)+"/media/data/data/" + str(csv_data))
+        data = CsvFile(csv_data=csv_data).save()
+        df = pd.read_csv(str(BASE_DIR)+"/media/data/railway/" + str(csv_data))
         length = len(df)
         for i in range(0, length):
             if df['Registration_Date'][i] == " " or type(df['Registration_Date'][i]) == float:
@@ -87,64 +91,63 @@ def upload_data(request):
             else:
                 split_date = df['Registration_Date'][i].split(' ')
                 register_date = datetime.datetime.strptime(f'{split_date[0]}', '%d-%m-%y')
-
             if df['Closing_Date'][i] == " " or type(df['Closing_Date'][i]) == float:
                 closing_date = None
             else:
                 split_date_2 = df['Closing_Date'][i].split(' ')
                 closing_date = datetime.datetime.strptime(f'{split_date_2[0]}', '%d-%m-%y')
 
-            Main_Data_Upload(
+            # Main_Data_Upload(
 
-                sl_no = df['SL_NO'][i],
-                reference_no = df['Ref_No'][i],
-                registration_date = register_date,
-                closing_date = closing_date,
-                disposal_time = df['Disposal_Time'][i],
-                mode = df['Mode'][i],
-                train_station = df['Train_Station'][i],
-                channel = df['Channel'][i],
-                Type = df['TYPE'][i],
-                coach_number = df['COACH_NO'][i],
-                rake_number = df['RAKE_NO'][i],
-                staff_name = df['STAFF_NAME'][i],
-                problem_type = df['Type'][i],
-                sub_type = df['Sub_Type'][i],
-                commodity = df['Commodity'][i],
-                zone = df['Zone'][i],
-                div = df['Div'][i],
-                dept = df['Dept'][i],
-                breach = df['Breach'][i],
-                rating = df['Rating'][i],
-                status = df['Status'][i],
-                complaint_discription = df['Complaint_Description'][i],
-                remark = df['Remarks'][i],
-                number_of_time_forwarded = df['No_of_times_forwarded'][i],
-                pnr_utc_number = df['PNR_UTS_no'][i],
-                coach_type = df['Coach_Type'][i],
-                coach_number_no = df['Coach_No'][i],
-                feedback_remark = df['Feedback_Remarks'][i],
-                upcoming_station = df['Upcoming_Station'][i],
-                mobile_number_or_email = df['Mobile_No_Email_Id'][i],
-                physical_coach_number = df['Physical_Coach_No'][i]
-            ).save()
+            #     sl_no = df['SL_NO'][i],
+            #     reference_no = df['Ref_No'][i],
+            #     registration_date = register_date,
+            #     closing_date = closing_date,
+            #     disposal_time = df['Disposal_Time'][i],
+            #     mode = df['Mode'][i],
+            #     train_station = df['Train_Station'][i],
+            #     channel = df['Channel'][i],
+            #     Type = df['TYPE'][i],
+            #     coach_number = df['COACH_NO'][i],
+            #     rake_number = df['RAKE_NO'][i],
+            #     staff_name = df['STAFF_NAME'][i],
+            #     problem_type = df['Type'][i],
+            #     sub_type = df['Sub_Type'][i],
+            #     commodity = df['Commodity'][i],
+            #     zone = df['Zone'][i],
+            #     div = df['Div'][i],
+            #     dept = df['Dept'][i],
+            #     breach = df['Breach'][i],
+            #     rating = df['Rating'][i],
+            #     status = df['Status'][i],
+            #     complaint_discription = df['Complaint_Description'][i],
+            #     remark = df['Remarks'][i],
+            #     number_of_time_forwarded = df['No_of_times_forwarded'][i],
+            #     pnr_utc_number = df['PNR_UTS_no'][i],
+            #     coach_type = df['Coach_Type'][i],
+            #     coach_number_no = df['Coach_No'][i],
+            #     feedback_remark = df['Feedback_Remarks'][i],
+            #     upcoming_station = df['Upcoming_Station'][i],
+            #     mobile_number_or_email = df['Mobile_No_Email_Id'][i],
+            #     physical_coach_number = df['Physical_Coach_No'][i]
+            # ).save()
 
         mobile_number = PhoneNumber.objects.all()
         phone_number = []
         for m_n in mobile_number:
-            phone_number.append("whatsapp:+91"+str(m_n.mobile_number))
+            phone_number.append("whatsapp:+91"+str(m_n))
 
         account_sid = 'AC37cad0e9482615a332fce6a6b3d96a5a' 
         auth_token = 'd57b5cff62922c9769603303cd3cf825' 
         client = Client(account_sid, auth_token) 
-         
-        message = client.messages.create( 
-                                      from_='whatsapp:+14155238886',  
-                                      body='File has been uploaded on the Server--> on date ',
-                                      to= phonenumber
-                                  ) 
-         
-        print(message.sid)
+
+        for p_n in phone_number:
+            message = client.messages.create( 
+                                          from_='whatsapp:+14155238886',  
+                                          body=f'File has been uploaded on the Server--> on date:- {dt_string}',
+                                          to= f'{p_n}'
+                                      ) 
+
 
         return redirect(request.path)
 
@@ -642,6 +645,19 @@ def trend(request):
         total.append(miscellaneous)
         total.append(staff_behave)
 
+        dates.reverse()
+        coach_clean.reverse()
+        bed_roll.reverse()
+        security.reverse()
+        medical_assis.reverse()
+        punctuality.reverse()
+        water_avail.reverse()
+        electrical_equip.reverse()
+        coach_maintain.reverse()
+        miscellaneous.reverse()
+        staff_behave.reverse()
+
+
     all_type=['Coach - Cleanliness','Bed Roll','Security','Medical Assistance',
               'Punctuality','Water Availability','Electrical Equipment','Coach - Maintenance',
               'Miscellaneous','Staff Behaviour']
@@ -842,17 +858,23 @@ def complain_type(request, complain):
 def train_wise_data(request):
     data_count=[]
     problem_type = Main_Data_Upload.objects.values_list('problem_type')
+    train_numbers_list = Main_Data_Upload.objects.values_list('train_station')
     Type=[]
     for s in problem_type:
         for t in s:
             Type.append(t)
 
-    train_numbers = []
+    train = []
+    for tr_nums in train_numbers_list:
+        # for train_numbers in tr_nums:
+        train.append(tr_nums)
+    train_numbers = set(train)
+
 
     problem_type = set(Type)
 
     if request.method == "POST":
-        train_number = request.POST.get('train_number','')
+        train_number = request.POST.getlist('train_number')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
@@ -867,13 +889,12 @@ def train_wise_data(request):
         if delta.days <=0:
             return HttpResponse("<h1>Please Enter valid Date Range</h1>")
         
-        splitted_train_number = train_number.split(',')
-        for t_r in splitted_train_number:
-            train_numbers.append(int(t_r))
-
+        trains = []
+        for t_r in train_number:
+            trains.append(int(t_r))
 
         for p_t in problem_type:
-            data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,problem_type=p_t,registration_date__gte=start_date,registration_date__lte=end_date)
+            data = Main_Data_Upload.objects.filter(train_station__in=trains,problem_type=p_t,registration_date__gte=start_date,registration_date__lte=end_date)
             data_count.append(data.count())
 
         if sum(data_count) == 0:
@@ -886,12 +907,13 @@ def train_wise_data(request):
                     'post':True,
                     'data_count':data_count,
                     'train_number':train_number,
-                    'data_show':data_show
+                    'data_show':data_show,
+                    'train_number':train_numbers
                    }
 
     else:
         post = False
-        context = {'post':post}
+        context = {'post':post,'train_number':train_numbers}
     return render(request, "train_wise_data.html",context)
 
 
@@ -904,6 +926,7 @@ def bottom_train_data_pie(request):
     bottom_data_count = []
     if request.method == "POST":
         post=True
+        train_count  = int(request.POST.get('train_count',''))
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
@@ -946,6 +969,7 @@ def bottom_train_data_pie(request):
             bottom_data_count.append(make_dict[r])
 
     else:
+        train_count = 10
         post = False
         data_count=[]
         problem_type = Main_Data_Upload.objects.values_list('problem_type')
@@ -975,9 +999,10 @@ def bottom_train_data_pie(request):
             bottom_data_count.append(make_dict[r])
     
     context = {
-                'bottom_train':bottom_train[0:10],
+                'bottom_train':bottom_train[0:train_count],
                 'post':post,
-                'bottom_data_count':bottom_data_count[0:10],
+                'bottom_data_count':bottom_data_count[0:train_count],
+                'train_count':train_count,
                }
     return render(request, "bottom_train_data_pie.html",context)
 
@@ -993,6 +1018,7 @@ def bottom_train_data_bar(request):
     bottom_data_count = []
     if request.method == "POST":
         post=True
+        train_count  = int(request.POST.get('train_count',''))
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
@@ -1035,6 +1061,7 @@ def bottom_train_data_bar(request):
             bottom_data_count.append(make_dict[r])
 
     else:
+        train_count=10
         post = False
         data_count=[]
         problem_type = Main_Data_Upload.objects.values_list('problem_type')
@@ -1064,9 +1091,10 @@ def bottom_train_data_bar(request):
             bottom_data_count.append(make_dict[r])
     
     context = {
-                'bottom_train':bottom_train[0:10],
+                'bottom_train':bottom_train[0:train_count],
                 'post':post,
-                'bottom_data_count':bottom_data_count[0:10],
+                'bottom_data_count':bottom_data_count[0:train_count],
+                'train_count':train_count
                }
     return render(request, "bottom_train_data_bar.html",context)
 

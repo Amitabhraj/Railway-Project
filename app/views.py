@@ -1094,6 +1094,7 @@ def bottom_train_data_bar(request):
                 'bottom_train':bottom_train[0:train_count],
                 'post':post,
                 'bottom_data_count':bottom_data_count[0:train_count],
+                'train_count':train_count
                }
     return render(request, "bottom_train_data_bar.html",context)
 

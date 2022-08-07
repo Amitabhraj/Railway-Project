@@ -97,40 +97,40 @@ def upload_data(request):
                 split_date_2 = df['Closing_Date'][i].split(' ')
                 closing_date = datetime.datetime.strptime(f'{split_date_2[0]}', '%d-%m-%y')
 
-            # Main_Data_Upload(
+            Main_Data_Upload(
 
-            #     sl_no = df['SL_NO'][i],
-            #     reference_no = df['Ref_No'][i],
-            #     registration_date = register_date,
-            #     closing_date = closing_date,
-            #     disposal_time = df['Disposal_Time'][i],
-            #     mode = df['Mode'][i],
-            #     train_station = df['Train_Station'][i],
-            #     channel = df['Channel'][i],
-            #     Type = df['TYPE'][i],
-            #     coach_number = df['COACH_NO'][i],
-            #     rake_number = df['RAKE_NO'][i],
-            #     staff_name = df['STAFF_NAME'][i],
-            #     problem_type = df['Type'][i],
-            #     sub_type = df['Sub_Type'][i],
-            #     commodity = df['Commodity'][i],
-            #     zone = df['Zone'][i],
-            #     div = df['Div'][i],
-            #     dept = df['Dept'][i],
-            #     breach = df['Breach'][i],
-            #     rating = df['Rating'][i],
-            #     status = df['Status'][i],
-            #     complaint_discription = df['Complaint_Description'][i],
-            #     remark = df['Remarks'][i],
-            #     number_of_time_forwarded = df['No_of_times_forwarded'][i],
-            #     pnr_utc_number = df['PNR_UTS_no'][i],
-            #     coach_type = df['Coach_Type'][i],
-            #     coach_number_no = df['Coach_No'][i],
-            #     feedback_remark = df['Feedback_Remarks'][i],
-            #     upcoming_station = df['Upcoming_Station'][i],
-            #     mobile_number_or_email = df['Mobile_No_Email_Id'][i],
-            #     physical_coach_number = df['Physical_Coach_No'][i]
-            # ).save()
+                sl_no = df['SL_NO'][i],
+                reference_no = df['Ref_No'][i],
+                registration_date = register_date,
+                closing_date = closing_date,
+                disposal_time = df['Disposal_Time'][i],
+                mode = df['Mode'][i],
+                train_station = df['Train_Station'][i],
+                channel = df['Channel'][i],
+                Type = df['TYPE'][i],
+                coach_number = df['COACH_NO'][i],
+                rake_number = df['RAKE_NO'][i],
+                staff_name = df['STAFF_NAME'][i],
+                problem_type = df['Type'][i],
+                sub_type = df['Sub_Type'][i],
+                commodity = df['Commodity'][i],
+                zone = df['Zone'][i],
+                div = df['Div'][i],
+                dept = df['Dept'][i],
+                breach = df['Breach'][i],
+                rating = df['Rating'][i],
+                status = df['Status'][i],
+                complaint_discription = df['Complaint_Description'][i],
+                remark = df['Remarks'][i],
+                number_of_time_forwarded = df['No_of_times_forwarded'][i],
+                pnr_utc_number = df['PNR_UTS_no'][i],
+                coach_type = df['Coach_Type'][i],
+                coach_number_no = df['Coach_No'][i],
+                feedback_remark = df['Feedback_Remarks'][i],
+                upcoming_station = df['Upcoming_Station'][i],
+                mobile_number_or_email = df['Mobile_No_Email_Id'][i],
+                physical_coach_number = df['Physical_Coach_No'][i]
+            ).save()
 
         mobile_number = PhoneNumber.objects.all()
         phone_number = []

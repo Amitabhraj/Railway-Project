@@ -866,7 +866,6 @@ def train_wise_data(request):
 
     train = []
     for tr_nums in train_numbers_list:
-        # for train_numbers in tr_nums:
         train.append(tr_nums)
     train_numbers = set(train)
 
@@ -906,7 +905,7 @@ def train_wise_data(request):
                     'problem_type':problem_type,
                     'post':True,
                     'data_count':data_count,
-                    'train_number':train_number,
+                    'train':trains,
                     'data_show':data_show,
                     'train_number':train_numbers
                    }

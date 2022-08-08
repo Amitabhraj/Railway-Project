@@ -73,7 +73,7 @@ $(document).ready(function() {
 <div class="chart-container">
 {% if data_show %}
   <center><h4><u>Data Show Graph For Train Number 
-    {% for t_r in train_number %} {% for train_number in t_r %} {{train_number|convertint}}, {% endfor %}{% endfor %}</u></h4></center>
+    {% for t_r in train %} {{t_r|convertint}}, {% endfor %}</u></h4></center>
 {% else %}
 {% endif %}
 

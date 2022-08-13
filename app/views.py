@@ -2177,7 +2177,7 @@ def min_complain_coach(request):
         total.append(electrical_equip[0])
         total.append(water_avail[0])
         total.append(punctuality[0])
-        total.appends(security[0])
+        total.append(security[0])
         total.append(medical_assis[0])
         total.append(miscellaneous[0])
         total.append(coach_clean[0])
@@ -2251,6 +2251,7 @@ def mix_chart(request):
     if request.method == "POST":
         post=True
         complain_type = request.POST.getlist('complain_type')
+        print(complain_type)
         train_count  = int(request.POST.get('train_count',''))
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')

@@ -252,7 +252,7 @@ body .pcoded[pcoded-device-type="phone"][vertical-nav-type="expanded"] .pcoded-n
                                 </li>
                                 <li>
                                     <a href="/user/trend" class="waves-effect waves-dark">
-                                        <span data-i18n="nav.form-components.main">Analysic of all trends</span>
+                                        <span data-i18n="nav.form-components.main">Date Wise Complain Type for Summation of all Trains</span>
                                     </a>
                                 </li>
                                 <li>
@@ -373,26 +373,6 @@ body .pcoded[pcoded-device-type="phone"][vertical-nav-type="expanded"] .pcoded-n
 
 {% block body %}
 {% endblock %}
-
-<script type="text/javascript">
-$('body').append('' +
-    '<div class="fixed-button">' +
-        '<a href="/user/premium_purchase" class="btn btn-md btn-primary">' +
-            '<i class="fa fa-shopping-cart" aria-hidden="true"></i> Purchase Premium' +
-        '</a> ' +
-    '</div>' +
-'');
-var $window = $(window);
-var nav = $('.fixed-button');
-$window.scroll(function() {
-    if ($window.scrollTop() >= 200) {
-        nav.addClass('active');
-    } else {
-        nav.removeClass('active');
-    }
-});
-</script>
-
 
 <!-- Required Jquery -->
 <script type="text/javascript" src="/media/assets/js/jquery/jquery.min.js"></script>

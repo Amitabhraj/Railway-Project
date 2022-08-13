@@ -76,7 +76,7 @@ var myPieChart = new Chart(ctxP, {
       labels: [{% for t in total %}'{{t.1}}-({{t.2}})',{% endfor %}],
       datasets: [
         {   
-            label:'Maximum Number',
+            label:'Minimum Number',
             data: [{% for t in total %} {{t.0}}, {% endfor %}],
             backgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"],
             hoverBackgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"]

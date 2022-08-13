@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load custom %}
+{% block body %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+
+<form action="/user/mix_chart/" method="POST">{% csrf_token %}
+  <center class="center">
+
+    <label for="train_count"><b>Enter Train Count:</b></label>
+    <input type="number" name="train_count" required>
+
+    <label for="start_date"><b>From:</b></label>
+    <input type="date" name="start_date" required>
+    
+    <label for="end_date"><b>To:</b></label>
+    <input name="end_date" type="date" required>
+
+
+    <button type="submit" class="btn btn-danger">Submit</button>
+  </center>
+</form>
+
+<br>
+<div class="col-xl-8 col-md-12">
+<div class="card">
+<div class="card-header">
+<h4>Railway Data</h4>
+<span class="text-muted">This is Graph Show for Railway </span>
+</div>
+
+<div class="card-blockk">
+<div id="sales-analytics" style="height:100%;">
+
+<div class="chart-container">
+  <center><h4><u>Data Show Graph For Bottom {{train_count}} Train Number Complaint Wise</u></h4></center>
+
+
+<canvas id="myStackedChart" width="400px" height="400px"></canvas>
+<style>
+* {font-family: sans-serif;}
+canvas {
+background: #f6fafd; /* Old browsers */
+background: -moz-linear-gradient(top, #f6fafd 0%, #cbdff2 73%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top, #f6fafd 0%,#cbdff2 73%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom, #f6fafd 0%,#cbdff2 73%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f6fafd', endColorstr='#cbdff2',GradientType=0 ); /* IE6-9 */
+-webkit-border-radius: 6px;
+-moz-border-radius: 6px;
+border-radius: 6px;
+}
+</style>
+
+
+<script>
+// JavaScript source code
+// Return with commas in between
+var numberWithCommas = function (x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+//biomass annual cost
+
+{% for t in total %}
+var dataPack{{forloop.counter}} = {{t}};
+{% endfor %}
+var dates = [{% for b_t in bottom_train %} "{{b_t|convertint}}", {% endfor %}];
+// Chart.defaults.global.elements.rectangle.backgroundColor = '#FF0000';
+
+// var canvasP = document.getElementById("myChart");
+// var ctxP = canvasP.getContext('2d');
+// var myPieChart = new Chart(ctxP, {
+
+var bar_ctx = document.getElementById('myStackedChart');
+var ctxP = bar_ctx.getContext('2d');
+var bar_chart = new Chart(ctxP, {
+    type: 'bar',
+    data: {
+        labels: dates,
+        datasets: [
+        {% for c in color_code %}
+            {
+                label: '{{ all_type|index:forloop.counter }}',
+                data: dataPack{{forloop.counter}},
+                backgroundColor: "{{c}}",
+                hoverBackgroundColor: "{{c}}",
+                hoverBorderWidth: 2,
+                hoverBorderColor:'white'
+            },
+        {% endfor %}
+            
+        ]
+    },
+    options: {
+        animation: {
+            duration: 10,
+        },
+        tooltips: {
+            mode: 'label',
+            callbacks: {
+                label: function (tooltipItem, data) {
+                    return data.datasets[tooltipItem.datasetIndex].label + ": " + numberWithCommas(tooltipItem.yLabel);
+                }
+            }
+        },
+        scales: {
+            xAxes: [{
+                stacked: true,
+                gridLines: { display: false },
+            }],
+            yAxes: [{
+                stacked: true,
+                ticks: {
+                    callback: function (value) { return numberWithCommas(value); },
+                },
+            }],
+        }, // scales
+        legend: { display: true }
+    } // options
+}
+);
+
+
+bar_ctx.onclick = function(e) {
+   var slice = bar_chart.getElementAtEvent(e);
+   if (!slice.length) return; // return if not clicked on slice
+   var label = slice[0]._model.label;
+   switch (label) {
+    {% for b_t in bottom_train %}
+      case '{{b_t}}':
+         window.open('/user/complain/{{b_t}}');
+         break;
+    {% endfor %}
+   }
+}
+</script>
+
+
+
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+
+{% endblock %}
+
+

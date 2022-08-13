@@ -1,25 +1,53 @@
 {% extends 'base.html' %}
+{% load custom %}
 {% block body %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src='https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js
+'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
-<form action="/user/bottom_train_data_bar_chart/" method="POST">{% csrf_token %}
+
+<script>
+$(document).ready(function() {
+    $('#select-all').click(function() {
+        var checked = this.checked;
+        $('input[type="checkbox"]').each(function() {
+        this.checked = checked;
+    });
+    })
+});
+</script>
+
+
+<form action="/user/min_complain_train/" method="POST">{% csrf_token %}
+
+<center>
+<div class="form-check">
+  <label><h5>Select All</h5></label>
+  <input type="checkbox" id="select-all"><br>
+      {% for all_t in all_type %}
+
+        <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}">
+        <label>
+          {{all_t}}&nbsp;&nbsp;
+        </label>
+
+      {% endfor %}
+</div></center>
+
   <center class="center">
 
-    <label for="train_count"><b>Enter Train Count:</b></label>
-    <input type="number" name="train_count" required>
-
     <label for="start_date"><b>From:</b></label>
-    <input type="date" name="start_date" required>
+    <input type="date" name="start_date">
     
     <label for="end_date"><b>To:</b></label>
-    <input name="end_date" type="date" required>
+    <input name="end_date" type="date">
 
 
     <button type="submit" class="btn btn-danger">Submit</button>
   </center>
 </form>
 
-<br>
 <div class="col-xl-8 col-md-12">
 <div class="card">
 <div class="card-header">
@@ -31,10 +59,10 @@
 <div id="sales-analytics" style="height:100%;">
 
 <div class="chart-container">
-  <center><h4><u>Data Show Graph For Bottom {{train_count}} Train Number Complaint Wise</u></h4></center>
+  <center><h4><u>Data Show Graph For Maximum Complain from Each Complain Type</b></u></h4></center>
 
-<canvas id="myChart" height="110px" width="100%"></canvas>
-<br>
+    <canvas id="myChart" height="110px" width="100%"></canvas>
+
 
 
 
@@ -45,11 +73,11 @@ var ctxP = canvasP.getContext('2d');
 var myPieChart = new Chart(ctxP, {
    type: 'bar',
    data: {
-      labels: [{% for m in bottom_train %}'{{m}}',{% endfor %}],
+      labels: [{% for t in total %}'{{t.1}}-({{t.2}})',{% endfor %}],
       datasets: [
         {   
-            label:'Complaint Number',
-            data: {{bottom_data_count}},
+            label:'Maximum Number',
+            data: [{% for t in total %} {{t.0}}, {% endfor %}],
             backgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"],
             hoverBackgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"]
        }]
@@ -69,20 +97,20 @@ var myPieChart = new Chart(ctxP, {
 
 }
 });
+
 canvasP.onclick = function(e) {
    var slice = myPieChart.getElementAtEvent(e);
    if (!slice.length) return; // return if not clicked on slice
    var label = slice[0]._model.label;
    switch (label) {
       // add case for each label/slice
-      {% for p_t in bottom_train %}
-      case '{{p_t}}':
-         window.open('/user/complain/{{p_t}}');
+      {% for t in total %}
+      case '{{t.1}}-({{t.2}})':
+         window.open('/user/complain/{{t.1}}');
          break;
       {% endfor %}
    }
 }
-
 </script>
 
 

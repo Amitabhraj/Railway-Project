@@ -62,6 +62,7 @@
   </center>
 </form>
 {% if show %}
+    <button onClick="download()">Download Data-Graph</button>
     <canvas id="pieChart" height="450px"></canvas>
 {% else %}
 <br>
@@ -106,6 +107,19 @@ canvasP.onclick = function(e) {
          break;
       {% endfor %}
    }
+};
+
+
+function download(){
+  const imageLink = document.createElement('a');
+  const canvas = document.getElementById('pieChart');
+  imageLink.download = 'Data.png'
+  imageLink.href = canvas.toDataURL('media/data/canvas',1);
+  // window.open(imageLink);
+  // document.write('<img src=" '+imageLink+' "/>')
+
+  // console.log(imageLink.href);
+  imageLink.click();
 }
 </script>
 

@@ -29,21 +29,21 @@ $(document).ready(function() {
       <div class="bg-white border rounded-5">
 
 
-
+<center>
 <div class="form-check">
   <label><h5>Select All</h5></label>
   <input type="checkbox" id="select-all"><br>
       {% for t_n in train_number %}
       {% for train_number in t_n %}
 
-  <input type="checkbox" name="train_number" class="check-box mx-2" value="{{train_number|convertint}}">
+  <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}">
   <label>
-    {{train_number | convertint}}
+    {{train_number | convertint}}&nbsp;&nbsp;
   </label>
 
       {% endfor %}
       {% endfor %}
-</div>
+</div></center>
 
 
 

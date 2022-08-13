@@ -3,8 +3,41 @@
 {% block body %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+
+
+<script>
+$(document).ready(function() {
+    $('#select-all').click(function() {
+        var checked = this.checked;
+        $('input[type="checkbox"]').each(function() {
+        this.checked = checked;
+    });
+    })
+});
+</script>
+
 
 <form action="/user/mix_chart/" method="POST">{% csrf_token %}
+
+
+<center>
+<div class="form-check">
+  <label><h5>Select All</h5></label>
+  <input type="checkbox" id="select-all"><br>
+      {% for all_t in all_type %}
+
+        <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}">
+        <label>
+          {{all_t}}&nbsp;&nbsp;
+        </label>
+
+      {% endfor %}
+</div></center>
+
+
+
   <center class="center">
 
     <label for="train_count"><b>Enter Train Count:</b></label>

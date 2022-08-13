@@ -2177,7 +2177,7 @@ def min_complain_coach(request):
         total.append(electrical_equip[0])
         total.append(water_avail[0])
         total.append(punctuality[0])
-        total.append(security[0])
+        total.appends(security[0])
         total.append(medical_assis[0])
         total.append(miscellaneous[0])
         total.append(coach_clean[0])
@@ -2250,6 +2250,7 @@ def mix_chart(request):
 
     if request.method == "POST":
         post=True
+        complain_type = request.POST.getlist('complain_type')
         train_count  = int(request.POST.get('train_count',''))
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
@@ -2406,16 +2407,46 @@ def mix_chart(request):
             data10 = Main_Data_Upload.objects.filter(train_station=trains_nums, problem_type = "Staff Behaviour")
             staff_behave.append(data10.count())
     total = []
-    total.append(coach_clean)
-    total.append(bed_roll)
-    total.append(security)
-    total.append(medical_assis)
-    total.append(punctuality)
-    total.append(water_avail)
-    total.append(electrical_equip)
-    total.append(coach_maintain)
-    total.append(miscellaneous)
-    total.append(staff_behave)
+    if request.method != "POST":
+        total.append(coach_maintain)
+        total.append(bed_roll)
+        total.append(staff_behave)
+        total.append(electrical_equip)
+        total.append(water_avail)
+        total.append(punctuality)
+        total.append(security)
+        total.append(medical_assis)
+        total.append(miscellaneous)
+        total.append(coach_clean)
+        if len(total) == 0:
+            show = False
+        if len(total)>=1:
+            show = True 
+    else:
+        if "Coach - Maintenance" in complain_type:
+            total.append(coach_maintain)
+        if "Bed Roll" in complain_type:
+            total.append(bed_roll)
+        if "Staff Behaviour" in complain_type:
+            total.append(staff_behave)
+        if "Electrical Equipment" in complain_type:
+            total.append(electrical_equip)
+        if "Water Availability" in complain_type:
+            total.append(water_avail)
+        if "Punctuality" in complain_type:
+            total.append(punctuality)
+        if "Security" in complain_type:
+            total.append(security)
+        if "Medical Assistance" in complain_type:
+            total.append(medical_assis)
+        if "Miscellaneous" in complain_type:
+            total.append(miscellaneous)
+        if "Coach - Cleanliness" in complain_type:
+            total.append(coach_clean)
+        if len(total) == 0:
+            show = False
+        if len(total)>=1:
+            show = True 
 
 
     context = {

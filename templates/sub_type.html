@@ -9,11 +9,18 @@
 <form action="/user/sub_type/{{subtype}}/" method="POST">{% csrf_token %}
   <center class="center">
 
-    <label for="start_date"><b>From:</b></label>
-    <input type="date" name="start_date">
-    
-    <label for="end_date"><b>To:</b></label>
-    <input name="end_date" type="date">
+    {% if post %}
+        <label for="start_date"><b>From:</b></label>
+        <input id = "start-date" type="date" name="start_date" value="{{start_date}}">
+        <label for="end_date"><b>To:</b></label>
+        <input id="end-date" type="date" name="end_date" value="{{end_date}}">
+    {% else %}
+        <label for="start_date"><b>From:</b></label>
+        <input id = "start-date" type="date" name="start_date">
+        <label for="end_date"><b>To:</b></label>
+        <input id="end-date" type="date" name="end_date">
+    {% endif %}
+
 
 
     <button type="submit" class="btn btn-danger">Submit</button>

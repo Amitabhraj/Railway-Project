@@ -334,13 +334,18 @@ def dashboard(request):
         else:
             show=True
 
-
+    if request.method != 'POST':
+        start_date = None
+        end_date = None
+        post = False
     context = {
             'show':show,
             'post':post,
             'main_data':main_data,
             'data':data,
-            'occur':occur
+            'occur':occur,
+            'start_date':start_date,
+            'end_date':end_date
         }
     return render(request, 'dashboard.html',context)
 
@@ -396,6 +401,7 @@ def rating(request):
             show = False
         else:
             show=True
+   
 
         context = {
             'show':show,
@@ -405,7 +411,9 @@ def rating(request):
             'satis':satis,
             'excel':excel,
             'nan':nan,
-            'train_number':train_numbers
+            'train_number':train_numbers,
+            'start_date': start_date,
+            'end_date':end_date
         }
 
     else:
@@ -435,6 +443,10 @@ def rating(request):
             show=True
 
 
+        start_date = None
+        end_date = None
+
+
         context ={
             'show':show,
             'post':False,
@@ -442,7 +454,9 @@ def rating(request):
             'satis':satis,
             'excel':excel,
             'nan':nan,
-            'train_number':train_numbers
+            'train_number':train_numbers,
+            # 'start_date':start_date,
+            # 'end_date':end_date
             }
     return render(request, 'rating.html',context)
 
@@ -675,6 +689,8 @@ def trend(request):
     all_type=['Coach - Cleanliness','Bed Roll','Security','Medical Assistance',
               'Punctuality','Water Availability','Electrical Equipment','Coach - Maintenance',
               'Miscellaneous','Staff Behaviour']
+    critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
+                     'Electrical Equipment','Coach - Maintenance',]
 
     sub_type = Main_Data_Upload.objects.values_list('sub_type')
     subtype=[]
@@ -691,7 +707,10 @@ def trend(request):
 
     sts = (set(subtype))
     demo_sub = set(sub_type)
-
+    if request.method != 'POST':
+        start_date = None
+        end_date = None
+        post = False
 
 
     context ={
@@ -711,7 +730,10 @@ def trend(request):
         'total':total,
         'all_type':all_type,
         'sub_type':sts,
-        'demo_sub':demo_sub
+        'demo_sub':demo_sub,
+        'critical_type':critical_type,
+        'start_date':start_date,
+        'end_date':end_date
         }
     return render(request, 'trends.html',context)
 
@@ -914,6 +936,11 @@ def train_wise_data(request):
             data_show = False
         else:
             data_show = True
+        
+        if request.method != 'POST':
+            start_date = None
+            end_date = None
+            post = False
 
         context = {
                     'problem_type':problem_type,
@@ -921,7 +948,9 @@ def train_wise_data(request):
                     'data_count':data_count,
                     'train':trains,
                     'data_show':data_show,
-                    'train_number':train_numbers
+                    'train_number':train_numbers,
+                    'start_date':start_date,
+                    'end_date':end_date
                    }
 
     else:
@@ -1010,12 +1039,19 @@ def bottom_train_data_pie(request):
         for r in a1_sorted_keys:
             bottom_train.append(int(float(r)))
             bottom_data_count.append(make_dict[r])
+
+    if request.method != 'POST':
+        start_date = None
+        end_date = None
+        post = False
     
     context = {
                 'bottom_train':bottom_train[0:train_count],
                 'post':post,
                 'bottom_data_count':bottom_data_count[0:train_count],
                 'train_count':train_count,
+                'start_date':start_date,
+                'end_date':end_date
                }
     return render(request, "bottom_train_data_pie.html",context)
 
@@ -1291,7 +1327,10 @@ def all_complain_train(request):
     sts = (set(subtype))
     demo_sub = set(sub_type)
 
-
+    if request.method != 'POST':
+        start_date = None
+        end_date = None
+        post = False
 
     context ={
         'show':True,
@@ -1311,7 +1350,9 @@ def all_complain_train(request):
         'all_type':all_type,
         'sub_type':sts,
         'demo_sub':demo_sub,
-        'train_number':train_numbers
+        'train_number':train_numbers,
+        'start_date':start_date,
+        'end_date':end_date
         }
     return render(request, 'all_complain_train.html',context)
 
@@ -1398,12 +1439,19 @@ def all_sub_complain_train(request,subtype):
             sub_type_data = Main_Data_Upload.objects.filter(sub_type=f"{subtypes}",train_station=t_r)
             data_count.append(sub_type_data.count())
     
+    if request.method != "POST":
+        start_date = None
+        end_date = None
+        post = False
     context = {
+                'post':post,
                 'show':True,
                 'data_count':data_count,
                 'subtype':subtype,
                 'subtypes':subtypes,
-                'train_numbers':train_numbers
+                'train_numbers':train_numbers,
+                'start_date':start_date,
+                'end_date':end_date
               }
     return render(request,'all_sub_complain_train.html',context)
 
@@ -1421,6 +1469,8 @@ def max_complain_train(request):
     all_type=['Coach - Cleanliness','Bed Roll','Security','Medical Assistance',
               'Punctuality','Water Availability','Electrical Equipment','Coach - Maintenance',
               'Miscellaneous','Staff Behaviour']
+    critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
+                     'Electrical Equipment','Coach - Maintenance',]
     train_numbers = set(train_nums)
     coach_clean = []
     bed_roll = []
@@ -1598,9 +1648,13 @@ def max_complain_train(request):
             show = False
         if len(total)>=1:
             show = True 
-
+    if request.method != "POST":
+        start_date = None
+        end_date = None
+        post = False
     
-    context = {'total':total,'show':show,'all_type':all_type}
+    context = {'post':post,'total':total,'show':show,'all_type':all_type, 'critical_type':critical_type, 'start_date':start_date,
+                'end_date':end_date}
     return render(request, 'max_complain_train.html',context)
 
 
@@ -1620,6 +1674,8 @@ def min_complain_train(request):
     all_type=['Coach - Cleanliness','Bed Roll','Security','Medical Assistance',
               'Punctuality','Water Availability','Electrical Equipment','Coach - Maintenance',
               'Miscellaneous','Staff Behaviour']
+    critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
+                     'Electrical Equipment','Coach - Maintenance',]
     train_numbers = set(train_nums)
     coach_clean = []
     bed_roll = []
@@ -1798,8 +1854,12 @@ def min_complain_train(request):
         if len(total)>=1:
             show = True 
 
-    
-    context = {'total':total,'show':show,'all_type':all_type}
+    if request.method != "POST":
+        start_date = None
+        end_date = None   
+        post = False
+    context = {'post':post,'total':total,'show':show,'all_type':all_type, 'critical_type': critical_type, 'start_date':start_date,
+                'end_date':end_date}
     return render(request, 'min_complain_train.html',context)
 
 
@@ -1829,6 +1889,8 @@ def max_complain_coach(request):
     all_type=['Coach - Cleanliness','Bed Roll','Security','Medical Assistance',
               'Punctuality','Water Availability','Electrical Equipment','Coach - Maintenance',
               'Miscellaneous','Staff Behaviour']
+    critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
+                     'Electrical Equipment','Coach - Maintenance',]
     coaches = set(coach)
     coach_clean = []
     bed_roll = []
@@ -2006,9 +2068,13 @@ def max_complain_coach(request):
             show = False
         if len(total)>=1:
             show = True 
-
+    if request.method != "POST":
+        start_date = None
+        end_date = None
+        post = False
     
-    context = {'total':total,'show':show,'all_type':all_type}
+    context = {'post':post,'total':total,'show':show,'all_type':all_type, 'critical_type': critical_type,'start_date':start_date,
+                'end_date':end_date}
     return render(request, 'max_complain_coach.html',context)
 
 
@@ -2033,6 +2099,8 @@ def min_complain_coach(request):
     all_type=['Coach - Cleanliness','Bed Roll','Security','Medical Assistance',
               'Punctuality','Water Availability','Electrical Equipment','Coach - Maintenance',
               'Miscellaneous','Staff Behaviour']
+    critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
+                     'Electrical Equipment','Coach - Maintenance',]
     coaches = set(coach)
     coach_clean = []
     bed_roll = []
@@ -2210,9 +2278,13 @@ def min_complain_coach(request):
             show = False
         if len(total)>=1:
             show = True 
-
+    if request.method != "POST":
+        start_date = None
+        end_date = None
+        post = False
     
-    context = {'total':total,'show':show,'all_type':all_type}
+    context = {'post':post,'total':total,'show':show,'all_type':all_type, 'critical_type':critical_type,'start_date':start_date,
+                'end_date':end_date}
     return render(request, 'min_complain_coach.html',context)
 
 
@@ -2235,6 +2307,8 @@ def mix_chart(request):
     all_type=['Coach - Cleanliness','Bed Roll','Security','Medical Assistance',
               'Punctuality','Water Availability','Electrical Equipment','Coach - Maintenance',
               'Miscellaneous','Staff Behaviour']
+    critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
+                     'Electrical Equipment','Coach - Maintenance',]
     color_code = ['#FF3838','#FFB3B3','#006441','#FF8300','#EEFF70','#00FF83','#00E8FF',
                 '#4200FF','#BD00FF','#FF8ED3']
     coach_clean = []
@@ -2246,6 +2320,7 @@ def mix_chart(request):
     electrical_equip = []
     coach_maintain = []
     miscellaneous = []
+    total_entries = Main_Data_Upload.objects.count()
     staff_behave = []
 
     if request.method == "POST":
@@ -2270,6 +2345,7 @@ def mix_chart(request):
         data_count=[]
         problem_type = Main_Data_Upload.objects.values_list('problem_type')
         train_numbers = Main_Data_Upload.objects.all()
+
 
         Type=[]
         for s in problem_type:
@@ -2448,7 +2524,10 @@ def mix_chart(request):
             show = False
         if len(total)>=1:
             show = True 
-
+    if request.method != "POST":
+        start_date = None
+        end_date = None
+        post = False
 
     context = {
                 'bottom_train':bottom_train[0:train_count],
@@ -2457,15 +2536,10 @@ def mix_chart(request):
                 'train_count':train_count,
                 'total':total,
                 'all_type':all_type,
-                'color_code':color_code
+                'critical_type': critical_type,
+                'color_code':color_code,
+                'total_entries': total_entries,
+                'start_date':start_date,
+                'end_date':end_date
                }
     return render(request, "responsive.html",context)
-
-
-
-
-
-
-
-
-

@@ -83,55 +83,66 @@ def upload_data(request):
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         print("date and time =", dt_string) 
         csv_data = request.FILES.get('csv')
+        convert_data = str(csv_data).split(" ")
+        print("hello")
+        main_csv_data = "_".join(convert_data)
+        print("yaha tak sahi hai")
         data = CsvFile(csv_data=csv_data).save()
-        df = pd.read_csv(str(BASE_DIR)+"/media/data/railway/" + str(csv_data))
+        print("bilkul sahi hai")
+        df = pd.read_csv(str(BASE_DIR)+"/media/data/railway/" + str(main_csv_data))
+        print(df['Registration Date'])
         length = len(df)
         for i in range(0, length):
-            if df['Registration_Date'][i] == " " or type(df['Registration_Date'][i]) == float:
+            print(df['Registration Date'][i])
+            if df['Registration Date'][i] == " " or type(df['Registration Date'][i]) == float:
                 register_date = None
             else:
-                split_date = df['Registration_Date'][i].split(' ')
+                split_date = df['Registration Date'][i].split(' ')
                 register_date = datetime.datetime.strptime(f'{split_date[0]}', '%d-%m-%y')
-            if df['Closing_Date'][i] == " " or type(df['Closing_Date'][i]) == float:
+            if df['Closing Date'][i] == " " or type(df['Closing Date'][i]) == float:
                 closing_date = None
             else:
-                split_date_2 = df['Closing_Date'][i].split(' ')
+                split_date_2 = df['Closing Date'][i].split(' ')
                 closing_date = datetime.datetime.strptime(f'{split_date_2[0]}', '%d-%m-%y')
-
+            print("ab mere hisab se dikkat nahi hona chahiye")
             Main_Data_Upload(
 
-                sl_no = df['SL_NO'][i],
-                reference_no = df['Ref_No'][i],
+                sl_no = df['Sr no'][i],
+                reference_no = df['Ref. No.'][i],
                 registration_date = register_date,
                 closing_date = closing_date,
-                disposal_time = df['Disposal_Time'][i],
-                mode = df['Mode'][i],
-                train_station = df['Train_Station'][i],
-                channel = df['Channel'][i],
-                Type = df['TYPE'][i],
-                coach_number = df['COACH_NO'][i],
-                rake_number = df['RAKE_NO'][i],
-                staff_name = df['STAFF_NAME'][i],
+                disposal_time = df['Disposal Time'][i],
+                # mode = df['Mode'][i],
+                train_station = df['Train/Station'][i],
+                # channel = df['Channel'][i],
+                # Type = df['Type'][i],
+                coach_number = df['Coach no'][i],
+                rake_number = df['Rake no'][i],
+                staff_name = df['Escort staff'][i],
                 problem_type = df['Type'][i],
-                sub_type = df['Sub_Type'][i],
-                commodity = df['Commodity'][i],
+                sub_type = df['Sub Type'][i],
+                # commodity = df['Commodity'][i],
                 zone = df['Zone'][i],
                 div = df['Div'][i],
                 dept = df['Dept'][i],
                 breach = df['Breach'][i],
                 rating = df['Rating'][i],
                 status = df['Status'][i],
-                complaint_discription = df['Complaint_Description'][i],
+                complaint_discription = df['Complaint Description'][i],
                 remark = df['Remarks'][i],
-                number_of_time_forwarded = df['No_of_times_forwarded'][i],
-                pnr_utc_number = df['PNR_UTS_no'][i],
-                coach_type = df['Coach_Type'][i],
-                coach_number_no = df['Coach_No'][i],
-                feedback_remark = df['Feedback_Remarks'][i],
-                upcoming_station = df['Upcoming_Station'][i],
-                mobile_number_or_email = df['Mobile_No_Email_Id'][i],
-                physical_coach_number = df['Physical_Coach_No'][i]
+                number_of_time_forwarded = df['No. of times forwarded'][i],
+                pnr_utc_number = df['PNR/UTS No'][i],
+                coach_type = df['Coach type'][i],
+                # coach_number_no = df['Coach no'][i],
+                coach_type_2 = df['Coach Type'][i],
+                coach_number_no_2 = df['Coach No.'][i],
+                feedback_remark = df['Feedback Remarks'][i],
+                upcoming_station = df['Upcoming Station'][i],
+                mobile_number_or_email = df['Mobile No./Email Id'][i],
+                physical_coach_number = df['Physical Coach No'][i],
+                train_name = df['Train Name'][i]
             ).save()
+        print("successfully uploaded")
 
         mobile_number = PhoneNumber.objects.all()
         phone_number = []
@@ -359,6 +370,12 @@ def rating(request):
         train.append(tr_nums)
     train_numbers = set(train)
 
+
+    trainsss = Main_Data_Upload.objects.all()
+    main_trains = []
+    for ttt in trainsss:
+        main_trains.append(float(ttt.train_station))
+
    ########## Bar Graph rating ###############
     if request.method == "POST":
         train_number = request.POST.getlist('train_number')
@@ -379,23 +396,31 @@ def rating(request):
 
 
         trains_num = []
-        for t_r in train_number:
-            trains_num.append(int(t_r))
+        for t_r in train_numbers:
+            trains_num.append(t_r)
 
         if delta.days <=0:
             return HttpResponse('<h1>Please Enter Valid Date Range</h1>')
 
-        for i in range(start_month.month,end_month.month+1):
-            dataa = Main_Data_Upload.objects.filter(train_station__in = trains_num, registration_date__month=i)
-            data = []
-            for dd in dataa:
-                data.append(dd.rating)
-            unsatis.append(data.count('Unsatisfactory'))
-            satis.append(data.count('Satisfactory'))
-            nan.append(data.count('nan'))
-            excel.append(data.count('Excellent'))
 
-            months.append(calendar.month_name[i])
+        if len(train_number)  == 0:
+            main_trains = main_trains
+        else:
+            main_trains = train_number
+
+        dataa = Main_Data_Upload.objects.filter(train_station__in = main_trains,registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"])
+        print(dataa)
+        data = []
+        for dd in dataa:
+            data.append(dd.rating)
+        unsatis.append(data.count('Unsatisfactory'))
+        satis.append(data.count('Satisfactory'))
+        nan.append(data.count('nan'))
+        excel.append(data.count('Excellent'))
+
+        print(unsatis)
+
+            # months.append(calendar.month_name[i])
 
         if sum(excel) == 0 and sum(nan) == 0 and sum(unsatis) == 0 and sum(satis) == 0:
             show = False
@@ -423,7 +448,6 @@ def rating(request):
         for f_d in full_rating_data:
             for r_d in f_d:
                 main_rating_data.append(r_d)
-
 
         unsatis = []
         satis = []
@@ -2370,17 +2394,6 @@ def mix_chart(request):
             bottom_train.append(int(float(r)))
             bottom_data_count.append(make_dict[r])
 
-
-        for trains_nums in bottom_train[0:train_count]:
-
-            data1 = Main_Data_Upload.objects.filter(registration_date__gte=start_date,registration_date__lte=end_date,train_station=trains_nums, problem_type = "Coach - Cleanliness")
-            coach_clean.append(data1.count())
-
-
-            data2 = Main_Data_Upload.objects.filter(registration_date__gte=start_date,registration_date__lte=end_date,train_station=trains_nums, problem_type = "Bed Roll")
-            bed_roll.append(data2.count())
-
-
             data3 = Main_Data_Upload.objects.filter(registration_date__gte=start_date,registration_date__lte=end_date,train_station=trains_nums, problem_type = "Security")
             security.append(data3.count())
 
@@ -2528,6 +2541,7 @@ def mix_chart(request):
         start_date = None
         end_date = None
         post = False
+        complain_type = None
 
     context = {
                 'bottom_train':bottom_train[0:train_count],
@@ -2535,11 +2549,13 @@ def mix_chart(request):
                 'bottom_data_count':bottom_data_count[0:train_count],
                 'train_count':train_count,
                 'total':total,
-                'all_type':all_type,
+                'all_type':all_type
                 'critical_type': critical_type,
                 'color_code':color_code,
                 'total_entries': total_entries,
                 'start_date':start_date,
                 'end_date':end_date
+                'color_code':color_code,
+                'complain_type':complain_type
                }
     return render(request, "responsive.html",context)

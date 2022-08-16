@@ -2350,7 +2350,6 @@ def mix_chart(request):
     if request.method == "POST":
         post=True
         complain_type = request.POST.getlist('complain_type')
-        print(complain_type)
         train_count  = int(request.POST.get('train_count',''))
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
@@ -2549,12 +2548,12 @@ def mix_chart(request):
                 'bottom_data_count':bottom_data_count[0:train_count],
                 'train_count':train_count,
                 'total':total,
-                'all_type':all_type
+                'all_type':all_type,
                 'critical_type': critical_type,
                 'color_code':color_code,
                 'total_entries': total_entries,
                 'start_date':start_date,
-                'end_date':end_date
+                'end_date':end_date,
                 'color_code':color_code,
                 'complain_type':complain_type
                }

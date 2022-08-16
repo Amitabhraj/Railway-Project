@@ -98,11 +98,6 @@ var numberWithCommas = function (x) {
 var dataPack{{forloop.counter}} = {{t}};
 {% endfor %}
 var dates = [{% for b_t in bottom_train %} "{{b_t|convertint}}", {% endfor %}];
-// Chart.defaults.global.elements.rectangle.backgroundColor = '#FF0000';
-
-// var canvasP = document.getElementById("myChart");
-// var ctxP = canvasP.getContext('2d');
-// var myPieChart = new Chart(ctxP, {
 
 var bar_ctx = document.getElementById('myStackedChart');
 var ctxP = bar_ctx.getContext('2d');
@@ -113,12 +108,21 @@ var bar_chart = new Chart(ctxP, {
         datasets: [
         {% for c in color_code %}
             {
+              {% if not post %}
                 label: '{{ all_type|index:forloop.counter }}',
                 data: dataPack{{forloop.counter}},
                 backgroundColor: "{{c}}",
                 hoverBackgroundColor: "{{c}}",
                 hoverBorderWidth: 2,
                 hoverBorderColor:'white'
+              {% else %}
+              label: {{complain_type}},
+              data: dataPack{{forloop.counter}},
+              backgroundColor: "{{c}}",
+              hoverBackgroundColor: "{{c}}",
+              hoverBorderWidth: 2,
+              hoverBorderColor:'white'
+              {% endif %}
             },
         {% endfor %}
             

@@ -901,7 +901,7 @@ def complain_type(request, complain):
     problem_type = []
     print(type(complain_type))
     for p in problem_types:
-        if p[2] == complain_type or p[3] == complain_type or str(int(p[1])) == complain_type or str(calendar.month_name[p[6].month]) == str(complain_type):
+        if p[2] == complain_type or p[3] == complain_type or str(int(p[0])) == complain_type or str(int(p[1])) == complain_type or str(calendar.month_name[p[6].month]) == str(complain_type):
             problem_type.append(p)
         if complain_type == "All_data":
             all_data = True

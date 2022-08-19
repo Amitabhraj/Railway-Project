@@ -84,11 +84,8 @@ def upload_data(request):
         print("date and time =", dt_string) 
         csv_data = request.FILES.get('csv')
         convert_data = str(csv_data).split(" ")
-        print("hello")
         main_csv_data = "_".join(convert_data)
-        print("yaha tak sahi hai")
         data = CsvFile(csv_data=csv_data).save()
-        print("bilkul sahi hai")
         df = pd.read_csv(str(BASE_DIR)+"/media/data/railway/" + str(main_csv_data))
         print(df['Registration Date'])
         length = len(df)
@@ -104,9 +101,7 @@ def upload_data(request):
             else:
                 split_date_2 = df['Closing Date'][i].split(' ')
                 closing_date = datetime.datetime.strptime(f'{split_date_2[0]}', '%d-%m-%y')
-            print("ab mere hisab se dikkat nahi hona chahiye")
             Main_Data_Upload(
-
                 sl_no = df['Sl. No.'][i],
                 reference_no = df['Ref. No.'][i],
                 registration_date = register_date,
@@ -1916,6 +1911,7 @@ def max_complain_coach(request):
     critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
                      'Electrical Equipment','Coach - Maintenance',]
     coaches = set(coach)
+    print(coaches)
     coach_clean = []
     bed_roll = []
     security = []

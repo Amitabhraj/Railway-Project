@@ -58,13 +58,24 @@ $(document).ready(function() {
 </div></center>
 
 
+<style>
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
+}
+</style>
+
 
   <center class="center">
 
 
    
     <label for="train_count"><b>Enter Train Count:</b></label>
-    <input id="train-count" type="number" name="train_count" width="20px">
+    <!-- <input id="train-count" type="tel" minlength="10" maxlength="10" name="train_count" width="20px"> -->
+    <input name="train-count" pattern="[1-9]{1}[0-9]{9}"  id="mobile" type="text" name="train-count">
     {% if post %}
         <label for="start_date"><b>From:</b></label>
         <input id = "start-date" type="date" name="start_date" value="{{start_date}}">

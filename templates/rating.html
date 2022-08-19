@@ -83,11 +83,7 @@ var ctxP = canvasP.getContext('2d');
 var myPieChart = new Chart(ctxP, {
    type: 'bar',
    data: {
-    {% if post %}
-      labels: [{% for m in months %}'{{m}}',{% endfor %}],
-    {% else %}
     labels: ['All Data'],
-    {% endif %}
       datasets: [
         {
             label: "Unsatisfactory",

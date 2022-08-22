@@ -54,17 +54,12 @@ $(document).ready(function() {
   <center><h4><u>Data Show Graph For Railway Complaint Type</u></h4></center>
 
   <center class="center">
-    {% if post %}
-        <label for="start_date"><b>From:</b></label>
-        <input id = "start-date" type="date" name="start_date" value="{{start_date}}">
-        <label for="end_date"><b>To:</b></label>
-        <input id="end-date" type="date" name="end_date" value="{{end_date}}">
-    {% else %}
-        <label for="start_date"><b>From:</b></label>
-        <input id = "start-date" type="date" name="start_date">
-        <label for="end_date"><b>To:</b></label>
-        <input id="end-date" type="date" name="end_date">
-    {% endif %}
+
+    <label for="start_date"><b>From:</b></label>
+    <input type="date" name="start_date" required>
+    
+    <label for="end_date"><b>To:</b></label>
+    <input name="end_date" type="date" required>
 
 
     <button type="submit" class="btn btn-danger">Submit</button>
@@ -72,7 +67,7 @@ $(document).ready(function() {
 </form>
 {% if show %}
     <button type="button" onClick="download()">Download Data-Graph</button>
-    <canvas id="pieChart1" height="110px" width="100%"></canvas>
+    <canvas id="pieChart1" height="60px" width="100%"></canvas>
 {% else %}
 <br>
 <center><h2>No Data To Display</h2></center>

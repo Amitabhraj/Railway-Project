@@ -31,8 +31,10 @@ $(document).ready(function() {
 
 <center>
 <div class="form-check">
+
   <label><h5>Select All</h5></label>
   <input type="checkbox" id="select-all"><br>
+
       {% for t_n in train_number %}
       {% for train_number in t_n %}
 
@@ -66,7 +68,7 @@ $(document).ready(function() {
 </form>
 
 <br>
-<div class="col-xl-8 col-md-12">
+<div class="col-xl-12 col-md-12">
 <div class="card">
 <div class="card-header">
 <h4>Railway Data</h4>
@@ -85,7 +87,7 @@ $(document).ready(function() {
 
 {% if post %}
 {% if data_show %}
-    <canvas id="myChart" height="110px" width="100%"></canvas>
+    <canvas id="myChart" height="50px" width="100%"></canvas>
 {% else %}
 <br>
 <center><h2>Currenly No Data for this Train Number</h2></center>

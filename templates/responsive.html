@@ -58,23 +58,33 @@ $(document).ready(function() {
 </div></center>
 
 
+<style>
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
+}
+</style>
+
 
   <center class="center">
 
 
    
     <label for="train_count"><b>Enter Train Count:</b></label>
-    <input id="train-count" type="number" name="train_count" width="20px">
+    <input name="train-count" id="mobile" type="number" name="train-count" required>
     {% if post %}
         <label for="start_date"><b>From:</b></label>
-        <input id = "start-date" type="date" name="start_date" value="{{start_date}}">
+        <input id = "start-date" type="date" name="start_date" value="{{start_date}}" required>
         <label for="end_date"><b>To:</b></label>
-        <input id="end-date" type="date" name="end_date" value="{{end_date}}">
+        <input id="end-date" type="date" name="end_date" value="{{end_date}}" required>
     {% else %}
         <label for="start_date"><b>From:</b></label>
-        <input id = "start-date" type="date" name="start_date">
+        <input id = "start-date" type="date" name="start_date" required>
         <label for="end_date"><b>To:</b></label>
-        <input id="end-date" type="date" name="end_date">
+        <input id="end-date" type="date" name="end_date" required>
     {% endif %}
 
     <button type="submit" class="btn btn-danger">Submit</button>
@@ -102,7 +112,7 @@ $(document).ready(function() {
     {% endif %}
 
 
-<canvas id="myStackedChart" width="400px" height="400px"></canvas>
+<canvas id="myStackedChart" width="100px" height="80px"></canvas>
 <style>
 * {font-family: sans-serif;}
 canvas {
@@ -139,20 +149,20 @@ var bar_chart = new Chart(ctxP, {
     data: {
         labels: dates,
         datasets: [
-        {% for c in color_code %}
+        {% for t in total %}
             {
               {% if not post %}
                 label: '{{ all_type|index:forloop.counter }}',
                 data: dataPack{{forloop.counter}},
-                backgroundColor: "{{c}}",
-                hoverBackgroundColor: "{{c}}",
+                backgroundColor: "{{color_code|index:forloop.counter}}",
+                hoverBackgroundColor: "{{color_code|index:forloop.counter}}",
                 hoverBorderWidth: 2,
                 hoverBorderColor:'white'
               {% else %}
-              label: {{complain_type}},
+              label: '{{ complain_type|index:forloop.counter }}',
               data: dataPack{{forloop.counter}},
-              backgroundColor: "{{c}}",
-              hoverBackgroundColor: "{{c}}",
+              backgroundColor: "{{color_code|index:forloop.counter}}",
+              hoverBackgroundColor: "{{color_code|index:forloop.counter}}",
               hoverBorderWidth: 2,
               hoverBorderColor:'white'
               {% endif %}

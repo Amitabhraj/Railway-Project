@@ -48,7 +48,7 @@
 
 
 {% if show %}
-    <a target="blank"href="/user/complain/{{all_type|index:forloop.counter0}}"><canvas id="myChart{{forloop.counter}}" height="105px" width="100%"></canvas></a>
+    <a target="blank"href="/user/complain/{{all_type|index:forloop.counter0}}"><canvas id="myChart{{forloop.counter}}" height="40px" width="100%"></canvas></a>
 {% else %}
 <br>
 <center><h2>No Data To Display</h2></center>
@@ -74,6 +74,15 @@
     data: data{{forloop.counter}},
     options: {
       responsive:true,
+      scales: {
+       yAxes: [{
+           ticks: {
+               beginAtZero: true,
+               max: 1,
+               min: 0
+           }
+   }]
+}
     }
   };
 </script>

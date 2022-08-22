@@ -23,13 +23,13 @@
 
 
 {% for message in messages %}
-<div id="alert" class="alert alert-success mx-2">{{message}}
+<div id="alert" class="alert alert-{{ message.tags }}">{{message}}
 </div>
   
 <script type="text/javascript">
 setTimeout(function () {
     $('#alert').alert('close');
-}, 3000);
+}, 4000);
 </script>
 {% endfor %}
 

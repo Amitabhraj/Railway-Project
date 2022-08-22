@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from django.http import HttpResponse,HttpResponseRedirect,JsonResponse
 from .models import *
 import math
+import more_itertools
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.contrib.auth import login as auth_login
@@ -836,6 +837,8 @@ def sub_type(request,subtype):
             dates.append(str(day.day)+" "+str(calendar.month_name[day.month])+","+ str(day.year))    
             sub_type_data = Main_Data_Upload.objects.filter(sub_type=f"{subtypes}",registration_date__day=day.day,registration_date__month=day.month,registration_date__year=day.year)
             data_count.append(sub_type_data.count())
+        dates.reverse()
+        data_count.reverse()
     context = {
                 'show':True,
                 'data_count':data_count,
@@ -894,15 +897,21 @@ def complain_type(request, complain):
                                                         'registration_date',
                                                         'complaint_discription')
     problem_type = []
-    print(type(complain_type))
     for p in problem_types:
-        if p[2] == complain_type or p[3] == complain_type or str(int(p[0])) == complain_type or str(int(p[1])) == complain_type or str(calendar.month_name[p[6].month]) == str(complain_type):
+        if str(int(p[1])) == complain_type:
             problem_type.append(p)
-        if complain_type == "All_data":
-            all_data = True
-        else:
-            all_data=False
-    context = {'complain_type':complain_type, 'problem_type':problem_type,'all_data':all_data}
+        # if p[2] == complain_type or p[3] == complain_type or str(int(p[0])) == complain_type or str(int(p[1])) == complain_type or str(calendar.month_name[p[6].month]) == str(complain_type):
+        #     problem_type.append(p)
+        elif complain_type == "All_data":
+            problem_type.append(p)
+
+        elif complain_type == str(p[3]):
+            problem_type.append(p)
+
+        elif complain_type == str(p[2]):
+            problem_type.append(p)
+
+    context = {'complain_type':complain_type, 'problem_type':problem_type}
     return render(request, 'complain_type.html',context)
 
 
@@ -1462,6 +1471,9 @@ def all_sub_complain_train(request,subtype):
         start_date = None
         end_date = None
         post = False
+
+    else:
+        post=True
     context = {
                 'post':post,
                 'show':True,
@@ -2310,15 +2322,7 @@ def min_complain_coach(request):
 
 
 
-
-
-
-
-
-
-
-
-
+import operator
 
 
 def mix_chart(request):
@@ -2346,7 +2350,7 @@ def mix_chart(request):
     if request.method == "POST":
         post=True
         complain_type = request.POST.getlist('complain_type')
-        train_count  = int(request.POST.get('train_count',''))
+        train_count  = int(request.POST.get('train-count',''))
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
@@ -2380,44 +2384,55 @@ def mix_chart(request):
         problem_types = set(Type)
 
         for tr_n in train_number:
-            a = Main_Data_Upload.objects.filter(problem_type__in=problem_types,train_station=tr_n,registration_date__gte=start_date,registration_date__lte=end_date)
+            a = Main_Data_Upload.objects.filter(problem_type__in=problem_types,train_station=tr_n,registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"])
             data_count.append(a.count())
 
         make_dict = dict(zip(str_train_number,data_count))
-        a1_sorted_keys = sorted(make_dict, key=make_dict.get, reverse=True)
-        for r in a1_sorted_keys:
+        a1_sorted_keys = dict(sorted(make_dict.items(), key=operator.itemgetter(1),reverse=True))
+        first_n = sorted(a1_sorted_keys, key=a1_sorted_keys.get, reverse=True)[:train_count]
+        for r in first_n:
+            print(int(float(r))," ---> ",make_dict[r])
             bottom_train.append(int(float(r)))
             bottom_data_count.append(make_dict[r])
 
-            data3 = Main_Data_Upload.objects.filter(registration_date__gte=start_date,registration_date__lte=end_date,train_station=trains_nums, problem_type = "Security")
+            data1 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Coach - Cleanliness")
+            coach_clean.append(data1.count())
+
+
+            data2 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Bed Roll")
+            bed_roll.append(data2.count())
+
+
+            data3 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Security")
             security.append(data3.count())
 
 
-            data4 = Main_Data_Upload.objects.filter(registration_date__gte=start_date,registration_date__lte=end_date,train_station=trains_nums, problem_type = "Medical Assistance")
+            data4 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Medical Assistance")
             medical_assis.append(data4.count())
 
 
-            data5 = Main_Data_Upload.objects.filter(registration_date__gte=start_date,registration_date__lte=end_date,train_station=trains_nums, problem_type = "Punctuality")
+            data5 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Punctuality")
             punctuality.append(data5.count())
 
 
-            data6 = Main_Data_Upload.objects.filter(registration_date__gte=start_date,registration_date__lte=end_date,train_station=trains_nums, problem_type = "Water Availability")
+            data6 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Water Availability")
             water_avail.append(data6.count())
 
 
-            data7 = Main_Data_Upload.objects.filter(registration_date__gte=start_date,registration_date__lte=end_date,train_station=trains_nums, problem_type = "Electrical Equipment")
+            data7 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Electrical Equipment")
             electrical_equip.append(data7.count())
 
 
-            data8 = Main_Data_Upload.objects.filter(registration_date__gte=start_date,registration_date__lte=end_date,train_station=trains_nums, problem_type = "Coach - Maintenance")
+
+            data8 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Coach - Maintenance")
             coach_maintain.append(data8.count())
 
 
-            data9 = Main_Data_Upload.objects.filter(registration_date__gte=start_date,registration_date__lte=end_date,train_station=trains_nums, problem_type = "Miscellaneous")
+            data9 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Miscellaneous")
             miscellaneous.append(data9.count())
 
 
-            data10 = Main_Data_Upload.objects.filter(registration_date__gte=start_date,registration_date__lte=end_date,train_station=trains_nums, problem_type = "Staff Behaviour")
+            data10 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Staff Behaviour")
             staff_behave.append(data10.count())
 
     else:
@@ -2445,17 +2460,15 @@ def mix_chart(request):
             data_count.append(a.count())
 
         make_dict = dict(zip(str_train_number,data_count))
-        a1_sorted_keys = sorted(make_dict, key=make_dict.get, reverse=True)
-        for r in a1_sorted_keys:
-            bottom_train.append(int(float(r)))
-            bottom_data_count.append(make_dict[r])
-
-        for trains_nums in bottom_train[0:train_count]:
+        a1_sorted_keys = dict(sorted(make_dict.items(), key=operator.itemgetter(1),reverse=True))
+        first_n = sorted(a1_sorted_keys, key=a1_sorted_keys.get, reverse=True)[:train_count]
+        for trains_nums in first_n:
+            bottom_train.append(int(float(trains_nums)))
+            bottom_data_count.append(make_dict[trains_nums])
 
 
             data1 = Main_Data_Upload.objects.filter(train_station=trains_nums, problem_type = "Coach - Cleanliness")
             coach_clean.append(data1.count())
-
 
             data2 = Main_Data_Upload.objects.filter(train_station=trains_nums, problem_type = "Bed Roll")
             bed_roll.append(data2.count())
@@ -2539,7 +2552,7 @@ def mix_chart(request):
         complain_type = None
 
     context = {
-                'bottom_train':bottom_train[0:train_count],
+                'bottom_train':bottom_train,
                 'post':post,
                 'bottom_data_count':bottom_data_count[0:train_count],
                 'train_count':train_count,

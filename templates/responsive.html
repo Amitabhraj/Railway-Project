@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load custom %}
 {% block body %}
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -15,6 +17,12 @@ $(document).ready(function() {
         this.checked = checked;
     });
     })
+    $('#select-critical').click(function() {
+        var checked = this.checked;
+        $('input[critical="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
 });
 </script>
 
@@ -24,31 +32,60 @@ $(document).ready(function() {
 
 <center>
 <div class="form-check">
-  <label><h5>Select All</h5></label>
-  <input type="checkbox" id="select-all"><br>
+    <div class="select-type d-flex justify-content-center">
+        <div class="select-all">
+            <label><h5>Select All</h5></label>
+            <input type="checkbox" id="select-all"><br>
+        </div>
+
+        <div class="select-critical mx-3">
+            <label><h5>Select Critical</h5></label>
+            <input type="checkbox" id="select-critical"><br>
+        </div>
+        
+    </div>
+
       {% for all_t in all_type %}
-
-        <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}">
-        <label>
-          {{all_t}}&nbsp;&nbsp;
-        </label>
-
+        {% if all_t in critical_type %}
+            <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="true">
+        {% else %}
+            <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="false">
+        {% endif %}
+            <label>
+            {{all_t}}&nbsp;&nbsp;
+            </label>
       {% endfor %}
 </div></center>
 
 
+<style>
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
+}
+</style>
+
 
   <center class="center">
 
+
+   
     <label for="train_count"><b>Enter Train Count:</b></label>
-    <input type="number" name="train_count" required>
-
-    <label for="start_date"><b>From:</b></label>
-    <input type="date" name="start_date" required>
-    
-    <label for="end_date"><b>To:</b></label>
-    <input name="end_date" type="date" required>
-
+    <input name="train-count" id="mobile" type="number" name="train-count" required>
+    {% if post %}
+        <label for="start_date"><b>From:</b></label>
+        <input id = "start-date" type="date" name="start_date" value="{{start_date}}" required>
+        <label for="end_date"><b>To:</b></label>
+        <input id="end-date" type="date" name="end_date" value="{{end_date}}" required>
+    {% else %}
+        <label for="start_date"><b>From:</b></label>
+        <input id = "start-date" type="date" name="start_date" required>
+        <label for="end_date"><b>To:</b></label>
+        <input id="end-date" type="date" name="end_date" required>
+    {% endif %}
 
     <button type="submit" class="btn btn-danger">Submit</button>
   </center>
@@ -65,11 +102,17 @@ $(document).ready(function() {
 <div class="card-blockk">
 <div id="sales-analytics" style="height:100%;">
 
+
 <div class="chart-container">
-  <center><h4><u>Data Show Graph For Bottom {{train_count}} Train Number Complaint Wise</u></h4></center>
+    
+    {% if train_count > total_entries %}
+        <center><h4><u>There are maximum {{total_entries}} Data entries. Showing data for {{total_entries}} entries.</u></h4></center>
+    {% else %}
+        <center><h4><u>Data Show Graph For Bottom {{train_count}} Train Number Complaint Wise</u></h4></center>
+    {% endif %}
 
 
-<canvas id="myStackedChart" width="400px" height="400px"></canvas>
+<canvas id="myStackedChart" width="100px" height="80px"></canvas>
 <style>
 * {font-family: sans-serif;}
 canvas {
@@ -106,20 +149,20 @@ var bar_chart = new Chart(ctxP, {
     data: {
         labels: dates,
         datasets: [
-        {% for c in color_code %}
+        {% for t in total %}
             {
               {% if not post %}
                 label: '{{ all_type|index:forloop.counter }}',
                 data: dataPack{{forloop.counter}},
-                backgroundColor: "{{c}}",
-                hoverBackgroundColor: "{{c}}",
+                backgroundColor: "{{color_code|index:forloop.counter}}",
+                hoverBackgroundColor: "{{color_code|index:forloop.counter}}",
                 hoverBorderWidth: 2,
                 hoverBorderColor:'white'
               {% else %}
-              label: {{complain_type}},
+              label: '{{ complain_type|index:forloop.counter }}',
               data: dataPack{{forloop.counter}},
-              backgroundColor: "{{c}}",
-              hoverBackgroundColor: "{{c}}",
+              backgroundColor: "{{color_code|index:forloop.counter}}",
+              hoverBackgroundColor: "{{color_code|index:forloop.counter}}",
               hoverBorderWidth: 2,
               hoverBorderColor:'white'
               {% endif %}
@@ -170,20 +213,19 @@ bar_ctx.onclick = function(e) {
     {% endfor %}
    }
 }
+
 </script>
 
 
 
 
+</div>  
 </div>
 </div>
 </div>
-</div>
-
-
-
-
 
 {% endblock %}
+
+    
 
 

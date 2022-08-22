@@ -5,7 +5,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
+<script src='https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js
+'></script>
 
 <script>
 $(document).ready(function() {
@@ -17,6 +18,7 @@ $(document).ready(function() {
     })
 });
 </script>
+
 
 <form action="/user/rating/" method="POST">{% csrf_token %}
 <center>
@@ -64,8 +66,8 @@ $(document).ready(function() {
   </center>
 </form>
 {% if show %}
-  <button onClick="download()">Download Data-Graph</button>
-    <canvas id="pieChart1" height="110px" width="100%"></canvas>
+    <button type="button" onClick="download()">Download Data-Graph</button>
+    <canvas id="pieChart1" height="60px" width="100%"></canvas>
 {% else %}
 <br>
 <center><h2>No Data To Display</h2></center>
@@ -81,11 +83,7 @@ var ctxP = canvasP.getContext('2d');
 var myPieChart = new Chart(ctxP, {
    type: 'bar',
    data: {
-    {% if post %}
-      labels: [{% for m in months %}'{{m}}',{% endfor %}],
-    {% else %}
     labels: ['All Data'],
-    {% endif %}
       datasets: [
         {
             label: "Unsatisfactory",
@@ -133,11 +131,16 @@ canvasP.onclick = function(e) {
    }
 }
 
+
 function download(){
   const imageLink = document.createElement('a');
-  const canvas = document.getElementById('pieChart');
+  const canvas = document.getElementById('pieChart1');
   imageLink.download = 'Data.png'
   imageLink.href = canvas.toDataURL('media/data/canvas',1);
+  // window.open(imageLink);
+  // document.write('<img src=" '+imageLink+' "/>')
+
+  // console.log(imageLink.href);
   imageLink.click();
 }
 </script>

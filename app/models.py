@@ -4,6 +4,12 @@ from django.utils import timezone
 # Create your models here.
 
 
+type_status=(
+    ("RNCC", "RNCC"),
+    ("RGD", "RGD")
+)
+
+
 
 class Main_Data_Upload(models.Model):
     unique_id = models.FloatField(default=None, null=True, blank=True)
@@ -14,10 +20,11 @@ class Main_Data_Upload(models.Model):
     disposal_time = models.CharField(max_length=10000000,default=None, null=True, blank=True)
     mode = models.CharField(max_length=10000000,default=None, null=True, blank=True)
     train_station = models.FloatField(null=True, blank=True)
+    station_name = models.CharField(max_length=10000000,default=None, null=True, blank=True)
     channel = models.CharField(max_length=10000000,default=None, null=True, blank=True)
     Type = models.CharField(max_length=10000000,default=None, null=True, blank=True)
-    coach_number = models.FloatField(null=True, blank=True)
-    rake_number = models.FloatField(null=True, blank=True)
+    coach_number = models.CharField(max_length=10000000,default=True,null=True, blank=True)
+    rake_number = models.CharField(max_length=10000000,default=None, null=True, blank=True)
     staff_name = models.CharField(max_length=10000000,default=None, null=True, blank=True)
     problem_type = models.CharField(max_length=10000000,default=None, null=True, blank=True)
     sub_type = models.CharField(max_length=10000000,default=None, null=True, blank=True)
@@ -34,10 +41,13 @@ class Main_Data_Upload(models.Model):
     pnr_utc_number = models.CharField(max_length=100000000,default=None, null=True, blank=True)
     coach_type = models.CharField(max_length=10000000,default=None, null=True, blank=True)
     coach_number_no = models.CharField(max_length=100000000,default=None, null=True, blank=True)
+    coach_type_2 = models.CharField(max_length=10000000,default=None, null=True, blank=True)
+    coach_number_no_2 = models.CharField(max_length=100000000,default=None, null=True, blank=True)
     feedback_remark = models.TextField(max_length=100000000, default=None, null=True, blank=True)
     upcoming_station = models.CharField(max_length=10000000,default=None, null=True, blank=True)
     mobile_number_or_email = models.CharField(max_length=10000000,default=None, null=True, blank=True)
     physical_coach_number = models.FloatField(default=None, null=True, blank=True)
+    train_name = models.CharField(max_length=10000000,default=None, null=True, blank=True)
 
 
 
@@ -68,6 +78,14 @@ class CsvFile(models.Model):
     def __str__(self):
         return str(self.csv_data)
 
+
+
+class Train_Type(models.Model):
+    train_number = models.IntegerField(default=None, null=True, blank=True)
+    Type = models.CharField(choices=type_status, default=None, max_length=200)
+
+    def __str__(self):
+        return (str(self.train_number)+"------>"+str(self.Type))
 
 
 

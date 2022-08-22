@@ -28,6 +28,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+DOMAIN_HOST = "https://testseries.suvidhaen.com"
+CSRF_TRUSTED_ORIGINS = ['https://testseries.suvidhaen.com']
+
+
 
 APPEND_SLASH = True
 

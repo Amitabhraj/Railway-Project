@@ -80,84 +80,89 @@ def change_password(request):
 @csrf_exempt
 def upload_data(request):
     if request.method == "POST":
-        now = datetime.datetime.now()
-        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        print("date and time =", dt_string) 
-        csv_data = request.FILES.get('csv')
-        convert_data = str(csv_data).split(" ")
-        main_csv_data = "_".join(convert_data)
-        data = CsvFile(csv_data=csv_data).save()
-        df = pd.read_csv(str(BASE_DIR)+"/media/data/railway/" + str(main_csv_data))
-        print(df['Registration Date'])
-        length = len(df)
-        for i in range(0, length):
-            print(df['Registration Date'][i])
-            if df['Registration Date'][i] == " " or type(df['Registration Date'][i]) == float:
-                register_date = None
-            else:
-                split_date = df['Registration Date'][i].split(' ')
-                register_date = datetime.datetime.strptime(f'{split_date[0]}', '%d-%m-%y')
-            if df['Closing Date'][i] == " " or type(df['Closing Date'][i]) == float:
-                closing_date = None
-            else:
-                split_date_2 = df['Closing Date'][i].split(' ')
-                closing_date = datetime.datetime.strptime(f'{split_date_2[0]}', '%d-%m-%y')
-            Main_Data_Upload(
-                sl_no = df['Sl. No.'][i],
-                reference_no = df['Ref. No.'][i],
-                registration_date = register_date,
-                closing_date = closing_date,
-                disposal_time = df['Disposal Time'][i],
-                # mode = df['Mode'][i],
-                train_station = df['Train'][i],
-                channel = df['Channel'][i],
-                # Type = df['Type'][i],
-                coach_number = df['Physical Coach No'][i],
-                # rake_number = df['Rake no'][i],
-                # staff_name = df['Escort staff'][i],
-                problem_type = df['Type'][i],
-                sub_type = df['Sub Type'][i],
-                commodity = df['Commodity'][i],
-                zone = df['Zone'][i],
-                div = df['Div'][i],
-                dept = df['Dept'][i],
-                breach = df['Breach'][i],
-                rating = df['Rating'][i],
-                status = df['Status'][i],
-                complaint_discription = df['Complaint Description'][i],
-                remark = df['Remarks'][i],
-                number_of_time_forwarded = df['No. of times forwarded'][i],
-                pnr_utc_number = df['PNR/UTS No'][i],
-                coach_type = df['Coach Type'][i],
-                # coach_number_no = df['Coach no'][i],
-                # coach_type_2 = df['Coach Type'][i],
-                coach_number_no_2 = df['Coach No.'][i],
-                feedback_remark = df['Feedback Remarks'][i],
-                upcoming_station = df['Upcoming Station'][i],
-                mobile_number_or_email = df['Mobile No./Email Id'][i],
-                # physical_coach_number = df['Physical Coach No'][i],
-                train_name = df['Train Name'][i]
-            ).save()
-        print("successfully uploaded")
+        user = User.objects.get(id=request.user.id)
+        if user.groups.filter(name='Moderator').exists():
+            now = datetime.datetime.now()
+            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+            print("date and time =", dt_string) 
+            csv_data = request.FILES.get('csv')
+            convert_data = str(csv_data).split(" ")
+            main_csv_data = "_".join(convert_data)
+            data = CsvFile(csv_data=csv_data).save()
+            df = pd.read_csv(str(BASE_DIR)+"/media/data/railway/" + str(main_csv_data))
+            print(df['Registration Date'])
+            length = len(df)
+            for i in range(0, length):
+                print(df['Registration Date'][i])
+                if df['Registration Date'][i] == " " or type(df['Registration Date'][i]) == float:
+                    register_date = None
+                else:
+                    split_date = df['Registration Date'][i].split(' ')
+                    register_date = datetime.datetime.strptime(f'{split_date[0]}', '%d-%m-%y')
+                if df['Closing Date'][i] == " " or type(df['Closing Date'][i]) == float:
+                    closing_date = None
+                else:
+                    split_date_2 = df['Closing Date'][i].split(' ')
+                    closing_date = datetime.datetime.strptime(f'{split_date_2[0]}', '%d-%m-%y')
+                Main_Data_Upload(
+                    sl_no = df['Sl. No.'][i],
+                    reference_no = df['Ref. No.'][i],
+                    registration_date = register_date,
+                    closing_date = closing_date,
+                    disposal_time = df['Disposal Time'][i],
+                    # mode = df['Mode'][i],
+                    train_station = df['Train'][i],
+                    channel = df['Channel'][i],
+                    # Type = df['Type'][i],
+                    coach_number = df['Physical Coach No'][i],
+                    # rake_number = df['Rake no'][i],
+                    # staff_name = df['Escort staff'][i],
+                    problem_type = df['Type'][i],
+                    sub_type = df['Sub Type'][i],
+                    commodity = df['Commodity'][i],
+                    zone = df['Zone'][i],
+                    div = df['Div'][i],
+                    dept = df['Dept'][i],
+                    breach = df['Breach'][i],
+                    rating = df['Rating'][i],
+                    status = df['Status'][i],
+                    complaint_discription = df['Complaint Description'][i],
+                    remark = df['Remarks'][i],
+                    number_of_time_forwarded = df['No. of times forwarded'][i],
+                    pnr_utc_number = df['PNR/UTS No'][i],
+                    coach_type = df['Coach Type'][i],
+                    # coach_number_no = df['Coach no'][i],
+                    # coach_type_2 = df['Coach Type'][i],
+                    coach_number_no_2 = df['Coach No.'][i],
+                    feedback_remark = df['Feedback Remarks'][i],
+                    upcoming_station = df['Upcoming Station'][i],
+                    mobile_number_or_email = df['Mobile No./Email Id'][i],
+                    # physical_coach_number = df['Physical Coach No'][i],
+                    train_name = df['Train Name'][i]
+                ).save()
+            print("successfully uploaded")
 
-        mobile_number = PhoneNumber.objects.all()
-        phone_number = []
-        for m_n in mobile_number:
-            phone_number.append("whatsapp:+91"+str(m_n))
+            mobile_number = PhoneNumber.objects.all()
+            phone_number = []
+            for m_n in mobile_number:
+                phone_number.append("whatsapp:+91"+str(m_n))
 
-        account_sid = 'AC37cad0e9482615a332fce6a6b3d96a5a' 
-        auth_token = 'd57b5cff62922c9769603303cd3cf825' 
-        client = Client(account_sid, auth_token) 
+            account_sid = 'AC37cad0e9482615a332fce6a6b3d96a5a' 
+            auth_token = 'd57b5cff62922c9769603303cd3cf825' 
+            client = Client(account_sid, auth_token) 
 
-        for p_n in phone_number:
-            message = client.messages.create( 
-                                          from_='whatsapp:+14155238886',  
-                                          body=f'File has been uploaded on the Server--> on date:- {dt_string}',
-                                          to= f'{p_n}'
-                                      ) 
+            for p_n in phone_number:
+                message = client.messages.create( 
+                                              from_='whatsapp:+14155238886',  
+                                              body=f'File has been uploaded on the Server--> on date:- {dt_string}',
+                                              to= f'{p_n}'
+                                          ) 
 
 
-        return redirect(request.path)
+            return redirect(request.path)
+        else:
+            messages.error(request,"You Cannot Upload Data")
+            return redirect(request.path)
 
     return render(request, 'data_upload.html')
 
@@ -2567,3 +2572,4 @@ def mix_chart(request):
                 'complain_type':complain_type
                }
     return render(request, "responsive.html",context)
+

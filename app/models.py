@@ -4,6 +4,12 @@ from django.utils import timezone
 # Create your models here.
 
 
+type_status=(
+    ("RNCC", "RNCC"),
+    ("RGD", "RGD")
+)
+
+
 
 class Main_Data_Upload(models.Model):
     unique_id = models.FloatField(default=None, null=True, blank=True)
@@ -72,6 +78,14 @@ class CsvFile(models.Model):
     def __str__(self):
         return str(self.csv_data)
 
+
+
+class Train_Type(models.Model):
+    train_number = models.IntegerField(default=None, null=True, blank=True)
+    Type = models.CharField(choices=type_status, default=None, max_length=200)
+
+    def __str__(self):
+        return (str(self.train_number)+"------>"+str(self.Type))
 
 
 

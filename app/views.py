@@ -938,8 +938,22 @@ def train_wise_data(request):
         train.append(tr_nums)
     train_numbers = set(train)
 
-
     problem_type = set(Type)
+
+
+    ######
+    train_type_rncc = Train_Type.objects.filter(Type="RNCC")
+    rncc = []
+    for rncc_train in train_type_rncc:
+        rncc.append(rncc_train.train_number)
+
+    train_type_rgd = Train_Type.objects.filter(Type="RGD")
+    rgd = []
+    for rgd_train in train_type_rgd:
+        rgd.append(rgd_train.train_number)
+
+    ########
+
 
     if request.method == "POST":
         train_number = request.POST.getlist('train_number')
@@ -983,7 +997,9 @@ def train_wise_data(request):
                     'data_show':data_show,
                     'train_number':train_numbers,
                     'start_date':start_date,
-                    'end_date':end_date
+                    'end_date':end_date,
+                    'rncc':rncc,
+                    'rgd':rgd
                    }
 
     else:
@@ -2336,8 +2352,10 @@ def mix_chart(request):
     all_type=['Coach - Cleanliness','Bed Roll','Security','Medical Assistance',
               'Punctuality','Water Availability','Electrical Equipment','Coach - Maintenance',
               'Miscellaneous','Staff Behaviour']
+
     critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
                      'Electrical Equipment','Coach - Maintenance',]
+
     color_code = ['#FF3838','#FFB3B3','#006441','#FF8300','#EEFF70','#00FF83','#00E8FF',
                 '#4200FF','#BD00FF','#FF8ED3']
     coach_clean = []

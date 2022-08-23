@@ -5,37 +5,96 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src='https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js
-'></script>
+
 
 <script>
 $(document).ready(function() {
+    $('#rncc').click(function() {
+        var checked = this.checked;
+        $('input[rncc="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
     $('#select-all').click(function() {
         var checked = this.checked;
         $('input[type="checkbox"]').each(function() {
         this.checked = checked;
     });
     })
+    $('#rgd').click(function() {
+        var checked = this.checked;
+        $('input[rgd="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
 });
 </script>
+
+<style>
+#more {display: none;}
+</style>
 
 
 <form action="/user/rating/" method="POST">{% csrf_token %}
 <center>
 <div class="form-check">
-  <label><h5>Select All</h5></label>
-  <input type="checkbox" id="select-all"><br>
+  <input type="checkbox" id="select-all">
+  <label style="margin-right:12px"><h5>Select All</h5></label>
+
+  <input type="checkbox" id="rncc">
+  <label style="margin-right:12px"><h5>Select RNCC</h5></label>
+
+
+  <input type="checkbox" id="rgd">
+  <label style="margin-right:12px"><h5>Select RGD</h5></label><br>
+
+
+  <span id="dots"></span><span id="more">
       {% for t_n in train_number %}
       {% for train_number in t_n %}
 
-  <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}">
-  <label>
-    {{train_number | convertint}}&nbsp;&nbsp;
-  </label>
+      {% if train_number|convertint in rncc %}
+
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true">
+
+        {% elif train_number|convertint in rgd %}
+
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true">
+
+        {% else %}
+        <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}">
+
+        {% endif %}
+            <label>
+            {{train_number|convertint}}&nbsp;&nbsp;
+            </label>
 
       {% endfor %}
       {% endfor %}
 </div></center>
+</span>
+<center><button onclick="myFunction()" id="myBtn" type="button">Read more</button></center><br>
+
+<script>
+function myFunction() {
+  var dots = document.getElementById("dots");
+  var moreText = document.getElementById("more");
+  var btnText = document.getElementById("myBtn");
+
+  if (dots.style.display === "none") {
+    dots.style.display = "inline";
+    btnText.innerHTML = "Read more"; 
+    moreText.style.display = "none";
+  } else {
+    dots.style.display = "none";
+    btnText.innerHTML = "Read less"; 
+    moreText.style.display = "inline";
+  }
+}
+</script>
+
+
+
 
 
 <div class="col-xl-8 col-md-12">
@@ -56,18 +115,27 @@ $(document).ready(function() {
   <center class="center">
 
     <label for="start_date"><b>From:</b></label>
+
+    {% if post %}
+    <input type="date" name="start_date" value="{{start_date}}" required>
+    {% else %}
     <input type="date" name="start_date" required>
-    
+    {% endif %}
+
     <label for="end_date"><b>To:</b></label>
+    {% if post %}
+    <input type="date" name="end_date" value="{{end_date}}" required>
+    {% else %}
     <input name="end_date" type="date" required>
+    {% endif %}
 
 
     <button type="submit" class="btn btn-danger">Submit</button>
   </center>
 </form>
 {% if show %}
-    <button type="button" onClick="download()">Download Data-Graph</button>
-    <canvas id="pieChart1" height="60px" width="100%"></canvas>
+    <button type="button" onClick="download()" class="mx-2">Download Data-Graph</button>
+    <canvas id="myChart" height="55px" width="100%"></canvas>
 {% else %}
 <br>
 <center><h2>No Data To Display</h2></center>
@@ -78,55 +146,54 @@ $(document).ready(function() {
 
 
 <script>
-var canvasP = document.getElementById("pieChart1");
+var canvasP = document.getElementById("myChart");
 var ctxP = canvasP.getContext('2d');
 var myPieChart = new Chart(ctxP, {
    type: 'bar',
    data: {
-    labels: ['All Data'],
+      labels: ['Unsatisfactory','Satifactory','Excellent','nan'],
       datasets: [
-        {
-            label: "Unsatisfactory",
-            backgroundColor: "red",
-            data: {{unsatis}}
-        },
-        {
-            label: "Satisfactory",
-            backgroundColor: "blue",
-            data: {{satis}}
-        },
-        {
-            label: "Excellent",
-            backgroundColor: "green",
-            data: {{excel}}
-        },
-        {
-            label: "nan",
-            backgroundColor: "black",
-            data: {{nan}}
-        }]
+        {   
+            label:'Rating',
+            data: {{total}},
+            backgroundColor: ["red", "blue", "green", "black"],
+            hoverBackgroundColor: ["red", "blue", "green", "black"]
+       }]
    },
    options: {
-      legend: {
+    legend: {
          display: true,
          position: "top"
+      },
+      scales: {
+          yAxes: [{
+              ticks: {
+                  beginAtZero: true
+              }
+          }]
       }
+
 }
 });
-
 canvasP.onclick = function(e) {
    var slice = myPieChart.getElementAtEvent(e);
    if (!slice.length) return; // return if not clicked on slice
    var label = slice[0]._model.label;
    switch (label) {
-      // add case for each label/slice
-      {% for m in months %}
-      case '{{m}}':
-         window.open('/user/complain/{{m}}');
+      case 'Unsatisfactory':
+         window.open('/user/complain/Unsatisfactory');
          break;
-      {% endfor %}
-      case 'All Data':
-         window.open('/user/complain/All_data');
+
+      case 'Satifactory':
+         window.open('/user/complain/Satifactory');
+         break;
+
+      case 'Excellent':
+         window.open('/user/complain/Excellent');
+         break;
+
+      case 'nan':
+         window.open('/user/complain/nan');
          break;
    }
 }
@@ -134,7 +201,7 @@ canvasP.onclick = function(e) {
 
 function download(){
   const imageLink = document.createElement('a');
-  const canvas = document.getElementById('pieChart1');
+  const canvas = document.getElementById('myChart');
   imageLink.download = 'Data.png'
   imageLink.href = canvas.toDataURL('media/data/canvas',1);
   // window.open(imageLink);

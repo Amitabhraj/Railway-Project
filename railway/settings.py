@@ -32,6 +32,8 @@ DOMAIN_HOST = "https://testseries.suvidhaen.com"
 CSRF_TRUSTED_ORIGINS = ['https://testseries.suvidhaen.com']
 
 
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
+
 
 APPEND_SLASH = True
 

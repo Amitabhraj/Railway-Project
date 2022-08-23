@@ -4,22 +4,34 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
-
-
 <script>
 $(document).ready(function() {
+    $('#rncc').click(function() {
+        var checked = this.checked;
+        $('input[rncc="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
     $('#select-all').click(function() {
         var checked = this.checked;
         $('input[type="checkbox"]').each(function() {
         this.checked = checked;
     });
     })
+    $('#rgd').click(function() {
+        var checked = this.checked;
+        $('input[rgd="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
 });
+
 </script>
 
 
-
-
+<style>
+#more {display: none;}
+</style>
 
 
 
@@ -32,22 +44,59 @@ $(document).ready(function() {
 <center>
 <div class="form-check">
 
-  <label><h5>Select All</h5></label>
-  <input type="checkbox" id="select-all"><br>
+  <input type="checkbox" id="select-all">
+  <label style="margin-right:12px"><h5>Select All</h5></label>
 
+  <input type="checkbox" id="rncc">
+  <label style="margin-right:12px"><h5>Select RNCC</h5></label>
+
+
+  <input type="checkbox" id="rgd">
+  <label style="margin-right:12px"><h5>Select RGD</h5></label><br>
+
+  <span id="dots"></span><span id="more">
       {% for t_n in train_number %}
       {% for train_number in t_n %}
 
-  <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}">
-  <label>
-    {{train_number | convertint}}&nbsp;&nbsp;
-  </label>
+        {% if train_number|convertint in rncc %}
+
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true">
+
+        {% elif train_number|convertint in rgd %}
+
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true">
+
+        {% else %}
+        <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}">
+
+        {% endif %}
+            <label>
+            {{train_number|convertint}}&nbsp;&nbsp;
+            </label>
 
       {% endfor %}
       {% endfor %}
 </div></center>
+</span>
+<center><button onclick="myFunction()" id="myBtn" type="button">Read more</button></center><br>
 
+<script>
+function myFunction() {
+  var dots = document.getElementById("dots");
+  var moreText = document.getElementById("more");
+  var btnText = document.getElementById("myBtn");
 
+  if (dots.style.display === "none") {
+    dots.style.display = "inline";
+    btnText.innerHTML = "Read more"; 
+    moreText.style.display = "none";
+  } else {
+    dots.style.display = "none";
+    btnText.innerHTML = "Read less"; 
+    moreText.style.display = "inline";
+  }
+}
+</script>
 
     {% if post %}
     <label for="start_date"><b>From:</b></label>
@@ -87,7 +136,7 @@ $(document).ready(function() {
 
 {% if post %}
 {% if data_show %}
-    <canvas id="myChart" height="50px" width="100%"></canvas>
+    <canvas id="myChart" height="40px" width="100%"></canvas>
 {% else %}
 <br>
 <center><h2>Currenly No Data for this Train Number</h2></center>

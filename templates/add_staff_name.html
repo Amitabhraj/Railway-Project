@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load custom %}
+{% block url_name %}Add Staff Name{% endblock %}
+{% block url_title %}Data{% endblock %}
+{% block breadcrum %}
+
+<li class="breadcrumb-item">
+  <a href="index.html">
+<i class="fa fa-home"></i></a>
+</li>
+
+<li class="breadcrumb-item">
+    See The Data
+</li>
+
+<li class="breadcrumb-item">
+    <a href="/user/add_staff_name">Add Staff Name</a>
+</li>
+{% endblock %}
+{% block title %}Add Staff Name{% endblock %}
+
+
+
+{% block body %}
+
+
+<style>
+@media (max-width: 991px) {
+  .responsive > thead th {
+    display: none;
+  }
+  .responsive > tbody td,
+  .responsive > tbody th {
+    display: block;
+  }
+  .responsive > tbody > tr:nth-child(even) td,
+  .responsive > tbody > tr:nth-child(even) th {
+    background-color: #eee;
+  }
+  [row-header] {
+    position: relative;
+    width: 50%;
+    vertical-align: middle;
+  }
+  [row-header]:before {
+    content: attr(row-header);
+    display: inline-block;
+    vertical-align: middle;
+    text-align: left;
+    width: 50%;
+    padding-right:30px;
+  }
+}
+</style>
+
+
+<form action="/user/add_staff_name/" method="POST">{% csrf_token %}
+  <center class="center"><h5>Filter Data:-</h5>&nbsp;&nbsp;&nbsp;&nbsp;
+
+    {% if post %}
+    <label for="start_date"><b>From:</b></label>
+    <input id = "start-date" type="date" name="start_date" value="{{start_date}}">
+    <label for="end_date"><b>To:</b></label>
+    <input id="end-date" type="date" name="end_date" value="{{end_date}}">
+  {% else %}
+    <label for="start_date"><b>From:</b></label>
+    <input id = "start-date" type="date" name="start_date">
+    <label for="end_date"><b>To:</b></label>
+    <input id="end-date" type="date" name="end_date">
+  {% endif %}
+
+    <button type="submit" class="btn btn-danger my-2">Submit</button>
+  </center>
+</form>
+
+
+
+
+<div class="table-responsive">
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Sl No.</th>
+        <th>Add Escort Staff</th>
+        <th>Train Number</th>
+        <th>Type</th>
+        <th>Registration Date</th>
+      </tr>
+    </thead>
+{% if post %}
+<form action="/user/add_staff_name/" method="POST">{% csrf_token %}
+    <tbody>
+       {% for md in main_data %}
+      <tr>
+        <th scope="row">{{forloop.counter}}</th>
+        <th scope="row"><input name="input-{{forloop.counter}}"><input type="hidden" readonly="readonly" name="test"></th>
+        <th scope="row">{{md.train_station|convertint}}</th>
+        <th scope="row">{{md.problem_type}}</th>
+        <th scope="row">{{md.registration_date.date}}</th>
+      </tr>
+        {% endfor %}
+    </tbody>
+<button class="btn btn-success mx-3" type="submit">Update Staff Name</button>
+</form>
+{% else %}
+<center><h3><u>Please Select Tha Date Range to Change the Staff Name</u></h3></center>
+{% endif %}
+  </table>
+</div>
+
+
+{% endblock %}
+
+
+
+

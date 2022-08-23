@@ -27,13 +27,5 @@ urlpatterns = [
     path('user/max_complain_coach/', views.max_complain_coach, name="max_complain_coach"),
     path('user/min_complain_coach/', views.min_complain_coach, name="min_complain_coach"),
     path('user/mix_chart/', views.mix_chart, name="mix_chart"),
-    # path('register_individual/', views.register_individual, name="register_individual"),
-    # path('user/forget_password/', views.forget_password, name="forget_password"),
-    # path('user/user_detail/user_profile/', views.user_detail, name="user_detail"),
-    # path('user/user_detail/user_profile/edit/', views.edit_profile, name="user_detail"),
-    # path('user/premium_purchase/', views.premium_purchase, name="premium_purchase"),
-    # path('user/paymentstatus/', views.paymentstatus, name="paymentstatus"),
-    # path('user/voltage_data/', views.voltage_data, name="voltage_data"),
-    # path('user/voltage_chart/', views.voltage_chart, name="voltage_chart"),
-    # path('user/voltage_chart/search_by_month/<int:month_num>/<int:year>/', views.voltage_search_by_month, name="voltage_data_month")
+    path('user/add_staff_name/', views.add_staff_name, name="add_staff_name"),
 ]

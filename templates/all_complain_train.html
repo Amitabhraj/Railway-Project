@@ -28,7 +28,7 @@
 </form>
 
 
-<div class="col-xl-8 col-md-12">
+<div class="col-xl-12 col-md-12">
 <div class="card">
 <div class="card-header">
 <h4>Railway Data</h4>
@@ -47,7 +47,7 @@
 
 
 {% if show %}
-    <a target="blank"href="/user/complain/{{all_type|index:forloop.counter0}}"><canvas id="myChart{{forloop.counter}}" height="40px" width="100%"></canvas></a>
+    <a target="blank"href="/user/complain/{{all_type|index:forloop.counter0}}"><canvas id="myChart{{forloop.counter}}" height="40px" width="150%"></canvas></a>
 {% else %}
 <br>
 <center><h2>No Data To Display</h2></center>

@@ -27,5 +27,7 @@ urlpatterns = [
     path('user/max_complain_coach/', views.max_complain_coach, name="max_complain_coach"),
     path('user/min_complain_coach/', views.min_complain_coach, name="min_complain_coach"),
     path('user/mix_chart/', views.mix_chart, name="mix_chart"),
+    path('user/show_staff_name/', views.show_staff_name, name="show_staff_name"),
     path('user/add_staff_name/', views.add_staff_name, name="add_staff_name"),
+
 ]

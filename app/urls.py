@@ -29,5 +29,5 @@ urlpatterns = [
     path('user/mix_chart/', views.mix_chart, name="mix_chart"),
     path('user/show_staff_name/', views.show_staff_name, name="show_staff_name"),
     path('user/add_staff_name/', views.add_staff_name, name="add_staff_name"),
-
+    path('user/staff_graph/', views.staff_graph, name="staff_graph"),
 ]

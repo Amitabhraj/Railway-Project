@@ -2883,12 +2883,184 @@ def show_staff_name(request):
         if delta.days <=0:
             return HttpResponse("<h1>Please Enter valid Date Range</h1>")
 
-        main_data = Main_Data_Upload.objects.filter(registration_date__gte=start_date,registration_date__lte=end_date)
-        number_of_data = main_data.count()
+        data_count=[]
+        problem_type = Main_Data_Upload.objects.values_list('problem_type')
+        train_numbers = Main_Data_Upload.objects.all()
+
+        Type=[]
+        for s in problem_type:
+            for t in s:
+                Type.append(t)
+
+
+        str_train_number = [] 
+        for t_n in train_number:
+            str_train_number.append(str(t_n))
+
+        problem_types = set(Type)
+
+        for tr_n in train_number:
+            a = Main_Data_Upload.objects.filter(problem_type__in=problem_types,train_station=tr_n,registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"])
+            data_count.append(a.count())
+
+        make_dict = dict(zip(str_train_number,data_count))
+        a1_sorted_keys = dict(sorted(make_dict.items(), key=operator.itemgetter(1),reverse=True))
+        first_n = sorted(a1_sorted_keys, key=a1_sorted_keys.get, reverse=True)[:train_count]
+        for r in first_n:
+            print(int(float(r))," ---> ",make_dict[r])
+            bottom_train.append(int(float(r)))
+            bottom_data_count.append(make_dict[r])
+
+            data1 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Coach - Cleanliness")
+            coach_clean.append(data1.count())
+
+
+            data2 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Bed Roll")
+            bed_roll.append(data2.count())
+
+
+            data3 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Security")
+            security.append(data3.count())
+
+
+            data4 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Medical Assistance")
+            medical_assis.append(data4.count())
+
+
+            data5 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Punctuality")
+            punctuality.append(data5.count())
+
+
+            data6 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Water Availability")
+            water_avail.append(data6.count())
+
+
+            data7 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Electrical Equipment")
+            electrical_equip.append(data7.count())
+
+
+
+            data8 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Coach - Maintenance")
+            coach_maintain.append(data8.count())
+
+
+            data9 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Miscellaneous")
+            miscellaneous.append(data9.count())
+
+
+            data10 = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station=float(r), problem_type = "Staff Behaviour")
+            staff_behave.append(data10.count())
+
     else:
-        main_data = None
+        train_count=10
         post = False
-        number_of_data = None
+        data_count=[]
+        problem_type = Main_Data_Upload.objects.values_list('problem_type')
+        train_numbers = Main_Data_Upload.objects.all()
+
+        Type=[]
+        for s in problem_type:
+            for t in s:
+                Type.append(t)
+
+        train_number = []
+        str_train_number = [] 
+        for t_n in train_numbers:
+            train_number.append(t_n.train_station)
+            str_train_number.append(str(t_n.train_station))
+
+        problem_types = set(Type)
+
+        for tr_n in train_number:
+            a = Main_Data_Upload.objects.filter(problem_type__in=problem_types,train_station=tr_n)
+            data_count.append(a.count())
+
+        make_dict = dict(zip(str_train_number,data_count))
+        a1_sorted_keys = dict(sorted(make_dict.items(), key=operator.itemgetter(1),reverse=True))
+        first_n = sorted(a1_sorted_keys, key=a1_sorted_keys.get, reverse=True)[:train_count]
+        for trains_nums in first_n:
+            bottom_train.append(int(float(trains_nums)))
+            bottom_data_count.append(make_dict[trains_nums])
+
+
+            data1 = Main_Data_Upload.objects.filter(train_station=trains_nums, problem_type = "Coach - Cleanliness")
+            coach_clean.append(data1.count())
+
+            data2 = Main_Data_Upload.objects.filter(train_station=trains_nums, problem_type = "Bed Roll")
+            bed_roll.append(data2.count())
+
+
+            data3 = Main_Data_Upload.objects.filter(train_station=trains_nums, problem_type = "Security")
+            security.append(data3.count())
+
+
+            data4 = Main_Data_Upload.objects.filter(train_station=trains_nums, problem_type = "Medical Assistance")
+            medical_assis.append(data4.count())
+
+
+            data5 = Main_Data_Upload.objects.filter(train_station=trains_nums, problem_type = "Punctuality")
+            punctuality.append(data5.count())
+
+
+            data6 = Main_Data_Upload.objects.filter(train_station=trains_nums, problem_type = "Water Availability")
+            water_avail.append(data6.count())
+
+
+            data7 = Main_Data_Upload.objects.filter(train_station=trains_nums, problem_type = "Electrical Equipment")
+            electrical_equip.append(data7.count())
+
+
+            data8 = Main_Data_Upload.objects.filter(train_station=trains_nums, problem_type = "Coach - Maintenance")
+            coach_maintain.append(data8.count())
+
+
+            data9 = Main_Data_Upload.objects.filter(train_station=trains_nums, problem_type = "Miscellaneous")
+            miscellaneous.append(data9.count())
+
+
+            data10 = Main_Data_Upload.objects.filter(train_station=trains_nums, problem_type = "Staff Behaviour")
+            staff_behave.append(data10.count())
+    total = []
+    if request.method != "POST":
+        total.append(coach_maintain)
+        total.append(bed_roll)
+        total.append(staff_behave)
+        total.append(electrical_equip)
+        total.append(water_avail)
+        total.append(punctuality)
+        total.append(security)
+        total.append(medical_assis)
+        total.append(miscellaneous)
+        total.append(coach_clean)
+        if len(total) == 0:
+            show = False
+        if len(total)>=1:
+            show = True 
+    else:
+        if "Coach - Maintenance" in complain_type:
+            total.append(coach_maintain)
+        if "Bed Roll" in complain_type:
+            total.append(bed_roll)
+        if "Staff Behaviour" in complain_type:
+            total.append(staff_behave)
+        if "Electrical Equipment" in complain_type:
+            total.append(electrical_equip)
+        if "Water Availability" in complain_type:
+            total.append(water_avail)
+        if "Punctuality" in complain_type:
+            total.append(punctuality)
+        if "Security" in complain_type:
+            total.append(security)
+        if "Medical Assistance" in complain_type:
+            total.append(medical_assis)
+        if "Miscellaneous" in complain_type:
+            total.append(miscellaneous)
+        if "Coach - Cleanliness" in complain_type:
+            total.append(coach_clean)
+        if len(total) == 0:
+            show = False
+        if len(total)>=1:
+            show = True 
 
     context = {'post':post,'main_data':main_data,'number_of_data':number_of_data}
     return render(request, 'add_staff_name.html',context)
@@ -2919,6 +3091,71 @@ def add_staff_name(request):
             update_data.save()
         messages.success(request,'Successfully Updated Staff Name')
         return redirect('/user/show_staff_name')
+
+
+
+
+
+
+
+
+
+
+def staff_graph(request):
+
+    trainsss = Main_Data_Upload.objects.all()
+    main_trains = []
+    for ttt in trainsss:
+        main_trains.append(float(ttt.train_station))
+    set_train = set(main_trains)
+    main_train = list(set_train)
+    ######
+    train_type_rncc = Train_Type.objects.filter(Type="RNCC")
+    rncc = []
+    for rncc_train in train_type_rncc:
+        rncc.append(rncc_train.train_number)
+
+    train_type_rgd = Train_Type.objects.filter(Type="RGD")
+    rgd = []
+    for rgd_train in train_type_rgd:
+        rgd.append(rgd_train.train_number)
+    #####
+
+
+    all_type=['Coach - Cleanliness','Bed Roll','Security','Medical Assistance',
+              'Punctuality','Water Availability','Electrical Equipment','Coach - Maintenance',
+              'Miscellaneous','Staff Behaviour']
+    critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
+                     'Electrical Equipment','Coach - Maintenance',]
+
+    if request.method == "POST":
+        post = True
+        staff_count = int(request.POST.get('staff_count'))
+        train_number = request.POST.getlist('train_number')
+        start_date = request.POST.get('start_date','')
+        end_date = request.POST.get('end_date','')
+
+        start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+
+        delta = end_month - start_month
+
+        sdate = date(int(start_month.year), int(start_month.month), int(start_month.day))
+        edate = date(int(end_month.year), int(end_month.month), int(end_month.day))
+
+        if delta.days <=0:
+            return HttpResponse("<h1>Please Enter valid Date Range</h1>")
+
+    else:
+        pass
+    context = {
+                'all_type':all_type,
+                'critical_type':critical_type,
+                'rgd':rgd,
+                'rncc':rncc,
+                'main_train':main_train
+              }
+    return render(request, 'staff_graph.html',context)
 
 
 

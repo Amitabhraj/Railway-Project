@@ -3,6 +3,7 @@ from django.http import HttpResponse,HttpResponseRedirect,JsonResponse
 from .models import *
 import math
 import more_itertools
+import dateutil.parser
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.contrib.auth import login as auth_login
@@ -93,17 +94,29 @@ def upload_data(request):
             print(df['Registration Date'])
             length = len(df)
             for i in range(0, length):
-                print(df['Registration Date'][i])
                 if df['Registration Date'][i] == " " or type(df['Registration Date'][i]) == float:
                     register_date = None
                 else:
                     split_date = df['Registration Date'][i].split(' ')
-                    register_date = datetime.datetime.strptime(f'{split_date[0]}', '%d-%m-%y')
+                    register_datee = datetime.datetime.strptime(f'{split_date[0]}', '%d-%m-%y')
+                    register_time =  f'{split_date[1]}'
+                    register_date = dateutil.parser.parse(f'{register_datee} {register_time}:00-00')
                 if df['Closing Date'][i] == " " or type(df['Closing Date'][i]) == float:
                     closing_date = None
                 else:
                     split_date_2 = df['Closing Date'][i].split(' ')
-                    closing_date = datetime.datetime.strptime(f'{split_date_2[0]}', '%d-%m-%y')
+                    closing_datee = datetime.datetime.strptime(f'{split_date_2[0]}', '%d-%m-%y')
+                    closing_time = f'{split_date_2[1]}'
+                    closing_date =  dateutil.parser.parse(f'{closing_datee} {closing_time}:00-00')
+
+             
+                if df['Physical Coach No'][i] == None or str(df['Physical Coach No'][i]) == "nan":
+                    real_coach_number = "00000"
+                else:
+                    real_coach_number = df['Physical Coach No'][i],
+
+                print("Coach-Number:-"+str(real_coach_number))
+
                 Main_Data_Upload(
                     sl_no = df['Sl. No.'][i],
                     reference_no = df['Ref. No.'][i],
@@ -114,7 +127,7 @@ def upload_data(request):
                     train_station = df['Train'][i],
                     channel = df['Channel'][i],
                     # Type = df['Type'][i],
-                    coach_number = df['Physical Coach No'][i],
+                    coach_number = real_coach_number,
                     # rake_number = df['Rake no'][i],
                     # staff_name = df['Escort staff'][i],
                     problem_type = df['Type'][i],
@@ -140,7 +153,7 @@ def upload_data(request):
                     # physical_coach_number = df['Physical Coach No'][i],
                     train_name = df['Train Name'][i]
                 ).save()
-            print("successfully uploaded")
+                print(f"data no.{i} uploaded")
 
             mobile_number = PhoneNumber.objects.all()
             phone_number = []
@@ -299,8 +312,29 @@ def edit_profile(request):
 @login_required
 def dashboard(request):
     main_data=[]
+    trainsss = Main_Data_Upload.objects.all()
+    main_trains = []
+    for ttt in trainsss:
+        main_trains.append(float(ttt.train_station))
+    main_train_set = set(main_trains)
+    main_train = list(main_train_set)
+
+    ######
+    train_type_rncc = Train_Type.objects.filter(Type="RNCC")
+    rncc = []
+    for rncc_train in train_type_rncc:
+        rncc.append(rncc_train.train_number)
+
+    train_type_rgd = Train_Type.objects.filter(Type="RGD")
+    rgd = []
+    for rgd_train in train_type_rgd:
+        rgd.append(rgd_train.train_number)
+
+    ########
+
     if request.method == "POST":
         post = True
+        train_numbers = request.POST.getlist('train_number')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
@@ -312,7 +346,7 @@ def dashboard(request):
         if delta.days <= 0:
             return HttpResponse('<h1>Please Enter Valid Date Range</h1>')
 
-        data_filter = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"])
+        data_filter = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"])
         for f_d in data_filter:
             main_data.append(f_d.problem_type)
         data = set(main_data)
@@ -357,7 +391,10 @@ def dashboard(request):
             'data':data,
             'occur':occur,
             'start_date':start_date,
-            'end_date':end_date
+            'end_date':end_date,
+            'main_train':main_train,
+            'rgd':rgd,
+            'rncc':rncc
         }
     return render(request, 'dashboard.html',context)
 
@@ -376,6 +413,19 @@ def rating(request):
     main_trains = []
     for ttt in trainsss:
         main_trains.append(float(ttt.train_station))
+
+    ######
+    train_type_rncc = Train_Type.objects.filter(Type="RNCC")
+    rncc = []
+    for rncc_train in train_type_rncc:
+        rncc.append(rncc_train.train_number)
+
+    train_type_rgd = Train_Type.objects.filter(Type="RGD")
+    rgd = []
+    for rgd_train in train_type_rgd:
+        rgd.append(rgd_train.train_number)
+
+    ########
 
    ########## Bar Graph rating ###############
     if request.method == "POST":
@@ -418,8 +468,11 @@ def rating(request):
         satis.append(data.count('Satisfactory'))
         nan.append(data.count('nan'))
         excel.append(data.count('Excellent'))
-
-        print(unsatis)
+        total = []
+        total.append(sum(unsatis))
+        total.append(sum(satis))
+        total.append(sum(excel))
+        total.append(sum(nan))
 
             # months.append(calendar.month_name[i])
 
@@ -439,7 +492,10 @@ def rating(request):
             'nan':nan,
             'train_number':train_numbers,
             'start_date': start_date,
-            'end_date':end_date
+            'end_date':end_date,
+            'rncc':rncc,
+            'rgd':rgd,
+            'total':total
         }
 
     else:
@@ -461,6 +517,12 @@ def rating(request):
         nan.append(main_rating_data.count('nan'))
         excel.append(main_rating_data.count('Excellent'))
 
+        total = []
+        total.append(sum(unsatis))
+        total.append(sum(satis))
+        total.append(sum(excel))
+        total.append(sum(nan))
+
 
         if sum(excel) == 0 and sum(nan) == 0 and sum(unsatis) == 0 and sum(satis) == 0:
             show = False
@@ -480,6 +542,9 @@ def rating(request):
             'excel':excel,
             'nan':nan,
             'train_number':train_numbers,
+            'rncc':rncc,
+            'rgd':rgd,
+            'total':total
             # 'start_date':start_date,
             # 'end_date':end_date
             }
@@ -490,14 +555,33 @@ def rating(request):
 
 @login_required
 def trend(request):
+    trainsss = Main_Data_Upload.objects.all()
+    main_trains = []
+    for ttt in trainsss:
+        main_trains.append(float(ttt.train_station))
+    set_train = set(main_trains)
+    main_train = list(set_train)
+    ######
+    train_type_rncc = Train_Type.objects.filter(Type="RNCC")
+    rncc = []
+    for rncc_train in train_type_rncc:
+        rncc.append(rncc_train.train_number)
+
+    train_type_rgd = Train_Type.objects.filter(Type="RGD")
+    rgd = []
+    for rgd_train in train_type_rgd:
+        rgd.append(rgd_train.train_number)
+    #####
+
     if request.method == "POST":
         post = True
+        train_numbers = request.POST.getlist('train_number','')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
-
+ 
         delta = end_month - start_month
 
         sdate = date(int(start_month.year), int(start_month.month), int(start_month.day))
@@ -527,41 +611,41 @@ def trend(request):
                 day = sdate + timedelta(days=i)
                 dates.append(str(day.day)+" "+str(calendar.month_name[day.month])+","+ str(day.year))
                 
-                coach_clean_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Coach - Cleanliness")
+                coach_clean_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers, registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Coach - Cleanliness")
                 coach_clean.append(coach_clean_data.count())
 
-                bed_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Bed Roll")
+                bed_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Bed Roll")
                 bed_roll.append(bed_data.count())
 
-                security_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Security")
+                security_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Security")
                 security.append(security_data.count())
 
 
-                medical_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Medical Assistance")
+                medical_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Medical Assistance")
                 medical_assis.append(medical_data.count())
 
 
-                punctuality_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Punctuality")
+                punctuality_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Punctuality")
                 punctuality.append(punctuality_data.count())
 
 
-                water_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Water Availability")
+                water_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Water Availability")
                 water_avail.append(water_data.count())
 
 
-                electrical_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Electrical Equipment")
+                electrical_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Electrical Equipment")
                 electrical_equip.append(electrical_data.count())
 
 
-                coach_maintain_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Coach - Maintenance")
+                coach_maintain_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Coach - Maintenance")
                 coach_maintain.append(coach_maintain_data.count())
 
 
-                miscellaneous_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Miscellaneous")
+                miscellaneous_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Miscellaneous")
                 miscellaneous.append(miscellaneous_data.count())
 
 
-                staff_behave_data = Main_Data_Upload.objects.filter(registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Staff Behaviour")
+                staff_behave_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = day.year , registration_date__month=day.month, registration_date__day = day.day ,problem_type = "Staff Behaviour")
                 staff_behave.append(staff_behave_data.count())
 
             total = []
@@ -584,41 +668,41 @@ def trend(request):
             datess = [dt for dt in rrule(MONTHLY, dtstart=strt_dt, until=end_dt)]
             for d in datess:
                 dates.append(calendar.month_name[int(d.month)] +","+ str(d.year))
-                coach_clean_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Coach - Cleanliness")
+                coach_clean_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = d.year , registration_date__month=d.month, problem_type = "Coach - Cleanliness")
                 coach_clean.append(coach_clean_data.count())
 
-                bed_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Bed Roll")
+                bed_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = d.year , registration_date__month=d.month, problem_type = "Bed Roll")
                 bed_roll.append(bed_data.count())
 
-                security_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Security")
+                security_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = d.year , registration_date__month=d.month, problem_type = "Security")
                 security.append(security_data.count())
 
 
-                medical_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Medical Assistance")
+                medical_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = d.year , registration_date__month=d.month, problem_type = "Medical Assistance")
                 medical_assis.append(medical_data.count())
 
 
-                punctuality_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Punctuality")
+                punctuality_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = d.year , registration_date__month=d.month, problem_type = "Punctuality")
                 punctuality.append(punctuality_data.count())
 
 
-                water_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Water Availability")
+                water_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = d.year , registration_date__month=d.month, problem_type = "Water Availability")
                 water_avail.append(water_data.count())
 
 
-                electrical_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Electrical Equipment")
+                electrical_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = d.year , registration_date__month=d.month, problem_type = "Electrical Equipment")
                 electrical_equip.append(electrical_data.count())
 
 
-                coach_maintain_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Coach - Maintenance")
+                coach_maintain_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = d.year , registration_date__month=d.month, problem_type = "Coach - Maintenance")
                 coach_maintain.append(coach_maintain_data.count())
 
 
-                miscellaneous_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Miscellaneous")
+                miscellaneous_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = d.year , registration_date__month=d.month, problem_type = "Miscellaneous")
                 miscellaneous.append(miscellaneous_data.count())
 
 
-                staff_behave_data = Main_Data_Upload.objects.filter(registration_date__year = d.year , registration_date__month=d.month, problem_type = "Staff Behaviour")
+                staff_behave_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,registration_date__year = d.year , registration_date__month=d.month, problem_type = "Staff Behaviour")
                 staff_behave.append(staff_behave_data.count())
             total = []
             total.append(coach_clean)
@@ -758,7 +842,10 @@ def trend(request):
         'demo_sub':demo_sub,
         'critical_type':critical_type,
         'start_date':start_date,
-        'end_date':end_date
+        'end_date':end_date,
+        'main_train':main_train,
+        'rncc':rncc,
+        'rgd':rgd
         }
     return render(request, 'trends.html',context)
 
@@ -806,7 +893,27 @@ def sub_type(request,subtype):
     dates = []
     data_count = []
 
+    trainsss = Main_Data_Upload.objects.all()
+    main_trains = []
+    for ttt in trainsss:
+        main_trains.append(float(ttt.train_station))
+    set_train = set(main_trains)
+    main_train = list(set_train)
+    ######
+    train_type_rncc = Train_Type.objects.filter(Type="RNCC")
+    rncc = []
+    for rncc_train in train_type_rncc:
+        rncc.append(rncc_train.train_number)
+
+    train_type_rgd = Train_Type.objects.filter(Type="RGD")
+    rgd = []
+    for rgd_train in train_type_rgd:
+        rgd.append(rgd_train.train_number)
+    #####
+
     if request.method == "POST":
+        post = True
+        train_numbers = request.POST.getlist('train_number')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
@@ -822,7 +929,7 @@ def sub_type(request,subtype):
             for i in range(delta.days+1):
                 day = sdate + timedelta(days=i)
                 dates.append(str(day.day)+" "+str(calendar.month_name[day.month])+","+ str(day.year))
-                sub_type_data = Main_Data_Upload.objects.filter(sub_type=f"{subtypes}",registration_date__day=day.day,registration_date__month=day.month,registration_date__year=day.year)
+                sub_type_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,sub_type=f"{subtypes}",registration_date__day=day.day,registration_date__month=day.month,registration_date__year=day.year)
                 data_count.append(sub_type_data.count())
             print(data_count)
         elif delta.days <=0:
@@ -833,10 +940,13 @@ def sub_type(request,subtype):
             datess = [dt for dt in rrule(MONTHLY, dtstart=strt_dt, until=end_dt)]
             for d in datess:
                 dates.append(calendar.month_name[int(d.month)] +","+ str(d.year))
-                sub_type_data = Main_Data_Upload.objects.filter(sub_type=f"{subtypes}",registration_date__month=d.month,registration_date__year=d.year)
+                sub_type_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,sub_type=f"{subtypes}",registration_date__month=d.month,registration_date__year=d.year)
                 data_count.append(sub_type_data.count())
 
     else:
+        start_date = None
+        end_date = None
+        post = False
         for i in range(0,31):
             day = datetime.datetime.now() - datetime.timedelta(i)
             dates.append(str(day.day)+" "+str(calendar.month_name[day.month])+","+ str(day.year))    
@@ -849,13 +959,19 @@ def sub_type(request,subtype):
                 'data_count':data_count,
                 'dates':dates,
                 'subtype':subtype,
-                'subtypes':subtypes
+                'subtypes':subtypes,
+                'rgd':rgd,
+                'rncc':rncc,
+                'start_date':start_date,
+                'end_date':end_date,
+                'main_train':main_train,
+                'post':post
               }
     return render(request,'sub_type.html',context)
 
 
 
-
+@login_required
 def complain_type(request, complain):
     if complain == "Luggage Left Behind Unclaimed Suspected Articles":
         complain = "Luggage Left Behind/Unclaimed/Suspected Articles"
@@ -916,6 +1032,9 @@ def complain_type(request, complain):
         elif complain_type == str(p[2]):
             problem_type.append(p)
 
+        elif complain_type == str(p[5]):
+            problem_type.append(p)
+
     context = {'complain_type':complain_type, 'problem_type':problem_type}
     return render(request, 'complain_type.html',context)
 
@@ -923,7 +1042,7 @@ def complain_type(request, complain):
 
 
 
-
+@login_required
 def train_wise_data(request):
     data_count=[]
     problem_type = Main_Data_Upload.objects.values_list('problem_type')
@@ -1011,12 +1130,32 @@ def train_wise_data(request):
 
 
 
-
+@login_required
 def bottom_train_data_pie(request):
     bottom_train = []
     bottom_data_count = []
+
+    trainsss = Main_Data_Upload.objects.all()
+    main_trains = []
+    for ttt in trainsss:
+        main_trains.append(float(ttt.train_station))
+    set_train = set(main_trains)
+    main_train = list(set_train)
+    ######
+    train_type_rncc = Train_Type.objects.filter(Type="RNCC")
+    rncc = []
+    for rncc_train in train_type_rncc:
+        rncc.append(rncc_train.train_number)
+
+    train_type_rgd = Train_Type.objects.filter(Type="RGD")
+    rgd = []
+    for rgd_train in train_type_rgd:
+        rgd.append(rgd_train.train_number)
+    #####
+
     if request.method == "POST":
         post=True
+        train_number = request.POST.getlist('train_number')
         train_count  = int(request.POST.get('train_count',''))
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
@@ -1034,18 +1173,17 @@ def bottom_train_data_pie(request):
         
         data_count=[]
         problem_type = Main_Data_Upload.objects.values_list('problem_type')
-        train_numbers = Main_Data_Upload.objects.all()
+        # train_numbers = Main_Data_Upload.objects.all()
 
         Type=[]
         for s in problem_type:
             for t in s:
                 Type.append(t)
 
-        train_number = []
+        # train_number = []
         str_train_number = [] 
-        for t_n in train_numbers:
-            train_number.append(t_n.train_station)
-            str_train_number.append(str(t_n.train_station))
+        for t_n in train_number:
+            str_train_number.append(str(t_n))
 
         problem_types = set(Type)
 
@@ -1100,7 +1238,10 @@ def bottom_train_data_pie(request):
                 'bottom_data_count':bottom_data_count[0:train_count],
                 'train_count':train_count,
                 'start_date':start_date,
-                'end_date':end_date
+                'end_date':end_date,
+                'rgd':rgd,
+                'rncc':rncc,
+                'main_train':main_train
                }
     return render(request, "bottom_train_data_pie.html",context)
 
@@ -1110,12 +1251,32 @@ def bottom_train_data_pie(request):
 
 
 
-
+@login_required
 def bottom_train_data_bar(request):
     bottom_train = []
     bottom_data_count = []
+
+    trainsss = Main_Data_Upload.objects.all()
+    main_trains = []
+    for ttt in trainsss:
+        main_trains.append(float(ttt.train_station))
+    set_train = set(main_trains)
+    main_train = list(set_train)
+    ######
+    train_type_rncc = Train_Type.objects.filter(Type="RNCC")
+    rncc = []
+    for rncc_train in train_type_rncc:
+        rncc.append(rncc_train.train_number)
+
+    train_type_rgd = Train_Type.objects.filter(Type="RGD")
+    rgd = []
+    for rgd_train in train_type_rgd:
+        rgd.append(rgd_train.train_number)
+    #####
+
     if request.method == "POST":
         post=True
+        train_number = request.POST.getlist('train_number')
         train_count  = int(request.POST.get('train_count',''))
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
@@ -1133,18 +1294,17 @@ def bottom_train_data_bar(request):
         
         data_count=[]
         problem_type = Main_Data_Upload.objects.values_list('problem_type')
-        train_numbers = Main_Data_Upload.objects.all()
+        # train_numbers = Main_Data_Upload.objects.all()
 
         Type=[]
         for s in problem_type:
             for t in s:
                 Type.append(t)
 
-        train_number = []
+        # train_number = []
         str_train_number = [] 
-        for t_n in train_numbers:
-            train_number.append(t_n.train_station)
-            str_train_number.append(str(t_n.train_station))
+        for t_n in train_number:
+            str_train_number.append(str(t_n))
 
         problem_types = set(Type)
 
@@ -1159,7 +1319,7 @@ def bottom_train_data_bar(request):
             bottom_data_count.append(make_dict[r])
 
     else:
-        train_count=10
+        train_count = 10
         post = False
         data_count=[]
         problem_type = Main_Data_Upload.objects.values_list('problem_type')
@@ -1187,12 +1347,22 @@ def bottom_train_data_bar(request):
         for r in a1_sorted_keys:
             bottom_train.append(int(float(r)))
             bottom_data_count.append(make_dict[r])
+
+    if request.method != 'POST':
+        start_date = None
+        end_date = None
+        post = False
     
     context = {
                 'bottom_train':bottom_train[0:train_count],
                 'post':post,
                 'bottom_data_count':bottom_data_count[0:train_count],
-                'train_count':train_count
+                'train_count':train_count,
+                'start_date':start_date,
+                'end_date':end_date,
+                'rgd':rgd,
+                'rncc':rncc,
+                'main_train':main_train
                }
     return render(request, "bottom_train_data_bar.html",context)
 
@@ -1216,9 +1386,28 @@ def all_complain_train(request):
         for tt in t_nums:
             train_numbers.append(tt)
 
+    trainsss = Main_Data_Upload.objects.all()
+    main_trains = []
+    for ttt in trainsss:
+        main_trains.append(float(ttt.train_station))
+    set_train = set(main_trains)
+    main_train = list(set_train)
+    ######
+    train_type_rncc = Train_Type.objects.filter(Type="RNCC")
+    rncc = []
+    for rncc_train in train_type_rncc:
+        rncc.append(rncc_train.train_number)
+
+    train_type_rgd = Train_Type.objects.filter(Type="RGD")
+    rgd = []
+    for rgd_train in train_type_rgd:
+        rgd.append(rgd_train.train_number)
+    #####
+
 
     if request.method == "POST":
         post = True
+        train_number = request.POST.getlist('train_number')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
@@ -1249,7 +1438,7 @@ def all_complain_train(request):
             return HttpResponse("<center><h1>Please Enter Right Date Range</h1></center>")
         
         else:
-            for t_r in train_numbers:
+            for t_r in train_number:
                 
                 coach_clean_data = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],train_station = t_r, problem_type = "Coach - Cleanliness")
                 coach_clean.append(coach_clean_data.count())
@@ -1380,6 +1569,9 @@ def all_complain_train(request):
         start_date = None
         end_date = None
         post = False
+        real_train_number = train_numbers
+    else:
+        real_train_number = train_number
 
     context ={
         'show':True,
@@ -1399,9 +1591,12 @@ def all_complain_train(request):
         'all_type':all_type,
         'sub_type':sts,
         'demo_sub':demo_sub,
-        'train_number':train_numbers,
+        'train_number':real_train_number,
         'start_date':start_date,
-        'end_date':end_date
+        'end_date':end_date,
+        'main_train':main_train,
+        'rgd':rgd,
+        'rncc':rncc
         }
     return render(request, 'all_complain_train.html',context)
 
@@ -1413,7 +1608,7 @@ def all_complain_train(request):
 
 
 
-
+@login_required
 def all_sub_complain_train(request,subtype):
     train_numbers_list = Main_Data_Upload.objects.values_list('train_station')
     train = []
@@ -1425,6 +1620,24 @@ def all_sub_complain_train(request,subtype):
     for t_nums in train_num:
         for tt in t_nums:
             train_numbers.append(tt)
+
+    trainsss = Main_Data_Upload.objects.all()
+    main_trains = []
+    for ttt in trainsss:
+        main_trains.append(float(ttt.train_station))
+    set_train = set(main_trains)
+    main_train = list(set_train)
+    ######
+    train_type_rncc = Train_Type.objects.filter(Type="RNCC")
+    rncc = []
+    for rncc_train in train_type_rncc:
+        rncc.append(rncc_train.train_number)
+
+    train_type_rgd = Train_Type.objects.filter(Type="RGD")
+    rgd = []
+    for rgd_train in train_type_rgd:
+        rgd.append(rgd_train.train_number)
+    #####
 
     if subtype == "Luggage Left Behind Unclaimed Suspected Articles":
         subtypes = "Luggage Left Behind/Unclaimed/Suspected Articles"
@@ -1464,6 +1677,7 @@ def all_sub_complain_train(request,subtype):
 
 
     if request.method == "POST":
+        train_number = request.POST.getlist('train_number')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
@@ -1479,7 +1693,7 @@ def all_sub_complain_train(request,subtype):
             return HttpResponse("<h1>Please Enter valid Date Range</h1>")
 
 
-        for t_r in train_numbers:
+        for t_r in train_number:
             sub_type_data = Main_Data_Upload.objects.filter(registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"],sub_type=f"{subtypes}",train_station=t_r)
             data_count.append(sub_type_data.count())      
     
@@ -1492,8 +1706,9 @@ def all_sub_complain_train(request,subtype):
         start_date = None
         end_date = None
         post = False
-
+        real_train_number = train_numbers
     else:
+        real_train_number = train_number
         post=True
     context = {
                 'post':post,
@@ -1501,9 +1716,12 @@ def all_sub_complain_train(request,subtype):
                 'data_count':data_count,
                 'subtype':subtype,
                 'subtypes':subtypes,
-                'train_numbers':train_numbers,
+                'train_numbers':real_train_number,
                 'start_date':start_date,
-                'end_date':end_date
+                'end_date':end_date,
+                'rgd':rgd,
+                'rncc':rncc,
+                'main_train':main_train
               }
     return render(request,'all_sub_complain_train.html',context)
 
@@ -1512,7 +1730,7 @@ def all_sub_complain_train(request,subtype):
 
 
 
-
+@login_required
 def max_complain_train(request):
     main_all = Main_Data_Upload.objects.all()
     train_nums = []
@@ -1535,8 +1753,28 @@ def max_complain_train(request):
     miscellaneous = []
     staff_behave = []
     total = []
+
+    trainsss = Main_Data_Upload.objects.all()
+    main_trains = []
+    for ttt in trainsss:
+        main_trains.append(float(ttt.train_station))
+    set_train = set(main_trains)
+    main_train = list(set_train)
+    ######
+    train_type_rncc = Train_Type.objects.filter(Type="RNCC")
+    rncc = []
+    for rncc_train in train_type_rncc:
+        rncc.append(rncc_train.train_number)
+
+    train_type_rgd = Train_Type.objects.filter(Type="RGD")
+    rgd = []
+    for rgd_train in train_type_rgd:
+        rgd.append(rgd_train.train_number)
+    #####
+
     if request.method == "POST":
         post = True
+        train_number = request.POST.getlist('train_number')
         complain_type = request.POST.getlist('complain_type')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
@@ -1552,7 +1790,7 @@ def max_complain_train(request):
         if delta.days <=0:
             return HttpResponse("<center><h1>Please Enter valid date Range</center></h1>")
 
-        for t_r in train_numbers:
+        for t_r in train_number:
             coach_clean_data = Main_Data_Upload.objects.filter(registration_date__gte=start_date,registration_date__lte=end_date,train_station = t_r ,problem_type = "Coach - Cleanliness")
             c1 = (int(coach_clean_data.count()), int(t_r), "Coach - Cleanliness")
             coach_clean.append(list(c1))
@@ -1705,8 +1943,17 @@ def max_complain_train(request):
         end_date = None
         post = False
     
-    context = {'post':post,'total':total,'show':show,'all_type':all_type, 'critical_type':critical_type, 'start_date':start_date,
-                'end_date':end_date}
+    context = {'post':post,
+                'total':total,
+                'show':show,
+                'all_type':all_type,
+                'critical_type':critical_type,
+                'start_date':start_date,
+                'end_date':end_date,
+                'rncc':rncc,
+                'rgd':rgd,
+                'main_train':main_train
+                }
     return render(request, 'max_complain_train.html',context)
 
 
@@ -1717,7 +1964,7 @@ def max_complain_train(request):
 
 
 
-
+@login_required
 def min_complain_train(request):
     main_all = Main_Data_Upload.objects.all()
     train_nums = []
@@ -1923,13 +2170,7 @@ def min_complain_train(request):
 
 
 
-
-
-
-
-
-
-
+@login_required
 def max_complain_coach(request):
     main_all = Main_Data_Upload.objects.all()
     coach = []
@@ -2140,7 +2381,7 @@ def max_complain_coach(request):
 
 
 
-
+@login_required
 def min_complain_coach(request):
     main_all = Main_Data_Upload.objects.all()
     coach = []
@@ -2345,7 +2586,7 @@ def min_complain_coach(request):
 
 import operator
 
-
+@login_required
 def mix_chart(request):
     bottom_train = []
     bottom_data_count = []
@@ -2370,8 +2611,28 @@ def mix_chart(request):
     total_entries = Main_Data_Upload.objects.count()
     staff_behave = []
 
+
+    trainsss = Main_Data_Upload.objects.all()
+    main_trains = []
+    for ttt in trainsss:
+        main_trains.append(float(ttt.train_station))
+    set_train = set(main_trains)
+    main_train = list(set_train)
+    ######
+    train_type_rncc = Train_Type.objects.filter(Type="RNCC")
+    rncc = []
+    for rncc_train in train_type_rncc:
+        rncc.append(rncc_train.train_number)
+
+    train_type_rgd = Train_Type.objects.filter(Type="RGD")
+    rgd = []
+    for rgd_train in train_type_rgd:
+        rgd.append(rgd_train.train_number)
+    #####
+
     if request.method == "POST":
         post=True
+        train_number = request.POST.getlist("train_number")
         complain_type = request.POST.getlist('complain_type')
         train_count  = int(request.POST.get('train-count',''))
         start_date = request.POST.get('start_date','')
@@ -2398,11 +2659,10 @@ def mix_chart(request):
             for t in s:
                 Type.append(t)
 
-        train_number = []
+
         str_train_number = [] 
-        for t_n in train_numbers:
-            train_number.append(t_n.train_station)
-            str_train_number.append(str(t_n.train_station))
+        for t_n in train_number:
+            str_train_number.append(str(t_n))
 
         problem_types = set(Type)
 
@@ -2587,7 +2847,85 @@ def mix_chart(request):
                 'start_date':start_date,
                 'end_date':end_date,
                 'color_code':color_code,
-                'complain_type':complain_type
+                'complain_type':complain_type,
+                'rgd':rgd,
+                'rncc':rncc,
+                'main_train':main_train
                }
     return render(request, "responsive.html",context)
+
+
+
+
+
+
+
+
+
+
+
+
+@login_required
+def show_staff_name(request):
+    if request.method == "POST":
+        post = True
+        start_date = request.POST.get('start_date','')
+        end_date = request.POST.get('end_date','')
+
+        start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+
+        delta = end_month - start_month
+
+        sdate = date(int(start_month.year), int(start_month.month), int(start_month.day))
+        edate = date(int(end_month.year), int(end_month.month), int(end_month.day))
+
+        if delta.days <=0:
+            return HttpResponse("<h1>Please Enter valid Date Range</h1>")
+
+        main_data = Main_Data_Upload.objects.filter(registration_date__gte=start_date,registration_date__lte=end_date)
+        number_of_data = main_data.count()
+    else:
+        main_data = None
+        post = False
+        number_of_data = None
+
+    context = {'post':post,'main_data':main_data,'number_of_data':number_of_data}
+    return render(request, 'add_staff_name.html',context)
+
+
+
+
+
+
+
+
+@login_required
+@csrf_exempt
+def add_staff_name(request):
+    if request.method == "POST":
+        response = request.POST
+        list_reponse = list(response)
+        list_reponse.remove(list_reponse[0])
+        list_reponse.remove(list_reponse[-1])
+        for res in list_reponse:
+            splitted_response = res.split("-")
+            data_id = int(splitted_response[2])
+            data_count = int(splitted_response[1])
+            # print(data_id)
+            # print(data_count)
+            update_data = Main_Data_Upload.objects.get(id=data_id)
+            update_data.staff_name = str(response[f'input-{data_count}-{data_id}'])
+            update_data.save()
+        messages.success(request,'Successfully Updated Staff Name')
+        return redirect('/user/show_staff_name')
+
+
+
+
+
+
+
+
+
 

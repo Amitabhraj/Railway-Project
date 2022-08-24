@@ -4,15 +4,43 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
+
+<script>
+$(document).ready(function() {
+    $('#rncc').click(function() {
+        var checked = this.checked;
+        $('input[rncc="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
+    $('#select-all').click(function() {
+        var checked = this.checked;
+        $('input[this="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
+    $('#rgd').click(function() {
+        var checked = this.checked;
+        $('input[rgd="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
+});
+</script>
+
+<style>
+#more {display: none;}
+</style>
 
 
 
 <script>
 $(document).ready(function() {
-    $('#select-all').click(function() {
+    $('#select-all-2').click(function() {
         var checked = this.checked;
-        $('input[type="checkbox"]').each(function() {
+        $('input[that="true"]').each(function() {
         this.checked = checked;
     });
     })
@@ -28,25 +56,81 @@ $(document).ready(function() {
 
 <form action="/user/max_complain_train/" method="POST">{% csrf_token %}
 
+
+<center>
+<div class="form-check">
+  <input type="checkbox" id="select-all">
+  <label style="margin-right:12px"><h5>Select All</h5></label>
+
+  <input type="checkbox" id="rncc" this="true">
+  <label style="margin-right:12px"><h5>Select RNCC</h5></label>
+
+  <input type="checkbox" id="rgd" this="true">
+  <label style="margin-right:12px"><h5>Select RGD</h5></label><br>
+
+
+  <span id="dots"></span><span id="more">
+      {% for train_number in main_train %}
+
+      {% if train_number|convertint in rncc %}
+
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true" this="true">
+
+        {% elif train_number|convertint in rgd %}
+
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true" this="true">
+
+        {% else %}
+        <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" this="true">
+
+        {% endif %}
+            <label>
+            {{train_number|convertint}}&nbsp;&nbsp;
+            </label>
+
+      {% endfor %}
+</div></center>
+</span>
+<center><button onclick="myFunction()" id="myBtn" type="button">Show more</button></center><br>
+
+<script>
+function myFunction() {
+  var dots = document.getElementById("dots");
+  var moreText = document.getElementById("more");
+  var btnText = document.getElementById("myBtn");
+
+  if (dots.style.display === "none") {
+    dots.style.display = "inline";
+    btnText.innerHTML = "Show more"; 
+    moreText.style.display = "none";
+  } else {
+    dots.style.display = "none";
+    btnText.innerHTML = "Show less"; 
+    moreText.style.display = "inline";
+  }
+}
+</script>
+
+
 <center>
 <div class="form-check">
   <div class="select-type d-flex justify-content-center">
-    <div class="select-all">
+    <div class="select-all-2">
         <label><h5>Select All</h5></label>
-        <input type="checkbox" id="select-all"><br>
+        <input type="checkbox" id="select-all-2" that="true"><br>
     </div>
 
     <div class="select-critical mx-3">
         <label><h5>Select Critical</h5></label>
-        <input type="checkbox" id="select-critical"><br>
+        <input type="checkbox" id="select-critical" that="true"><br>
     </div>
 </div>
 
     {% for all_t in all_type %}
       {% if all_t in critical_type %}
-          <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="true">
+          <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="true" that="true">
       {% else %}
-          <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="false">
+          <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="false" that="true">
       {% endif %}
         <label>
         {{all_t}}&nbsp;&nbsp;
@@ -73,7 +157,7 @@ $(document).ready(function() {
   </center>
 </form>
 
-<div class="col-xl-8 col-md-12">
+<div class="col-xl-10 col-md-12">
 <div class="card">
 <div class="card-header">
 <h4>Railway Data</h4>
@@ -86,7 +170,7 @@ $(document).ready(function() {
 <div class="chart-container">
   <center><h4><u>Data Show Graph For Maximum Complain from Each Complain Type</b></u></h4></center>
 
-    <canvas id="myChart" height="110px" width="100%"></canvas>
+    <canvas id="myChart" height="40px" width="100%"></canvas>
 
 
 

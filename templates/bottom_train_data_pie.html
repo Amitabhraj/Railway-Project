@@ -1,12 +1,98 @@
 {% extends 'base.html' %}
+{% load custom %}
 {% block body %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
 <script src='https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js
 '></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
+
+<script>
+$(document).ready(function() {
+    $('#rncc').click(function() {
+        var checked = this.checked;
+        $('input[rncc="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
+    $('#select-all').click(function() {
+        var checked = this.checked;
+        $('input[type="checkbox"]').each(function() {
+        this.checked = checked;
+    });
+    })
+    $('#rgd').click(function() {
+        var checked = this.checked;
+        $('input[rgd="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
+});
+</script>
+
+<style>
+#more {display: none;}
+</style>
 
 <form action="/user/bottom_train_data_pie_chart/" method="POST">{% csrf_token %}
+
+<center>
+<div class="form-check">
+  <input type="checkbox" id="select-all">
+  <label style="margin-right:12px"><h5>Select All</h5></label>
+
+  <input type="checkbox" id="rncc">
+  <label style="margin-right:12px"><h5>Select RNCC</h5></label>
+
+  <input type="checkbox" id="rgd">
+  <label style="margin-right:12px"><h5>Select RGD</h5></label><br>
+
+
+  <span id="dots"></span><span id="more">
+      {% for train_number in main_train %}
+
+      {% if train_number|convertint in rncc %}
+
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true">
+
+        {% elif train_number|convertint in rgd %}
+
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true">
+
+        {% else %}
+        <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}">
+
+        {% endif %}
+            <label>
+            {{train_number|convertint}}&nbsp;&nbsp;
+            </label>
+
+      {% endfor %}
+</div></center>
+</span>
+<center><button onclick="myFunction()" id="myBtn" type="button">Read more</button></center><br>
+
+<script>
+function myFunction() {
+  var dots = document.getElementById("dots");
+  var moreText = document.getElementById("more");
+  var btnText = document.getElementById("myBtn");
+
+  if (dots.style.display === "none") {
+    dots.style.display = "inline";
+    btnText.innerHTML = "Read more"; 
+    moreText.style.display = "none";
+  } else {
+    dots.style.display = "none";
+    btnText.innerHTML = "Read less"; 
+    moreText.style.display = "inline";
+  }
+}
+</script>
+
+
+
   <center class="center">
 
     <label for="train_count"><b>Enter Train Count:</b></label>

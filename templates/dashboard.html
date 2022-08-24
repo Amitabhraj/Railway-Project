@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom %}
 {% block url_name %}Your Dashboard{% endblock %}
 {% block url_title %}Welcome To Dashboard{% endblock %}
 {% block breadcrum %}
@@ -29,7 +30,7 @@
 </style>
 
 <!--  sale analytics start -->
-<div class="col-xl-8 col-md-12">
+<div class="col-xl-10 col-md-12">
 <div class="card">
 <div class="card-header">
 <h4>Railway Data</h4>
@@ -42,6 +43,34 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
 <script src='https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js
 '></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('#rncc').click(function() {
+        var checked = this.checked;
+        $('input[rncc="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
+    $('#select-all').click(function() {
+        var checked = this.checked;
+        $('input[type="checkbox"]').each(function() {
+        this.checked = checked;
+    });
+    })
+    $('#rgd').click(function() {
+        var checked = this.checked;
+        $('input[rgd="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
+});
+</script>
+
+<style>
+#more {display: none;}
+</style>
 
 
 
@@ -49,7 +78,60 @@
   <center><h4><u>Data Show Graph For Railway Complaint Type</u></h4></center>
 
 <form action="/user/dashboard/" method="POST">{% csrf_token %}
-  <center class="center">
+  <center>
+<div class="form-check">
+  <input type="checkbox" id="select-all">
+  <label style="margin-right:12px"><h5>Select All</h5></label>
+
+  <input type="checkbox" id="rncc">
+  <label style="margin-right:12px"><h5>RNCC</h5></label>
+
+
+  <input type="checkbox" id="rgd">
+  <label style="margin-right:12px"><h5>RGD</h5></label><br>
+
+
+  <span id="dots"></span><span id="more">
+      {% for train_number in main_train %}
+
+      {% if train_number|convertint in rncc %}
+
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true">
+
+        {% elif train_number|convertint in rgd %}
+
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true">
+
+        {% else %}
+        <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}">
+
+        {% endif %}
+            <label>
+            {{train_number|convertint}}&nbsp;&nbsp;
+            </label>
+
+      {% endfor %}
+</div></center>
+</span>
+<center><button onclick="myFunction()" id="myBtn" type="button">Read more</button></center><br>
+
+<script>
+function myFunction() {
+  var dots = document.getElementById("dots");
+  var moreText = document.getElementById("more");
+  var btnText = document.getElementById("myBtn");
+
+  if (dots.style.display === "none") {
+    dots.style.display = "inline";
+    btnText.innerHTML = "Read more"; 
+    moreText.style.display = "none";
+  } else {
+    dots.style.display = "none";
+    btnText.innerHTML = "Read less"; 
+    moreText.style.display = "inline";
+  }
+}
+</script>
 
 {% if post %}
    <label for="start_date"><b>From:</b></label>
@@ -69,13 +151,14 @@
 </form>
 {% if show %}
     <button onClick="download()">Download Data-Graph</button>
-    <canvas id="pieChart" height="200px"></canvas>
+    <canvas id="pieChart" height="150px"></canvas>
 {% else %}
 <br>
 <center><h2>No Data To Display</h2></center>
 {% endif %}
 </div>
-
+<br>
+<br>
 
 
 

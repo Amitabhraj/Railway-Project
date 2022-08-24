@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load custom %}
-
 {% block body %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src='https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js
@@ -18,7 +17,7 @@ $(document).ready(function() {
     })
     $('#select-all').click(function() {
         var checked = this.checked;
-        $('input[type="checkbox"]').each(function() {
+        $('input[this="true"]').each(function() {
         this.checked = checked;
     });
     })
@@ -36,20 +35,38 @@ $(document).ready(function() {
 </style>
 
 
-<form action="/user/all_complain_train/" method="POST">{% csrf_token %}
 
 
+<script>
+$(document).ready(function() {
+    $('#select-all-2').click(function() {
+        var checked = this.checked;
+        $('input[that="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
+    $('#select-critical').click(function() {
+        var checked = this.checked;
+        $('input[critical="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
+});
+</script>
+
+<form action="/user/all_sub_complain_train/{{subtype}}/" method="POST">{% csrf_token %}
+ 
 
 <center>
 <div class="form-check">
   <input type="checkbox" id="select-all">
   <label style="margin-right:12px"><h5>Select All</h5></label>
 
-  <input type="checkbox" id="rncc">
-  <label style="margin-right:12px"><h5>Select RNCC</h5></label>
+  <input type="checkbox" id="rncc" this="true">
+  <label style="margin-right:12px"><h5>RNCC</h5></label>
 
-  <input type="checkbox" id="rgd">
-  <label style="margin-right:12px"><h5>Select RGD</h5></label><br>
+  <input type="checkbox" id="rgd" this="true">
+  <label style="margin-right:12px"><h5>RGD</h5></label><br>
 
 
   <span id="dots"></span><span id="more">
@@ -57,14 +74,14 @@ $(document).ready(function() {
 
       {% if train_number|convertint in rncc %}
 
-            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true">
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true" this="true">
 
         {% elif train_number|convertint in rgd %}
 
-            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true">
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true" this="true">
 
         {% else %}
-        <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}">
+        <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" this="true">
 
         {% endif %}
             <label>
@@ -84,56 +101,82 @@ function myFunction() {
 
   if (dots.style.display === "none") {
     dots.style.display = "inline";
-    btnText.innerHTML = "Show more"; 
+    btnText.innerHTML = "show more"; 
     moreText.style.display = "none";
   } else {
     dots.style.display = "none";
-    btnText.innerHTML = "Show less"; 
+    btnText.innerHTML = "show less"; 
     moreText.style.display = "inline";
   }
 }
 </script>
 
 
-  <center class="center"><h5>Filter Data:-</h5>&nbsp;&nbsp;&nbsp;&nbsp;
+<center>
+<div class="form-check">
+    <div class="select-type d-flex justify-content-center">
+        <div class="select-all">
+            <label><h5>Select All</h5></label>
+            <input type="checkbox" id="select-all-2"><br>
+        </div>
+
+        <div class="select-critical mx-3">
+            <label><h5>Select Critical</h5></label>
+            <input type="checkbox" id="select-critical" that="true"><br>
+        </div>
+        
+    </div>
+
+      {% for all_t in all_type %}
+        {% if all_t in critical_type %}
+            <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="true" that="true">
+        {% else %}
+            <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="false" that="true">
+        {% endif %}
+            <label>
+            {{all_t}}&nbsp;&nbsp;
+            </label>
+      {% endfor %}
+</div></center>
+
+
+
+  <center class="center">
+
+    <input name="staff_count" type="number">
 
     {% if post %}
     <label for="start_date"><b>From:</b></label>
     <input id = "start-date" type="date" name="start_date" value="{{start_date}}">
     <label for="end_date"><b>To:</b></label>
     <input id="end-date" type="date" name="end_date" value="{{end_date}}">
-  {% else %}
+ {% else %}
     <label for="start_date"><b>From:</b></label>
     <input id = "start-date" type="date" name="start_date">
     <label for="end_date"><b>To:</b></label>
     <input id="end-date" type="date" name="end_date">
-  {% endif %}
+ {% endif %}
 
-    <button type="submit" class="btn btn-danger my-2">Submit</button>
+    <button type="submit" class="btn btn-danger">Submit</button>
   </center>
 </form>
 
-
-<div class="col-xl-12 col-md-12">
+<div class="col-xl-8 col-md-12">
 <div class="card">
 <div class="card-header">
 <h4>Railway Data</h4>
 <span class="text-muted">This is Graph Show for Railway </span>
 </div>
 
-
-{% for t in total %}
-
 <div class="card-blockk">
 <div id="sales-analytics" style="height:100%;">
 
-
-<div class="chart-container" style="width:100%">
-  <center><h4><u>Data Show Graph For {{all_type|index:forloop.counter0}}</u></h4></center>
+<div class="chart-container">
+  <center><h4><u>Data Show Graph For <b>{{subtypes}}</b></u></h4></center>
 
 
 {% if show %}
-    <a target="blank"href="/user/complain/{{all_type|index:forloop.counter0}}"><canvas id="myChart{{forloop.counter}}" height="40px" width="150%"></canvas></a>
+    <a target="__blank" href="/user/complain/{{subtype}}/"><canvas id="myChart" height="50px" width="100%"></canvas></a>
 {% else %}
 <br>
 <center><h2>No Data To Display</h2></center>
@@ -144,19 +187,19 @@ function myFunction() {
 
 
 <script>
-  const labels{{forloop.counter}} = [{% for d in train_number %} '{{d|convertint}}', {% endfor %}];
-  const data{{forloop.counter}} = {
-    labels: labels{{forloop.counter}},
+  const labels = [{% for d in train_numbers %} '{{d|convertint}}', {% endfor %}];
+  const data = {
+    labels: labels,
     datasets: [{
-      label: 'Complaint Number',
+      label: '{{subtype}}',
       backgroundColor: 'rgb(255, 99, 132)',
       borderColor: 'rgb(255, 99, 132)',
-      data: {{total|index:forloop.counter0}},
+      data: {{data_count}},
     }]
   };
-  const config{{forloop.counter}} = {
+  const config = {
     type: 'line',
-    data: data{{forloop.counter}},
+    data: data,
     options: {
       responsive:true,
     }
@@ -167,35 +210,24 @@ function myFunction() {
 
 
 <script>
-  const myChart{{forloop.counter}} = new Chart(
-    document.getElementById('myChart{{forloop.counter}}'),
-    config{{forloop.counter}}
+  const myChart = new Chart(
+    document.getElementById('myChart'),
+    config
   );
 </script>
 
-</div>
-</div>
-
-
-
-<br>
-<br>
-<br>
-
-{% endfor %}
 
 
 
 </div>
 </div>
+</div>
+</div>
 
-<center><u><h2>Sub Type Lists</h2></u></center>
-
-{% for sub_type in sub_type %}
-<a href="/user/all_sub_complain_train/{{sub_type}}/"><button class="btn btn-dark mx-1 my-2">{{sub_type}}</button></a>
-{% endfor %}
 
 
 
 
 {% endblock %}
+
+

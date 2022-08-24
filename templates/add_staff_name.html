@@ -54,7 +54,7 @@
 </style>
 
 
-<form action="/user/add_staff_name/" method="POST">{% csrf_token %}
+<form action="/user/show_staff_name/" method="POST">{% csrf_token %}
   <center class="center"><h5>Filter Data:-</h5>&nbsp;&nbsp;&nbsp;&nbsp;
 
     {% if post %}
@@ -93,13 +93,14 @@
        {% for md in main_data %}
       <tr>
         <th scope="row">{{forloop.counter}}</th>
-        <th scope="row"><input name="input-{{forloop.counter}}"><input type="hidden" readonly="readonly" name="test"></th>
+        <th scope="row"><input name="input-{{forloop.counter}}-{{md.id}}" value="{{md.staff_name}}"></th>
         <th scope="row">{{md.train_station|convertint}}</th>
         <th scope="row">{{md.problem_type}}</th>
-        <th scope="row">{{md.registration_date.date}}</th>
+        <th scope="row">{{md.registration_date}}</th>
       </tr>
         {% endfor %}
     </tbody>
+<input type="hidden" readonly="readonly" name="n_d" value="{{number_of_data}}">
 <button class="btn btn-success mx-3" type="submit">Update Staff Name</button>
 </form>
 {% else %}

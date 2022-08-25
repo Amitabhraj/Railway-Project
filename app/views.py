@@ -1995,8 +1995,28 @@ def min_complain_train(request):
     miscellaneous = []
     staff_behave = []
     total = []
+
+    trainsss = Main_Data_Upload.objects.all()
+    main_trains = []
+    for ttt in trainsss:
+        main_trains.append(float(ttt.train_station))
+    set_train = set(main_trains)
+    main_train = list(set_train)
+    ######
+    train_type_rncc = Train_Type.objects.filter(Type="RNCC")
+    rncc = []
+    for rncc_train in train_type_rncc:
+        rncc.append(rncc_train.train_number)
+
+    train_type_rgd = Train_Type.objects.filter(Type="RGD")
+    rgd = []
+    for rgd_train in train_type_rgd:
+        rgd.append(rgd_train.train_number)
+    #####
+
     if request.method == "POST":
         post = True
+        train_number = request.POST.getlist('train_number')
         complain_type = request.POST.getlist('complain_type')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
@@ -2012,7 +2032,7 @@ def min_complain_train(request):
         if delta.days <=0:
             return HttpResponse("<center><h1>Please Enter valid date Range</center></h1>")
 
-        for t_r in train_numbers:
+        for t_r in train_number:
             coach_clean_data = Main_Data_Upload.objects.filter(registration_date__gte=start_date,registration_date__lte=end_date,train_station = t_r ,problem_type = "Coach - Cleanliness")
             c1 = (int(coach_clean_data.count()), int(t_r), "Coach - Cleanliness")
             coach_clean.append(list(c1))
@@ -2120,42 +2140,113 @@ def min_complain_train(request):
     medical_assis.sort(key=lambda x: x[0])
     miscellaneous.sort(key=lambda x: x[0])
 
+
     if request.method != "POST":
-        total.append(coach_maintain[0])
-        total.append(bed_roll[0])
-        total.append(staff_behave[0])
-        total.append(electrical_equip[0])
-        total.append(water_avail[0])
-        total.append(punctuality[0])
-        total.append(security[0])
-        total.append(medical_assis[0])
-        total.append(miscellaneous[0])
-        total.append(coach_clean[0])
+        for cm in coach_maintain:
+            if cm[0] != 0:
+                total.append(cm)
+                break
+
+        for b in bed_roll:
+            if b[0] != 0:
+                total.append(b)
+                break
+
+        for st in staff_behave:
+            if st[0] != 0:
+                total.append(st)
+                break
+
+        for ee in electrical_equip:
+            if ee[0] != 0:
+                total.append(ee)
+                break
+
+        for wta in water_avail:
+            if wta[0] != 0:
+                total.append(wta)
+                break
+
+        for punc in punctuality:
+            if punc[0] != 0:
+                total.append(punc)
+                break
+
+        for secure in security:
+            if secure[0] != 0:
+                total.append(secure)
+                break
+
+        for mda in medical_assis:
+            if mda[0] != 0:
+                total.append(mda)
+                break
+
+        for mis in miscellaneous:
+            if mis[0] != 0:
+                total.append(mis)
+                break
+
+        for cc in coach_clean:
+            if cc[0] != 0:
+                total.append(cc)
+                break
+
         if len(total) == 0:
             show = False
         if len(total)>=1:
             show = True 
     else:
         if "Coach - Maintenance" in complain_type:
-            total.append(coach_maintain[0])
+            for cm in coach_maintain:
+                if cm[0] != 0:
+                    total.append(cm)
+                    break
         if "Bed Roll" in complain_type:
-            total.append(bed_roll[0])
+            for b in bed_roll:
+                if b[0] != 0:
+                    total.append(b)
+                    break   
         if "Staff Behaviour" in complain_type:
-            total.append(staff_behave[0])
+            for st in staff_behave:
+                if st[0] != 0:
+                    total.append(st)
+                    break
         if "Electrical Equipment" in complain_type:
-            total.append(electrical_equip[0])
+            for ee in electrical_equip:
+                if ee[0] != 0:
+                    total.append(ee)
+                    break
         if "Water Availability" in complain_type:
-            total.append(water_avail[0])
+            for wta in water_avail:
+                if wta[0] != 0:
+                    total.append(wta)
+                    break
         if "Punctuality" in complain_type:
-            total.append(punctuality[0])
+            for punc in punctuality:
+                if punc[0] != 0:
+                    total.append(punc)
+                    break
         if "Security" in complain_type:
-            total.append(security[0])
+            for secure in security:
+                if secure[0] != 0:
+                    total.append(secure)
+                    break
         if "Medical Assistance" in complain_type:
-            total.append(medical_assis[0])
+            for mda in medical_assis:
+                if mda[0] != 0:
+                    total.append(mda)
+                    break
         if "Miscellaneous" in complain_type:
-            total.append(miscellaneous[0])
+            for mis in miscellaneous:
+                if mis[0] != 0:
+                    total.append(mis)
+                    break
         if "Coach - Cleanliness" in complain_type:
-            total.append(coach_clean[0])
+            for cc in coach_clean:
+                if cc[0] != 0:
+                    total.append(cc)
+                    break
         if len(total) == 0:
             show = False
         if len(total)>=1:
@@ -2165,8 +2256,18 @@ def min_complain_train(request):
         start_date = None
         end_date = None   
         post = False
-    context = {'post':post,'total':total,'show':show,'all_type':all_type, 'critical_type': critical_type, 'start_date':start_date,
-                'end_date':end_date}
+    context = {
+                'post':post,
+                'total':total,
+                'show':show,
+                'all_type':all_type,
+                'critical_type': critical_type,
+                'start_date':start_date,
+                'end_date':end_date,
+                'rgd':rgd,
+                'rncc':rncc,
+                'main_train':main_train
+               }
     return render(request, 'min_complain_train.html',context)
 
 
@@ -2404,6 +2505,8 @@ def min_complain_coach(request):
     critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
                      'Electrical Equipment','Coach - Maintenance',]
     coaches = set(coach)
+
+    print(coaches)
     coach_clean = []
     bed_roll = []
     security = []
@@ -2415,6 +2518,25 @@ def min_complain_coach(request):
     miscellaneous = []
     staff_behave = []
     total = []
+
+    trainsss = Main_Data_Upload.objects.all()
+    main_trains = []
+    for ttt in trainsss:
+        main_trains.append(float(ttt.train_station))
+    set_train = set(main_trains)
+    main_train = list(set_train)
+    ######
+    train_type_rncc = Train_Type.objects.filter(Type="RNCC")
+    rncc = []
+    for rncc_train in train_type_rncc:
+        rncc.append(rncc_train.train_number)
+
+    train_type_rgd = Train_Type.objects.filter(Type="RGD")
+    rgd = []
+    for rgd_train in train_type_rgd:
+        rgd.append(rgd_train.train_number)
+    #####
+
     if request.method == "POST":
         post = True
         complain_type = request.POST.getlist('complain_type')
@@ -2541,52 +2663,133 @@ def min_complain_coach(request):
     miscellaneous.sort(key=lambda x: x[0])
 
     if request.method != "POST":
-        total.append(coach_maintain[0])
-        total.append(bed_roll[0])
-        total.append(staff_behave[0])
-        total.append(electrical_equip[0])
-        total.append(water_avail[0])
-        total.append(punctuality[0])
-        total.append(security[0])
-        total.append(medical_assis[0])
-        total.append(miscellaneous[0])
-        total.append(coach_clean[0])
+        for cm in coach_maintain:
+            if cm[0] != 0:
+                print(cm)
+                total.append(cm)
+                break
+
+        for b in bed_roll:
+            if b[0] != 0:
+                total.append(b)
+                break
+
+        for st in staff_behave:
+            if st[0] != 0:
+                total.append(st)
+                break
+
+        for ee in electrical_equip:
+            if ee[0] != 0:
+                total.append(ee)
+                break
+
+        for wta in water_avail:
+            if wta[0] != 0:
+                total.append(wta)
+                break
+
+        for punc in punctuality:
+            if punc[0] != 0:
+                total.append(punc)
+                break
+
+        for secure in security:
+            if secure[0] != 0:
+                total.append(secure)
+                break
+
+        for mda in medical_assis:
+            if mda[0] != 0:
+                total.append(mda)
+                break
+
+        for mis in miscellaneous:
+            if mis[0] != 0:
+                total.append(mis)
+                break
+
+        for cc in coach_clean:
+            if cc[0] != 0:
+                total.append(cc)
+                break
+
         if len(total) == 0:
             show = False
         if len(total)>=1:
             show = True 
     else:
         if "Coach - Maintenance" in complain_type:
-            total.append(coach_maintain[0])
+            for cm in coach_maintain:
+                if cm[0] != 0:
+                    total.append(cm)
+                    break
         if "Bed Roll" in complain_type:
-            total.append(bed_roll[0])
+            for b in bed_roll:
+                if b[0] != 0:
+                    total.append(b)
+                    break   
         if "Staff Behaviour" in complain_type:
-            total.append(staff_behave[0])
+            for st in staff_behave:
+                if st[0] != 0:
+                    total.append(st)
+                    break
         if "Electrical Equipment" in complain_type:
-            total.append(electrical_equip[0])
+            for ee in electrical_equip:
+                if ee[0] != 0:
+                    total.append(ee)
+                    break
         if "Water Availability" in complain_type:
-            total.append(water_avail[0])
+            for wta in water_avail:
+                if wta[0] != 0:
+                    total.append(wta)
+                    break
         if "Punctuality" in complain_type:
-            total.append(punctuality[0])
+            for punc in punctuality:
+                if punc[0] != 0:
+                    total.append(punc)
+                    break
         if "Security" in complain_type:
-            total.append(security[0])
+            for secure in security:
+                if secure[0] != 0:
+                    total.append(secure)
+                    break
         if "Medical Assistance" in complain_type:
-            total.append(medical_assis[0])
+            for mda in medical_assis:
+                if mda[0] != 0:
+                    total.append(mda)
+                    break
         if "Miscellaneous" in complain_type:
-            total.append(miscellaneous[0])
+            for mis in miscellaneous:
+                if mis[0] != 0:
+                    total.append(mis)
+                    break
         if "Coach - Cleanliness" in complain_type:
-            total.append(coach_clean[0])
+            for cc in coach_clean:
+                if cc[0] != 0:
+                    total.append(cc)
+                    break
         if len(total) == 0:
             show = False
         if len(total)>=1:
-            show = True 
+            show = True  
     if request.method != "POST":
         start_date = None
         end_date = None
         post = False
     
-    context = {'post':post,'total':total,'show':show,'all_type':all_type, 'critical_type':critical_type,'start_date':start_date,
-                'end_date':end_date}
+    context = {
+                'post':post,
+                'total':total,
+                'show':show,
+                'all_type':all_type,
+                'critical_type':critical_type,
+                'start_date':start_date,
+                'end_date':end_date,
+                'rncc':rncc,
+                'rgd':rgd,
+                'main_train':main_train
+               }
     return render(request, 'min_complain_coach.html',context)
 
 
@@ -2598,8 +2801,8 @@ import operator
 def mix_chart(request):
     bottom_train = []
     bottom_data_count = []
-    all_type=['Coach - Cleanliness','Bed Roll','Security','Medical Assistance',
-              'Punctuality','Water Availability','Electrical Equipment','Coach - Maintenance',
+    all_type=['Coach - Cleanliness','Bed Roll','Security',
+              'Punctuality','Water Availability','Electrical Equipment','Medical Assistance','Coach - Maintenance',
               'Miscellaneous','Staff Behaviour']
 
     critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
@@ -2642,7 +2845,6 @@ def mix_chart(request):
         post=True
         train_number = request.POST.getlist("train_number")
         complain_type = request.POST.getlist('complain_type')
-        train_count  = int(request.POST.get('train-count',''))
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
@@ -2680,7 +2882,8 @@ def mix_chart(request):
 
         make_dict = dict(zip(str_train_number,data_count))
         a1_sorted_keys = dict(sorted(make_dict.items(), key=operator.itemgetter(1),reverse=True))
-        first_n = sorted(a1_sorted_keys, key=a1_sorted_keys.get, reverse=True)[:train_count]
+        first_n = sorted(a1_sorted_keys, key=a1_sorted_keys.get, reverse=True)[:len(train_number)]
+        
         for r in first_n:
             print(int(float(r))," ---> ",make_dict[r])
             bottom_train.append(int(float(r)))
@@ -2797,41 +3000,42 @@ def mix_chart(request):
             staff_behave.append(data10.count())
     total = []
     if request.method != "POST":
-        total.append(coach_maintain)
-        total.append(bed_roll)
-        total.append(staff_behave)
-        total.append(electrical_equip)
-        total.append(water_avail)
-        total.append(punctuality)
-        total.append(security)
-        total.append(medical_assis)
-        total.append(miscellaneous)
         total.append(coach_clean)
+        total.append(bed_roll)
+        total.append(security)
+        total.append(punctuality)
+        total.append(water_avail)
+        total.append(electrical_equip)
+        total.append(medical_assis)
+        total.append(coach_maintain)
+        total.append(miscellaneous)
+        total.append(staff_behave)
         if len(total) == 0:
             show = False
         if len(total)>=1:
             show = True 
     else:
-        if "Coach - Maintenance" in complain_type:
-            total.append(coach_maintain)
-        if "Bed Roll" in complain_type:
-            total.append(bed_roll)
-        if "Staff Behaviour" in complain_type:
-            total.append(staff_behave)
-        if "Electrical Equipment" in complain_type:
-            total.append(electrical_equip)
-        if "Water Availability" in complain_type:
-            total.append(water_avail)
-        if "Punctuality" in complain_type:
-            total.append(punctuality)
-        if "Security" in complain_type:
-            total.append(security)
-        if "Medical Assistance" in complain_type:
-            total.append(medical_assis)
-        if "Miscellaneous" in complain_type:
-            total.append(miscellaneous)
+
         if "Coach - Cleanliness" in complain_type:
             total.append(coach_clean)
+        if "Bed Roll" in complain_type:
+            total.append(bed_roll)
+        if "Security" in complain_type:
+            total.append(security)
+        if "Punctuality" in complain_type:
+            total.append(punctuality)
+        if "Water Availability" in complain_type:
+            total.append(water_avail)
+        if "Electrical Equipment" in complain_type:
+            total.append(electrical_equip)
+        if "Medical Assistance" in complain_type:
+            total.append(medical_assis)
+        if "Coach - Maintenance" in complain_type:
+            total.append(coach_maintain)
+        if "Miscellaneous" in complain_type:
+            total.append(miscellaneous)
+        if "Staff Behaviour" in complain_type:
+            total.append(staff_behave)
         if len(total) == 0:
             show = False
         if len(total)>=1:
@@ -2841,6 +3045,9 @@ def mix_chart(request):
         end_date = None
         post = False
         complain_type = None
+        train_count = 10
+    else:
+        train_count = len(train_number)
 
     context = {
                 'bottom_train':bottom_train,
@@ -2980,8 +3187,9 @@ def staff_graph(request):
     color_code = ['#FF3838','#FFB3B3','#006441','#FF8300','#EEFF70','#00FF83','#00E8FF',
                 '#4200FF','#BD00FF','#FF8ED3']
 
-    all_type=['Coach - Cleanliness','Bed Roll','Security','Medical Assistance',
-              'Punctuality','Water Availability','Electrical Equipment','Coach - Maintenance',
+    all_type=['Coach - Cleanliness','Bed Roll','Security',
+            'Punctuality','Water Availability','Electrical Equipment',
+            'Medical Assistance','Coach - Maintenance',
               'Miscellaneous','Staff Behaviour']
     critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
                      'Electrical Equipment','Coach - Maintenance',]
@@ -3003,11 +3211,12 @@ def staff_graph(request):
     if request.method == "POST":
         post = True
         problem_type = request.POST.getlist('problem_type')
-        staff_count = request.POST.get('staff_count')
+        staff_count = int(request.POST.get('staff_count'))
         train_number = request.POST.getlist('train_number')
         complain_type = request.POST.getlist('complain_type')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
+
 
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
@@ -3039,8 +3248,8 @@ def staff_graph(request):
 
         make_dict = dict(zip(staff_name,data_count))
         a1_sorted_keys = dict(sorted(make_dict.items(), key=operator.itemgetter(1),reverse=True))
-        print(a1_sorted_keys)
         first_n = sorted(a1_sorted_keys, key=a1_sorted_keys.get, reverse=True)[:staff_count]
+
         for r in first_n:
             bottom_staff.append(r)
             bottom_staff_count.append(make_dict[r])
@@ -3088,6 +3297,8 @@ def staff_graph(request):
     else:
         staff_count=10
         post = False
+        start_date=None
+        end_date=None
         data_count=[]
         problem_type = Main_Data_Upload.objects.values_list('problem_type')
         train_numbers = Main_Data_Upload.objects.all()
@@ -3096,6 +3307,7 @@ def staff_graph(request):
         for s in problem_type:
             for t in s:
                 Type.append(t)
+        complain_type = all_type
 
         train_number = []
         str_train_number = [] 
@@ -3157,45 +3369,46 @@ def staff_graph(request):
             staff_behave.append(data10.count())
     total = []
     if request.method != "POST":
-        total.append(coach_maintain)
-        total.append(bed_roll)
-        total.append(staff_behave)
-        total.append(electrical_equip)
-        total.append(water_avail)
-        total.append(punctuality)
-        total.append(security)
-        total.append(medical_assis)
-        total.append(miscellaneous)
         total.append(coach_clean)
+        total.append(bed_roll)
+        total.append(security)
+        total.append(punctuality)
+        total.append(water_avail)
+        total.append(electrical_equip)
+        total.append(medical_assis)
+        total.append(coach_maintain)
+        total.append(miscellaneous)
+        total.append(staff_behave)
         if len(total) == 0:
             show = False
         if len(total)>=1:
             show = True 
     else:
-        if "Coach - Maintenance" in complain_type:
-            total.append(coach_maintain)
-        if "Bed Roll" in complain_type:
-            total.append(bed_roll)
-        if "Staff Behaviour" in complain_type:
-            total.append(staff_behave)
-        if "Electrical Equipment" in complain_type:
-            total.append(electrical_equip)
-        if "Water Availability" in complain_type:
-            total.append(water_avail)
-        if "Punctuality" in complain_type:
-            total.append(punctuality)
-        if "Security" in complain_type:
-            total.append(security)
-        if "Medical Assistance" in complain_type:
-            total.append(medical_assis)
-        if "Miscellaneous" in complain_type:
-            total.append(miscellaneous)
         if "Coach - Cleanliness" in complain_type:
             total.append(coach_clean)
+        if "Bed Roll" in complain_type:
+            total.append(bed_roll)
+        if "Security" in complain_type:
+            total.append(security)
+        if "Punctuality" in complain_type:
+            total.append(punctuality)
+        if "Water Availability" in complain_type:
+            total.append(water_avail)
+        if "Electrical Equipment" in complain_type:
+            total.append(electrical_equip)
+        if "Medical Assistance" in complain_type:
+            total.append(medical_assis)
+        if "Coach - Maintenance" in complain_type:
+            total.append(coach_maintain)
+        if "Miscellaneous" in complain_type:
+            total.append(miscellaneous)
+        if "Staff Behaviour" in complain_type:
+            total.append(staff_behave)
         if len(total) == 0:
             show = False
         if len(total)>=1:
-            show = True 
+            show = True
+    print(total)
     context = {
                 'all_type':all_type,
                 'critical_type':critical_type,

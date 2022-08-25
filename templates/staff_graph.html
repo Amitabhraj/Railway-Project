@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% load custom %}
 {% block body %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src='https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js
-'></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 
@@ -35,8 +36,6 @@ $(document).ready(function() {
 </style>
 
 
-
-
 <script>
 $(document).ready(function() {
     $('#select-all-2').click(function() {
@@ -54,8 +53,10 @@ $(document).ready(function() {
 });
 </script>
 
-<form action="/user/all_sub_complain_train/{{subtype}}/" method="POST">{% csrf_token %}
- 
+
+<form action="/user/staff_graph/" method="POST">{% csrf_token %}
+
+
 
 <center>
 <div class="form-check">
@@ -101,15 +102,17 @@ function myFunction() {
 
   if (dots.style.display === "none") {
     dots.style.display = "inline";
-    btnText.innerHTML = "show more"; 
+    btnText.innerHTML = "Show more"; 
     moreText.style.display = "none";
   } else {
     dots.style.display = "none";
-    btnText.innerHTML = "show less"; 
+    btnText.innerHTML = "Show less"; 
     moreText.style.display = "inline";
   }
 }
 </script>
+
+
 
 
 <center>
@@ -140,28 +143,41 @@ function myFunction() {
 </div></center>
 
 
+<style>
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
+}
+</style>
+
 
   <center class="center">
 
-    <input name="staff_count" type="number">
 
+   
+    <label for="staff_count"><b>Enter Staff Count:</b></label>
+    <input name="staff-count" id="staff" type="number" name="staff-count" required>
     {% if post %}
-    <label for="start_date"><b>From:</b></label>
-    <input id = "start-date" type="date" name="start_date" value="{{start_date}}">
-    <label for="end_date"><b>To:</b></label>
-    <input id="end-date" type="date" name="end_date" value="{{end_date}}">
- {% else %}
-    <label for="start_date"><b>From:</b></label>
-    <input id = "start-date" type="date" name="start_date">
-    <label for="end_date"><b>To:</b></label>
-    <input id="end-date" type="date" name="end_date">
- {% endif %}
+        <label for="start_date"><b>From:</b></label>
+        <input id = "start-date" type="date" name="start_date" value="{{start_date}}" required>
+        <label for="end_date"><b>To:</b></label>
+        <input id="end-date" type="date" name="end_date" value="{{end_date}}" required>
+    {% else %}
+        <label for="start_date"><b>From:</b></label>
+        <input id = "start-date" type="date" name="start_date" required>
+        <label for="end_date"><b>To:</b></label>
+        <input id="end-date" type="date" name="end_date" required>
+    {% endif %}
 
     <button type="submit" class="btn btn-danger">Submit</button>
   </center>
 </form>
 
-<div class="col-xl-8 col-md-12">
+<br>
+<div class="col-xl-12 col-md-12">
 <div class="card">
 <div class="card-header">
 <h4>Railway Data</h4>
@@ -171,63 +187,127 @@ function myFunction() {
 <div class="card-blockk">
 <div id="sales-analytics" style="height:100%;">
 
+
 <div class="chart-container">
-  <center><h4><u>Data Show Graph For <b>{{subtypes}}</b></u></h4></center>
+    
+
+        <center><h4><u>Data Show Graph For Bottom Staff Name Complaint Wise</u></h4></center>
 
 
-{% if show %}
-    <a target="__blank" href="/user/complain/{{subtype}}/"><canvas id="myChart" height="50px" width="100%"></canvas></a>
-{% else %}
-<br>
-<center><h2>No Data To Display</h2></center>
-{% endif %}
-</div>
-
-
+<canvas id="myStackedChart" width="100px" height="40px"></canvas>
+<style>
+* {font-family: sans-serif;}
+canvas {
+background: #f6fafd; /* Old browsers */
+background: -moz-linear-gradient(top, #f6fafd 0%, #cbdff2 73%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top, #f6fafd 0%,#cbdff2 73%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom, #f6fafd 0%,#cbdff2 73%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f6fafd', endColorstr='#cbdff2',GradientType=0 ); /* IE6-9 */
+-webkit-border-radius: 6px;
+-moz-border-radius: 6px;
+border-radius: 6px;
+}
+</style>
 
 
 <script>
-  const labels = [{% for d in train_numbers %} '{{d|convertint}}', {% endfor %}];
-  const data = {
-    labels: labels,
-    datasets: [{
-      label: '{{subtype}}',
-      backgroundColor: 'rgb(255, 99, 132)',
-      borderColor: 'rgb(255, 99, 132)',
-      data: {{data_count}},
-    }]
-  };
-  const config = {
-    type: 'line',
-    data: data,
+// JavaScript source code
+// Return with commas in between
+var numberWithCommas = function (x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+//biomass annual cost
+
+{% for t in total %}
+var dataPack{{forloop.counter}} = {{t}};
+{% endfor %}
+var dates = [{% for b_t in bottom_staff %} "{{b_t}}", {% endfor %}];
+
+var bar_ctx = document.getElementById('myStackedChart');
+var ctxP = bar_ctx.getContext('2d');
+var bar_chart = new Chart(ctxP, {
+    type: 'bar',
+    data: {
+        labels: dates,
+        datasets: [
+        {% for t in total %}
+            {
+              {% if not post %}
+                label: '{{ all_type|index:forloop.counter }}',
+                data: dataPack{{forloop.counter}},
+                backgroundColor: "{{color_code|index:forloop.counter}}",
+                hoverBackgroundColor: "{{color_code|index:forloop.counter}}",
+                hoverBorderWidth: 2,
+                hoverBorderColor:'white'
+              {% else %}
+              label: '{{ complain_type|index:forloop.counter }}',
+              data: dataPack{{forloop.counter}},
+              backgroundColor: "{{color_code|index:forloop.counter}}",
+              hoverBackgroundColor: "{{color_code|index:forloop.counter}}",
+              hoverBorderWidth: 2,
+              hoverBorderColor:'white'
+              {% endif %}
+            },
+        {% endfor %}
+            
+        ]
+    },
     options: {
-      responsive:true,
-    }
-  };
+        animation: {
+            duration: 10,
+        },
+        tooltips: {
+            mode: 'label',
+            callbacks: {
+                label: function (tooltipItem, data) {
+                    return data.datasets[tooltipItem.datasetIndex].label + ": " + numberWithCommas(tooltipItem.yLabel);
+                }
+            }
+        },
+        scales: {
+            xAxes: [{
+                stacked: true,
+                gridLines: { display: false },
+            }],
+            yAxes: [{
+                stacked: true,
+                ticks: {
+                    callback: function (value) { return numberWithCommas(value); },
+                },
+            }],
+        }, // scales
+        legend: { display: true }
+    } // options
+}
+);
+
+
+bar_ctx.onclick = function(e) {
+   var slice = bar_chart.getElementAtEvent(e);
+   if (!slice.length) return; // return if not clicked on slice
+   var label = slice[0]._model.label;
+   switch (label) {
+    {% for b_t in bottom_train %}
+      case '{{b_t}}':
+         window.open('/user/complain/{{b_t}}');
+         break;
+    {% endfor %}
+   }
+}
+
 </script>
 
 
 
 
-<script>
-  const myChart = new Chart(
-    document.getElementById('myChart'),
-    config
-  );
-</script>
-
-
-
-
+</div>  
 </div>
 </div>
 </div>
-</div>
-
-
-
-
 
 {% endblock %}
+
+    
 
 

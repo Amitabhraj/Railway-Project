@@ -3,9 +3,21 @@
 {% block body %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
-<script src='https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js
-'></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+
+
+{% for message in messages %}
+<div id="alert" class="alert alert-{{ message.tags }}">{{message}}
+</div>
+  
+<script type="text/javascript">
+setTimeout(function () {
+    $('#alert').alert('close');
+}, 4000);
+</script>
+{% endfor %}
+
 
 
 <script>
@@ -94,10 +106,6 @@ function myFunction() {
 
 
   <center class="center">
-
-    <label for="train_count"><b>Enter Train Count:</b></label>
-    <input type="number" name="train_count" required>
-
    {% if post %}
     <label for="start_date"><b>From:</b></label>
     <input id = "start-date" type="date" name="start_date" value="{{start_date}}">
@@ -127,7 +135,7 @@ function myFunction() {
 <div id="sales-analytics" style="height:100%;">
 
 <div class="chart-container">
-  <center><h4><u>Data Show Graph For Bottom {{train_count}} Train Number Complaint Wise</u></h4></center>
+  <center><h4><u>Data Show Graph For Bottom {{train_count}} Trains Complaint Wise</u></h4></center>
 
 <canvas id="myChart" height="57px" width="100%"></canvas>
 <br>
@@ -139,13 +147,13 @@ function myFunction() {
 var canvasP = document.getElementById("myChart");
 var ctxP = canvasP.getContext('2d');
 var myPieChart = new Chart(ctxP, {
-   type: 'pie',
+   type: 'bar',
    data: {
       labels: [{% for m in bottom_train %}'{{m}}',{% endfor %}],
       datasets: [
         {   
             data: {{bottom_data_count}},
-            backgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"],
+            backgroundColor: [{% for m in bottom_train %}"#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C",{% endfor %}],
             hoverBackgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"]
        }]
    },

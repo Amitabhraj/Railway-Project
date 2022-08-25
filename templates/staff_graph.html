@@ -54,7 +54,7 @@ $(document).ready(function() {
 </script>
 
 
-<form action="/user/mix_chart/" method="POST">{% csrf_token %}
+<form action="/user/staff_graph/" method="POST">{% csrf_token %}
 
 
 
@@ -158,8 +158,8 @@ input[type=number]::-webkit-outer-spin-button {
 
 
    
-    <label for="train_count"><b>Enter Train Count:</b></label>
-    <input name="train-count" id="mobile" type="number" name="train-count" required>
+    <label for="staff_count"><b>Enter Staff Count:</b></label>
+    <input id="staff" type="number" name="staff_count" required>
     {% if post %}
         <label for="start_date"><b>From:</b></label>
         <input id = "start-date" type="date" name="start_date" value="{{start_date}}" required>
@@ -190,11 +190,8 @@ input[type=number]::-webkit-outer-spin-button {
 
 <div class="chart-container">
     
-    {% if train_count > total_entries %}
-        <center><h4><u>There are maximum {{total_entries}} Data entries. Showing data for {{total_entries}} entries.</u></h4></center>
-    {% else %}
-        <center><h4><u>Data Show Graph For Bottom {{train_count}} Train Number Complaint Wise</u></h4></center>
-    {% endif %}
+
+        <center><h4><u>Data Show Graph For Bottom Staff Name Complaint Wise</u></h4></center>
 
 
 <canvas id="myStackedChart" width="100px" height="40px"></canvas>
@@ -225,7 +222,7 @@ var numberWithCommas = function (x) {
 {% for t in total %}
 var dataPack{{forloop.counter}} = {{t}};
 {% endfor %}
-var dates = [{% for b_t in bottom_train %} "{{b_t|convertint}}", {% endfor %}];
+var dates = [{% for b_t in bottom_staff %} "{{b_t}}", {% endfor %}];
 
 var bar_ctx = document.getElementById('myStackedChart');
 var ctxP = bar_ctx.getContext('2d');
@@ -284,6 +281,7 @@ var bar_chart = new Chart(ctxP, {
     } // options
 }
 );
+
 
 bar_ctx.onclick = function(e) {
    var slice = bar_chart.getElementAtEvent(e);

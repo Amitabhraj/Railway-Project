@@ -194,7 +194,7 @@ input[type=number]::-webkit-outer-spin-button {
         <center><h4><u>Data Show Graph For Bottom {{train_count}} Train Number Complaint Wise</u></h4></center>
     {% endif %}
 
-
+<button onClick="download()">Download Data-Graph</button>
 <canvas id="myStackedChart" width="100px" height="40px"></canvas>
 <style>
 * {font-family: sans-serif;}
@@ -296,6 +296,18 @@ bar_ctx.onclick = function(e) {
    }
 }
 
+
+function download(){
+  const imageLink = document.createElement('a');
+  const canvas = document.getElementById('myStackedChart');
+  imageLink.download = 'Data.png'
+  imageLink.href = canvas.toDataURL('media/data/canvas',1);
+  // window.open(imageLink);
+  // document.write('<img src=" '+imageLink+' "/>')
+
+  // console.log(imageLink.href);
+  imageLink.click();
+}
 </script>
 
 

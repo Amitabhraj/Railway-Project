@@ -23,7 +23,7 @@ class Main_Data_Upload(models.Model):
     station_name = models.CharField(max_length=10000000,default=None, null=True, blank=True)
     channel = models.CharField(max_length=10000000,default=None, null=True, blank=True)
     Type = models.CharField(max_length=10000000,default=None, null=True, blank=True)
-    coach_number = models.CharField(max_length=10000000,default=True,null=True, blank=True)
+    coach_number = models.FloatField(default=00000.0,null=True, blank=True)
     rake_number = models.CharField(max_length=10000000,default=None, null=True, blank=True)
     staff_name = models.CharField(max_length=10000000,default="", null=True, blank=True)
     problem_type = models.CharField(max_length=10000000,default=None, null=True, blank=True)

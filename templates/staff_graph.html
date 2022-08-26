@@ -288,7 +288,7 @@ bar_ctx.onclick = function(e) {
    if (!slice.length) return; // return if not clicked on slice
    var label = slice[0]._model.label;
    switch (label) {
-    {% for b_t in bottom_train %}
+    {% for b_t in bottom_staff %}
       case '{{b_t}}':
          window.open('/user/complain/{{b_t}}');
          break;

@@ -85,13 +85,11 @@ def upload_data(request):
         if user.groups.filter(name='Moderator').exists():
             now = datetime.datetime.now()
             dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-            print("date and time =", dt_string) 
             csv_data = request.FILES.get('csv')
             convert_data = str(csv_data).split(" ")
             main_csv_data = "_".join(convert_data)
             data = CsvFile(csv_data=csv_data).save()
             df = pd.read_csv(str(BASE_DIR)+"/media/data/railway/" + str(main_csv_data))
-            print(df['Registration Date'])
             length = len(df)
             for i in range(0, length):
                 if df['Registration Date'][i] == " " or type(df['Registration Date'][i]) == float:
@@ -111,13 +109,11 @@ def upload_data(request):
 
              
                 if df['Physical Coach No'][i] == None or str(df['Physical Coach No'][i]) == "nan":
-                    real_coach_number = "00000"
+                    real_coach_number = 00000.0
                 else:
-                    real_coach_number = df['Physical Coach No'][i],
+                    real_coach_number = df['Physical Coach No'][i].item()
 
-                print("Coach-Number:-"+str(real_coach_number))
-
-                Main_Data_Upload(
+                main_data = Main_Data_Upload(
                     sl_no = df['Sl. No.'][i],
                     reference_no = df['Ref. No.'][i],
                     registration_date = register_date,
@@ -152,8 +148,12 @@ def upload_data(request):
                     mobile_number_or_email = df['Mobile No./Email Id'][i],
                     # physical_coach_number = df['Physical Coach No'][i],
                     train_name = df['Train Name'][i]
-                ).save()
-                print(f"data no.{i} uploaded")
+                )
+                if Main_Data_Upload.objects.filter(reference_no=main_data.reference_no):
+                    print("this will not upload")
+                else:
+                    print("this file get uploaded")
+                    main_data.save()
 
             mobile_number = PhoneNumber.objects.all()
             phone_number = []
@@ -460,7 +460,6 @@ def rating(request):
             main_trains = train_number
 
         dataa = Main_Data_Upload.objects.filter(train_station__in = main_trains,registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"])
-        print(dataa)
         data = []
         for dd in dataa:
             data.append(dd.rating)
@@ -659,7 +658,6 @@ def trend(request):
             total.append(coach_maintain)
             total.append(miscellaneous)
             total.append(staff_behave)
-            print(total)
 
 
         elif delta.days >=46:
@@ -715,7 +713,6 @@ def trend(request):
             total.append(coach_maintain)
             total.append(miscellaneous)
             total.append(staff_behave)
-            print(total)
 
     else:
         coach_clean = []
@@ -931,7 +928,6 @@ def sub_type(request,subtype):
                 dates.append(str(day.day)+" "+str(calendar.month_name[day.month])+","+ str(day.year))
                 sub_type_data = Main_Data_Upload.objects.filter(train_station__in=train_numbers,sub_type=f"{subtypes}",registration_date__day=day.day,registration_date__month=day.month,registration_date__year=day.year)
                 data_count.append(sub_type_data.count())
-            print(data_count)
         elif delta.days <=0:
             return HttpResponse("<h1>Please Enter valid Date Range</h1>")
         elif delta.days >=46:
@@ -1016,13 +1012,13 @@ def complain_type(request, complain):
                                                         'disposal_time',
                                                         'rating',
                                                         'registration_date',
-                                                        'complaint_discription')
+                                                        'complaint_discription',
+                                                        'staff_name')
     problem_type = []
     for p in problem_types:
         if str(int(p[1])) == complain_type:
             problem_type.append(p)
-        # if p[2] == complain_type or p[3] == complain_type or str(int(p[0])) == complain_type or str(int(p[1])) == complain_type or str(calendar.month_name[p[6].month]) == str(complain_type):
-        #     problem_type.append(p)
+
         elif complain_type == "All_data":
             problem_type.append(p)
 
@@ -1033,6 +1029,12 @@ def complain_type(request, complain):
             problem_type.append(p)
 
         elif complain_type == str(p[5]):
+            problem_type.append(p)
+
+        elif complain_type == str(p[8]):
+            problem_type.append(p)
+
+        elif complain_type == str(int(p[0])):
             problem_type.append(p)
 
     context = {'complain_type':complain_type, 'problem_type':problem_type}
@@ -1551,7 +1553,6 @@ def all_complain_train(request):
     total.append(coach_maintain)
     total.append(miscellaneous)
     total.append(staff_behave)
-    print(total)
 
     all_type=['Coach - Cleanliness','Bed Roll','Security','Medical Assistance',
               'Punctuality','Water Availability','Electrical Equipment','Coach - Maintenance',
@@ -2284,7 +2285,7 @@ def max_complain_coach(request):
     main_all = Main_Data_Upload.objects.all()
     coach = []
     for m in main_all:
-        if m.coach_number == None:
+        if m.coach_number == 0.0:
             pass
         else:
             coach.append(m.coach_number)
@@ -2293,8 +2294,9 @@ def max_complain_coach(request):
               'Miscellaneous','Staff Behaviour']
     critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
                      'Electrical Equipment','Coach - Maintenance',]
-    coaches = set(coach)
-    print(coaches)
+    coaches_set = set(coach)
+    coaches=list(coaches_set)
+
     coach_clean = []
     bed_roll = []
     security = []
@@ -2431,6 +2433,9 @@ def max_complain_coach(request):
     medical_assis.sort(key=lambda x: x[0])
     miscellaneous.sort(key=lambda x: x[0])
 
+
+    
+
     if request.method != "POST":
         total.append(coach_maintain[-1])
         total.append(bed_roll[-1])
@@ -2495,7 +2500,7 @@ def min_complain_coach(request):
     main_all = Main_Data_Upload.objects.all()
     coach = []
     for m in main_all:
-        if m.coach_number == None:
+        if m.coach_number == 0.0:
             pass
         else:
             coach.append(m.coach_number)
@@ -2504,9 +2509,12 @@ def min_complain_coach(request):
               'Miscellaneous','Staff Behaviour']
     critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
                      'Electrical Equipment','Coach - Maintenance',]
-    coaches = set(coach)
+    coaches_set = set(coach)
+    coaches = list(coaches_set)
 
-    print(coaches)
+    
+
+
     coach_clean = []
     bed_roll = []
     security = []
@@ -2665,7 +2673,6 @@ def min_complain_coach(request):
     if request.method != "POST":
         for cm in coach_maintain:
             if cm[0] != 0:
-                print(cm)
                 total.append(cm)
                 break
 
@@ -2885,7 +2892,6 @@ def mix_chart(request):
         first_n = sorted(a1_sorted_keys, key=a1_sorted_keys.get, reverse=True)[:len(train_number)]
         
         for r in first_n:
-            print(int(float(r))," ---> ",make_dict[r])
             bottom_train.append(int(float(r)))
             bottom_data_count.append(make_dict[r])
 
@@ -3129,8 +3135,6 @@ def add_staff_name(request):
             splitted_response = res.split("-")
             data_id = int(splitted_response[2])
             data_count = int(splitted_response[1])
-            # print(data_id)
-            # print(data_count)
             update_data = Main_Data_Upload.objects.get(id=data_id)
             update_data.staff_name = str(response[f'input-{data_count}-{data_id}'])
             update_data.save()
@@ -3324,7 +3328,6 @@ def staff_graph(request):
         make_dict = dict(zip(staff_name,data_count))
         a1_sorted_keys = dict(sorted(make_dict.items(), key=operator.itemgetter(1),reverse=True))
         first_n = sorted(a1_sorted_keys, key=a1_sorted_keys.get, reverse=True)[:staff_count]
-        print(first_n)
         for staff_name in first_n:
             bottom_staff.append(staff_name)
             bottom_staff_count.append(make_dict[staff_name])
@@ -3408,7 +3411,6 @@ def staff_graph(request):
             show = False
         if len(total)>=1:
             show = True
-    print(total)
     context = {
                 'all_type':all_type,
                 'critical_type':critical_type,
@@ -3426,6 +3428,19 @@ def staff_graph(request):
                 'end_date':end_date
               }
     return render(request, 'staff_graph.html',context)
+
+
+
+
+
+
+
+
+
+def add_staff_csv(request):
+    pass
+
+
 
 
 

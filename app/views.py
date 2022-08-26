@@ -91,7 +91,6 @@ def upload_data(request):
             main_csv_data = "_".join(convert_data)
             data = CsvFile(csv_data=csv_data).save()
             df = pd.read_csv(str(BASE_DIR)+"/media/data/railway/" + str(main_csv_data))
-            print(df['Registration Date'])
             length = len(df)
             for i in range(0, length):
                 if df['Registration Date'][i] == " " or type(df['Registration Date'][i]) == float:
@@ -111,11 +110,11 @@ def upload_data(request):
 
              
                 if df['Physical Coach No'][i] == None or str(df['Physical Coach No'][i]) == "nan":
-                    real_coach_number = "00000"
+                    real_coach_number = 00000.0
                 else:
-                    real_coach_number = df['Physical Coach No'][i],
+                    real_coach_number = df['Physical Coach No'][i].item()
 
-                print("Coach-Number:-"+str(real_coach_number))
+                print("Coach-Number:-"+str(real_coach_number)+"---->"+str(i))
 
                 Main_Data_Upload(
                     sl_no = df['Sl. No.'][i],
@@ -153,7 +152,6 @@ def upload_data(request):
                     # physical_coach_number = df['Physical Coach No'][i],
                     train_name = df['Train Name'][i]
                 ).save()
-                print(f"data no.{i} uploaded")
 
             mobile_number = PhoneNumber.objects.all()
             phone_number = []
@@ -2284,7 +2282,7 @@ def max_complain_coach(request):
     main_all = Main_Data_Upload.objects.all()
     coach = []
     for m in main_all:
-        if m.coach_number == None:
+        if m.coach_number == 0.0:
             pass
         else:
             coach.append(m.coach_number)
@@ -2293,8 +2291,9 @@ def max_complain_coach(request):
               'Miscellaneous','Staff Behaviour']
     critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
                      'Electrical Equipment','Coach - Maintenance',]
-    coaches = set(coach)
-    print(coaches)
+    coaches_set = set(coach)
+    coaches=list(coaches_set)
+
     coach_clean = []
     bed_roll = []
     security = []
@@ -2431,6 +2430,9 @@ def max_complain_coach(request):
     medical_assis.sort(key=lambda x: x[0])
     miscellaneous.sort(key=lambda x: x[0])
 
+
+    print(electrical_equip)
+
     if request.method != "POST":
         total.append(coach_maintain[-1])
         total.append(bed_roll[-1])
@@ -2495,7 +2497,7 @@ def min_complain_coach(request):
     main_all = Main_Data_Upload.objects.all()
     coach = []
     for m in main_all:
-        if m.coach_number == None:
+        if m.coach_number == 0.0:
             pass
         else:
             coach.append(m.coach_number)
@@ -2504,9 +2506,12 @@ def min_complain_coach(request):
               'Miscellaneous','Staff Behaviour']
     critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
                      'Electrical Equipment','Coach - Maintenance',]
-    coaches = set(coach)
+    coaches_set = set(coach)
+    coaches = list(coaches_set)
 
     print(coaches)
+
+
     coach_clean = []
     bed_roll = []
     security = []

@@ -8,8 +8,53 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 
+<!-- <script>
+$(document).ready(function() {
+    $('#rncc').click(function() {
+        var checked = this.checked;
+        $('input[rncc="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
+    $('#select-all').click(function() {
+        var checked = this.checked;
+        $('input[this="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
+    $('#rgd').click(function() {
+        var checked = this.checked;
+        $('input[rgd="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
+});
+</script> -->
+
+<style>
+#more {display: none;}
+</style>
+
+
 <script>
 $(document).ready(function() {
+    $('#select-all-2').click(function() {
+        var checked = this.checked;
+        $('input[r_all="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
+
+
+    $('#select-critical').click(function() {
+        var checked = this.checked;
+        $('input[critical="true"]').each(function() {
+        this.checked = checked;
+    });
+    })
+
+
+
     $('#rncc').click(function() {
         var checked = this.checked;
         $('input[rncc="true"]').each(function() {
@@ -31,59 +76,54 @@ $(document).ready(function() {
 });
 </script>
 
-<style>
-#more {display: none;}
-</style>
-
-
-<script>
-$(document).ready(function() {
-    $('#select-all-2').click(function() {
-        var checked = this.checked;
-        $('input[that="true"]').each(function() {
-        this.checked = checked;
-    });
-    })
-    $('#select-critical').click(function() {
-        var checked = this.checked;
-        $('input[critical="true"]').each(function() {
-        this.checked = checked;
-    });
-    })
-});
-</script>
-
 
 <form action="/user/staff_graph/" method="POST">{% csrf_token %}
 
-
-
 <center>
 <div class="form-check">
-  <input type="checkbox" id="select-all">
+    {% if check_type == 'all' %}
+    <input type="checkbox" name="check-type" id="select-all" value="all" checked>
+    {% else %}
+    <input type="checkbox" name="check-type" id="select-all" value="all">
+    {% endif %}
   <label style="margin-right:12px"><h5>Select All</h5></label>
-
-  <input type="checkbox" id="rncc" this="true">
+    {% if check_type == 'rncc' %}
+        <input type="checkbox" name="check-type" id="rncc" this="true" value="rncc" checked>
+    {% else %}
+        <input type="checkbox" name="check-type" id="rncc" this="true" value="rncc">
+    {% endif %}
   <label style="margin-right:12px"><h5>RNCC</h5></label>
 
-  <input type="checkbox" id="rgd" this="true">
+    {% if check_type == 'rgd' %}
+        <input type="checkbox" name="check-type" id="rgd" this="true" value="rgd" checked>
+    {% else %}
+        <input type="checkbox" name="check-type" id="rgd" this="true" value="rgd" >
+    {% endif %}
   <label style="margin-right:12px"><h5>RGD</h5></label><br>
 
 
   <span id="dots"></span><span id="more">
       {% for train_number in main_train %}
 
-      {% if train_number|convertint in rncc %}
-
-            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true" this="true">
+        {% if train_number|convertint in rncc %}
+            {% if train_number|convertint in checked %}
+                <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true" this="true" checked>
+            {% else %}
+               <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true" this="true">
+            {% endif %}
 
         {% elif train_number|convertint in rgd %}
-
-            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true" this="true">
-
+            {% if train_number|convertint in checked %}
+                <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true" this="true" checked>
+            {% else %}
+               <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true" this="true">
+            {% endif %}
         {% else %}
-        <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" this="true">
-
+            {% if train_number|convertint in checked %}
+                <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" this="true" checked>
+            {% else %}
+               <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" this="true">
+            {% endif %}
         {% endif %}
             <label>
             {{train_number|convertint}}&nbsp;&nbsp;
@@ -120,21 +160,37 @@ function myFunction() {
     <div class="select-type d-flex justify-content-center">
         <div class="select-all">
             <label><h5>Select All</h5></label>
-            <input type="checkbox" id="select-all-2"><br>
+            {% if complain_category == 'all' %}
+                <input type="checkbox" name="complain-category" value="all" id="select-all-2" checked>
+            {% else %}
+                <input type="checkbox" name="complain-category" value="all" id="select-all-2">
+            {% endif %}
         </div>
 
         <div class="select-critical mx-3">
             <label><h5>Select Critical</h5></label>
-            <input type="checkbox" id="select-critical" that="true"><br>
+            {% if complain_category == 'critical' %}
+                <input type="checkbox" name="complain-category" critical="true" value="critical" id="select-critical" checked>
+            {% else %}
+                <input type="checkbox" name="complain-category" critical="true" value="critical" id="select-critical">
+            {% endif %}
         </div>
-        
     </div>
-
+    
       {% for all_t in all_type %}
         {% if all_t in critical_type %}
-            <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="true" that="true">
+            {% if all_t in complain_type and post %}
+                <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="true" r_all="true" checked>
+            {% else %}
+                <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="true" r_all="true">
+            {% endif %}
         {% else %}
-            <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="false" that="true">
+            {% if all_t in complain_type and post%}
+                <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="false" r_all="true" checked>
+            {% else %}
+                <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="false" r_all="true">
+            {% endif %}
+            
         {% endif %}
             <label>
             {{all_t}}&nbsp;&nbsp;
@@ -158,14 +214,17 @@ input[type=number]::-webkit-outer-spin-button {
 
 
    
-    <label for="staff_count"><b>Enter Staff Count:</b></label>
-    <input id="staff" type="number" name="staff_count" required>
+    
     {% if post %}
+        <label for="staff_count"><b>Enter Staff Count:</b></label>
+        <input id="staff" type="number" name="staff_count" value={{staff_count}} required>
         <label for="start_date"><b>From:</b></label>
         <input id = "start-date" type="date" name="start_date" value="{{start_date}}" required>
         <label for="end_date"><b>To:</b></label>
         <input id="end-date" type="date" name="end_date" value="{{end_date}}" required>
     {% else %}
+        <label for="staff_count"><b>Enter Staff Count:</b></label>
+        <input id="staff" type="number" name="staff_count" required>
         <label for="start_date"><b>From:</b></label>
         <input id = "start-date" type="date" name="start_date" required>
         <label for="end_date"><b>To:</b></label>

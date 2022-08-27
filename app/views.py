@@ -3436,6 +3436,51 @@ def staff_graph(request):
 
 
 
+def show_train_cat(request):
+    data=Main_Data_Upload.objects.all()
+    trains=[]
+    for md in data:
+        trains.append(md.train_station)
+    set_train=set(trains)
+    main_train=list(set_train)
+    
+    train_cat = Train_Type.objects.all()
+    train_asso=[]
+    for tc in train_cat:
+        train_asso.append(tc.train_number)
+
+    if request.method == "POST":
+        for m_t in main_train:
+            train_type = request.POST.get(f'type-{m_t}')
+            if train_type == None:
+                pass
+            else:
+                print(int(m_t))
+                if Train_Type.objects.filter(train_number=int(m_t)):
+                    train=Train_Type.objects.get(train_number=int(m_t))
+                    train.Type=train_type
+                    train.save()
+                    print("updated Successfully")
+                else:
+                    train=Train_Type(train_number=int(m_t),type=train_type)
+                    train.save()
+                    print("updated Successfully")
+
+            
+    context={'main_train':main_train,'train_asso':train_asso,'train_cat':train_cat}
+    return render(request, 'show_train_cat.html',context)
+
+
+
+
+
+
+def add_train_cat(request):
+    return render(request, 'add_train_cat.html')
+
+
+
+
 
 def add_staff_csv(request):
     pass

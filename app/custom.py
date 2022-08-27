@@ -12,4 +12,10 @@ def convertint(str_w):
 def index(num, i):
     index_number = i-1
     return num[index_number]
+
+
+
+@register.filter
+def floatconvert(num):
+    return float(num)
     

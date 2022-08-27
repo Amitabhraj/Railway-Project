@@ -3494,6 +3494,7 @@ def add_train_cat(request):
 
 def add_staff_csv(request):
     if request.method == "POST":
+        user = User.objects.get(id=request.user.id)
         if user.groups.filter(name='Moderator').exists():
             csv_data = request.FILES.get('csv')
             convert_data = str(csv_data).split(" ")
@@ -3502,55 +3503,29 @@ def add_staff_csv(request):
             df = pd.read_csv(str(BASE_DIR)+"/media/data/railway/" + str(main_csv_data))
             length = len(df)
             for i in range(0, length):
-                if df['Ref. No.'][i]:
-                    ref_no = df['Ref. No.'][i]
-                elif df['Ref. No.'][i]:
-                    pass
+                ref_no_numpy = df['Ref. No.'][i]
+                ref_no = float(ref_no_numpy)
+                try:
+                    staff_name = df['Escort staff'][i]
+                    print(staff_name)
+                except KeyError as e:
+                    staff_name=df['Escorting staff'][i]
+                    print(staff_name)
 
-                main_data = Main_Data_Upload(
-                    sl_no = df['Sl. No.'][i],
-                    reference_no = df['Ref. No.'][i],
-                    registration_date = register_date,
-                    closing_date = closing_date,
-                    disposal_time = df['Disposal Time'][i],
-                    # mode = df['Mode'][i],
-                    train_station = df['Train'][i],
-                    channel = df['Channel'][i],
-                    # Type = df['Type'][i],
-                    coach_number = real_coach_number,
-                    # rake_number = df['Rake no'][i],
-                    # staff_name = df['Escort staff'][i],
-                    problem_type = df['Type'][i],
-                    sub_type = df['Sub Type'][i],
-                    commodity = df['Commodity'][i],
-                    zone = df['Zone'][i],
-                    div = df['Div'][i],
-                    dept = df['Dept'][i],
-                    breach = df['Breach'][i],
-                    rating = df['Rating'][i],
-                    status = df['Status'][i],
-                    complaint_discription = df['Complaint Description'][i],
-                    remark = df['Remarks'][i],
-                    number_of_time_forwarded = df['No. of times forwarded'][i],
-                    pnr_utc_number = df['PNR/UTS No'][i],
-                    coach_type = df['Coach Type'][i],
-                    # coach_number_no = df['Coach no'][i],
-                    # coach_type_2 = df['Coach Type'][i],
-                    coach_number_no_2 = df['Coach No.'][i],
-                    feedback_remark = df['Feedback Remarks'][i],
-                    upcoming_station = df['Upcoming Station'][i],
-                    mobile_number_or_email = df['Mobile No./Email Id'][i],
-                    # physical_coach_number = df['Physical Coach No'][i],
-                    train_name = df['Train Name'][i]
-                )
-                if Main_Data_Upload.objects.filter(reference_no=main_data.reference_no):
-                    print("this will not upload")
+                if Main_Data_Upload.objects.filter(reference_no=ref_no):
+                    data = Main_Data_Upload.objects.get(reference_no=ref_no)
+                    data.staff_name=staff_name
+                    data.save()
+                    print("Successfully Updated")
                 else:
-                    print("this file get uploaded")
-                    main_data.save()
+                    print("Reference No. Not Found")
+                    pass
+                messages.success(request,"Succesfully Updated")
+                return render(request.path)
         else:
             messages.error(request,"You Don't Have Access So,You Cannot Update The Staff Name")
             return redirect(request.path)
+    return render(request, 'add_staff_csv.html')
 
 
 

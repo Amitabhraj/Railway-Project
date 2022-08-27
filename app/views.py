@@ -34,7 +34,11 @@ from railway.settings import BASE_DIR
 from django.views.decorators.csrf import csrf_exempt
 import os
 from twilio.rest import Client
-
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions
+import time
 # Create your views here.
 
 
@@ -89,7 +93,8 @@ def upload_data(request):
             convert_data = str(csv_data).split(" ")
             main_csv_data = "_".join(convert_data)
             data = CsvFile(csv_data=csv_data).save()
-            df = pd.read_csv(str(BASE_DIR)+"/media/data/railway/" + str(main_csv_data))
+            df = pd.read_csv(str(BASE_DIR)+"/data/railway/" + str(main_csv_data))
+            print(df['Registration Date'])
             length = len(df)
             for i in range(0, length):
                 if df['Registration Date'][i] == " " or type(df['Registration Date'][i]) == float:
@@ -2509,12 +2514,11 @@ def min_complain_coach(request):
               'Miscellaneous','Staff Behaviour']
     critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
                      'Electrical Equipment','Coach - Maintenance',]
+                     
     coaches_set = set(coach)
     coaches = list(coaches_set)
 
-    
-
-
+   
     coach_clean = []
     bed_roll = []
     security = []
@@ -3328,6 +3332,8 @@ def staff_graph(request):
         make_dict = dict(zip(staff_name,data_count))
         a1_sorted_keys = dict(sorted(make_dict.items(), key=operator.itemgetter(1),reverse=True))
         first_n = sorted(a1_sorted_keys, key=a1_sorted_keys.get, reverse=True)[:staff_count]
+        
+        
         for staff_name in first_n:
             bottom_staff.append(staff_name)
             bottom_staff_count.append(make_dict[staff_name])
@@ -3411,6 +3417,7 @@ def staff_graph(request):
             show = False
         if len(total)>=1:
             show = True
+
     context = {
                 'all_type':all_type,
                 'critical_type':critical_type,
@@ -3428,11 +3435,6 @@ def staff_graph(request):
                 'end_date':end_date
               }
     return render(request, 'staff_graph.html',context)
-
-
-
-
-
 
 
 
@@ -3538,3 +3540,44 @@ def add_staff_csv(request):
 
 
 
+
+def upload_file_on_site():
+    driver = webdriver.Chrome(executable_path="./chromedriver.exe")
+    driver.implicitly_wait(0.5)
+    driver.maximize_window()
+    driver.get("http://localhost:8000/user/data_upload")
+    driver.find_element("id","username").send_keys("shubham")
+    driver.find_element("id","password").send_keys("1234")
+    driver.find_element("xpath","/html/body/section/div/div/div/div/div/div[1]/form/button").click()
+    time.sleep(2)
+    driver.execute_script("arguments[0].scrollIntoView();", driver.find_element(By.ID,"data-upload-click"))
+    driver.find_element(By.ID,"data-upload-click").click()
+    #to identify element
+    s = driver.find_element("xpath","//input[@type='file']")
+    #file path specified with send_keys
+    s.send_keys("D:/Internship/Railway-Project/downloads/annual-enterprise-survey-2021-financial-year-provisional-csv.csv")
+    driver.find_element(By.ID, "upload-csv").click()
+    time.sleep(300)
+
+def download_csv(request):
+    if request.method != "POST":
+        return render(request, "download_csv.html")
+
+    else:
+        driver = webdriver.Chrome(executable_path="./chromedriver.exe")
+        driver.implicitly_wait(0.5)
+        _path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "\downloads"
+        print("Downloading CSV file")
+        chrome_options = webdriver.ChromeOptions()
+        prefs = {"download.default_directory": _path}
+        chrome_options.add_experimental_option("prefs", prefs)
+        chrome_options.add_argument("--headless") # start chrome without opening browser.
+        driver = webdriver.Chrome(executable_path="D:\Railway-Project\chromedriver.exe", options=chrome_options)
+        driver.get("https://www.stats.govt.nz/large-datasets/csv-files-for-download/")
+        driver.find_element("xpath", "/html/body/div[12]/div/div/main/section/div/div/div/article/div/div[2]/article/ul/li[1]/div/div/h3/a").click()
+        time.sleep(10)
+        driver.quit()
+        upload_file_on_site()
+        return redirect("/user/download_csv")
+
+        # D:\Internship\Railway-Project\downloads\annual-enterprise-survey-2021-financial-year-provisional-csv.csv

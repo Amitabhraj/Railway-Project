@@ -204,7 +204,7 @@ function download(){
   const imageLink = document.createElement('a');
   const canvas = document.getElementById('pieChart');
   imageLink.download = 'Data.png'
-  imageLink.href = canvas.toDataURL('media/data/canvas',1);
+  imageLink.href = canvas.toDataURL('static/data/canvas',1);
   // window.open(imageLink);
   // document.write('<img src=" '+imageLink+' "/>')
 

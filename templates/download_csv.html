@@ -1,0 +1,10 @@
+{% extends 'base.html'%}
+{% block body %}
+<form action="/user/download_csv/" method="post" class="container">
+    {% csrf_token %}
+    <button id="upload-csv" type="submit" class="btn btn-danger">
+        <i class="fa fa-download"></i> Download
+    </button>
+</form>
+
+{% endblock %}

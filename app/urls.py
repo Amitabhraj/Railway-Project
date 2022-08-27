@@ -30,6 +30,5 @@ urlpatterns = [
     path('user/show_staff_name/', views.show_staff_name, name="show_staff_name"),
     path('user/add_staff_name/', views.add_staff_name, name="add_staff_name"),
     path('user/staff_graph/', views.staff_graph, name="staff_graph"),
-    path('user/show_train_cat/', views.show_train_cat, name="show_train_cat"),
     path('user/add_train_cat/', views.add_train_cat, name="add_train_cat"),
 ]

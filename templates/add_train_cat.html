@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load custom %}
+{% block url_name %}Add Staff Name{% endblock %}
+{% block url_title %}Data{% endblock %}
+{% block breadcrum %}
+
+<li class="breadcrumb-item">
+  <a href="index.html">
+<i class="fa fa-home"></i></a>
+</li>
+
+<li class="breadcrumb-item">
+    See The Data
+</li>
+
+<li class="breadcrumb-item">
+    <a href="/user/add_staff_name">Add Staff Name</a>
+</li>
+{% endblock %}
+{% block title %}Add Staff Name{% endblock %}
+
+
+
+{% block body %}
+
+
+<style>
+@media (max-width: 991px) {
+  .responsive > thead th {
+    display: none;
+  }
+  .responsive > tbody td,
+  .responsive > tbody th {
+    display: block;
+  }
+  .responsive > tbody > tr:nth-child(even) td,
+  .responsive > tbody > tr:nth-child(even) th {
+    background-color: #eee;
+  }
+  [row-header] {
+    position: relative;
+    width: 50%;
+    vertical-align: middle;
+  }
+  [row-header]:before {
+    content: attr(row-header);
+    display: inline-block;
+    vertical-align: middle;
+    text-align: left;
+    width: 50%;
+    padding-right:30px;
+  }
+}
+</style>
+
+
+<form action="/user/add_train_cat/" method="POST">{% csrf_token %}
+
+<div class="table-responsive">
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Train Type</th>
+        <th>Train Number</th>
+      </tr>
+    </thead
+    <tbody>
+       {% for md in train_cat %}
+      <tr>
+        {% if md.train_number|floatconvert in main_train %}
+        <th scope="row">
+
+
+          <select name="type-{{md.train_number|floatconvert}}" id="type" style="width:130px;height:30px">
+              <option value="DEL-{{md.train_number|floatconvert}}">Remove</option>
+              {% if md.Type == "RNCC" %}
+              <option value="RNCC-{{md.train_number|floatconvert}}" selected>RNCC</option>
+              <option value="RGD-{{md.train_number|floatconvert}}">RGD</option>
+              {% elif md.Type == "RGD" %}
+              <option value="RNCC-{{md.train_number|floatconvert}}">RNCC</option>
+              <option value="RGD-{{md.train_number|floatconvert}}" selected>RGD</option>
+              {% endif %}
+          </select>
+
+
+        </th>
+        <th scope="row">{{md.train_number}}</th>
+        {% endif %}
+      </tr>
+       {% endfor %}
+
+       {% for main_t in main_train %}
+         {% if main_t in train_asso %}
+         {% else %}
+        <th scope="row">
+
+
+      <select name="type-2-{{main_t}}" id="type" style="width:130px;height:30px">
+        <option value=" " selected>Not-Assigned</option>
+        <option value="RNCC-{{main_t|floatconvert}}">RNCC</option>
+        <option value="RGD-{{main_t|floatconvert}}">RGD</option>
+      </select>
+
+
+
+        </th>
+        <th scope="row">{{main_t|convertint}}</th>
+          {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+<button class="btn btn-success mx-3" type="submit">Update Staff Name</button>
+</form>
+  </table>
+</div>
+
+
+{% endblock %}
+
+
+
+

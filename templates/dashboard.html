@@ -133,6 +133,7 @@ function myFunction() {
 }
 </script>
 
+<center>
 {% if post %}
    <label for="start_date"><b>From:</b></label>
    <input id = "start-date" type="date" name="start_date" value="{{start_date}}">
@@ -174,8 +175,8 @@ var myPieChart = new Chart(ctxP, {
 
       {
          data: [{% for occur in occur %}{{occur}},{% endfor %}],
-         backgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"],
-         hoverBackgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"]
+         backgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C",'#00E8FF','#4200FF','#BD00FF','#FF8ED3'],
+         hoverBackgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C",'#00E8FF','#4200FF','#BD00FF','#FF8ED3'],
       }]
    },
    options: {

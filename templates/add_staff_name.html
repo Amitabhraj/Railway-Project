@@ -93,7 +93,11 @@
        {% for md in main_data %}
       <tr>
         <th scope="row">{{forloop.counter}}</th>
+        {% if md.staff_name == "None" %}
+        <th scope="row"><input name="input-{{forloop.counter}}-{{md.id}}" value=""></th>
+        {% else %}
         <th scope="row"><input name="input-{{forloop.counter}}-{{md.id}}" value="{{md.staff_name}}"></th>
+        {% endif %}
         <th scope="row">{{md.train_station|convertint}}</th>
         <th scope="row">{{md.problem_type}}</th>
         <th scope="row">{{md.registration_date}}</th>

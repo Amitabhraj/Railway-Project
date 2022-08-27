@@ -136,6 +136,7 @@ function myFunction() {
 
 {% if post %}
 {% if data_show %}
+    <button onClick="download()">Download Data-Graph</button>
     <canvas id="myChart" height="40px" width="100%"></canvas>
 {% else %}
 <br>
@@ -159,10 +160,12 @@ var myPieChart = new Chart(ctxP, {
       labels: [{% for m in problem_type %}'{{m}}',{% endfor %}],
       datasets: [
         {   
-            label:"Complaint Number",
+            label:"Complaint Number from Each Complain",
             data: {{data_count}},
-            backgroundColor: ["#64B5F6", "#FFD54F", "#2196F3", "#FFC107", "#1976D2", "#FFA000", "#0D47A1"],
-            hoverBackgroundColor: ["#B2EBF2", "#FFCCBC", "#4DD0E1", "#FF8A65", "#00BCD4", "#FF5722", "#0097A7"]
+            backgroundColor: ["#64B5F6", "#FFD54F", "#2196F3", "#FFC107", "#1976D2", "#FFA000", "#0D47A1",'#FF8300','#EEFF70','#00FF83','#00E8FF',
+                '#4200FF','#BD00FF','#FF8ED3'],
+            hoverBackgroundColor: ["#64B5F6", "#FFD54F", "#2196F3", "#FFC107", "#1976D2", "#FFA000", "#0D47A1",'#FF8300','#EEFF70','#00FF83','#00E8FF',
+                '#4200FF','#BD00FF','#FF8ED3']
        }]
    },
    options: {
@@ -186,6 +189,20 @@ canvasP.onclick = function(e) {
          break;
       {% endfor %}
    }
+}
+
+
+
+function download(){
+  const imageLink = document.createElement('a');
+  const canvas = document.getElementById('myChart');
+  imageLink.download = 'Complaint_Number_From_Each_Complain.png'
+  imageLink.href = canvas.toDataURL('media/data/canvas',1);
+  // window.open(imageLink);
+  // document.write('<img src=" '+imageLink+' "/>')
+
+  // console.log(imageLink.href);
+  imageLink.click();
 }
 </script>
 

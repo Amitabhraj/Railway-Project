@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block url_name %}Railway Data{% endblock %}
-{% block url_title %}Upload CSV File{% endblock %}
+{% block url_title %}Upload CSV File For Updating Staff{% endblock %}
 {% block breadcrum %} 
 <li class="breadcrumb-item">
     <a href="index.html">
@@ -12,10 +12,10 @@
 </li>
 
 <li class="breadcrumb-item">
-    <a href="/user/data_upload">Upload Railway Csv Data</a>
+    <a href="/user/add_staff_csv">Upload Staff Data</a>
 </li>
 {% endblock %}
-{% block title %}Voltage Data{% endblock %}
+{% block title %}Railway Data Upload Staff Name Update{% endblock %}
 
 
 
@@ -35,14 +35,14 @@ setTimeout(function () {
 
 
 <div class="mx-2">
-	<form action="/user/data_upload/" method="POST"enctype="multipart/form-data">{% csrf_token %}
+	<form action="/user/add_staff_csv/" method="POST"enctype="multipart/form-data">{% csrf_token %}
 
 		<div class="form-outline form-white mb-4" style="color:blue;" >
-		<label class="form-label" for="csv">Upload CSV File</label>
+		<label class="form-label" for="csv">Upload CSV File For Updating Staff Name</label>
 		<input type="file" name="csv" id="csv" class="form-control form-control-lg" required>
 		</div>
 
-		<button id="upload-csv" class="btn btn-danger">Upload</button>
+		<button class="btn btn-danger">Upload</button>
 
 	</form>
 </div>

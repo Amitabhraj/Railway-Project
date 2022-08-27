@@ -54,7 +54,7 @@
 </style>
 
 
-<form action="/user/show_train_cat/" method="POST">{% csrf_token %}
+<form action="/user/add_train_cat/" method="POST">{% csrf_token %}
 
 <div class="table-responsive">
   <table class="table table-bordered">
@@ -71,15 +71,15 @@
         <th scope="row">
 
 
-          <select name="type-{{md.train_number|floatconvert}}" id="type" style="width:100px;height:30px">
-            <option value=" ">None</option>
-            {% if md.Type == "RNCC" %}
-            <option value="RNCC" selected>RNCC</option>
-            <option value="RGD">RGD</option>
-            {% elif md.Type == "RGD" %}
-            <option value="RNCC">RNCC</option>
-            <option value="RGD" selected>RGD</option>
-            {% endif %}
+          <select name="type-{{md.train_number|floatconvert}}" id="type" style="width:130px;height:30px">
+              <option value="DEL-{{md.train_number|floatconvert}}">Remove</option>
+              {% if md.Type == "RNCC" %}
+              <option value="RNCC-{{md.train_number|floatconvert}}" selected>RNCC</option>
+              <option value="RGD-{{md.train_number|floatconvert}}">RGD</option>
+              {% elif md.Type == "RGD" %}
+              <option value="RNCC-{{md.train_number|floatconvert}}">RNCC</option>
+              <option value="RGD-{{md.train_number|floatconvert}}" selected>RGD</option>
+              {% endif %}
           </select>
 
 
@@ -95,10 +95,10 @@
         <th scope="row">
 
 
-      <select name="type-{{main_t|floatconvert}" id="type" style="width:100px;height:30px">
-        <option value=" " selected>None</option>
-        <option value="RNCC">RNCC</option>
-        <option value="RGD">RGD</option>
+      <select name="type-2-{{main_t}}" id="type" style="width:130px;height:30px">
+        <option value=" " selected>Not-Assigned</option>
+        <option value="RNCC-{{main_t|floatconvert}}">RNCC</option>
+        <option value="RGD-{{main_t|floatconvert}}">RGD</option>
       </select>
 
 
@@ -109,7 +109,6 @@
       </tr>
       {% endfor %}
     </tbody>
-<input type="hidden" readonly="readonly" name="n_d" value="{{number_of_data}}">
 <button class="btn btn-success mx-3" type="submit">Update Staff Name</button>
 </form>
   </table>

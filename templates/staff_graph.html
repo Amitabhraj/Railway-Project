@@ -81,20 +81,20 @@ $(document).ready(function() {
 
 <center>
 <div class="form-check">
-    {% if check_type == 'all' %}
+    {% if 'all' in check_type %}
     <input type="checkbox" name="check-type" id="select-all" value="all" checked>
     {% else %}
     <input type="checkbox" name="check-type" id="select-all" value="all">
     {% endif %}
   <label style="margin-right:12px"><h5>Select All</h5></label>
-    {% if check_type == 'rncc' %}
+    {% if 'rncc' in check_type %}
         <input type="checkbox" name="check-type" id="rncc" this="true" value="rncc" checked>
     {% else %}
         <input type="checkbox" name="check-type" id="rncc" this="true" value="rncc">
     {% endif %}
   <label style="margin-right:12px"><h5>RNCC</h5></label>
 
-    {% if check_type == 'rgd' %}
+    {% if 'rgd' in check_type %}
         <input type="checkbox" name="check-type" id="rgd" this="true" value="rgd" checked>
     {% else %}
         <input type="checkbox" name="check-type" id="rgd" this="true" value="rgd" >

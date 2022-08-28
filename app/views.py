@@ -335,17 +335,22 @@ def dashboard(request):
     for rgd_train in train_type_rgd:
         rgd.append(rgd_train.train_number)
 
+
+    checked = []
+    check_type = None
     ########
 
     if request.method == "POST":
         post = True
         train_numbers = request.POST.getlist('train_number')
+        for train_number in train_numbers:
+            checked.append(int(train_number))
+        check_type = request.POST.getlist('check-type')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
-
+        
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
-
         delta = end_month - start_month
 
         if delta.days <= 0:
@@ -399,7 +404,9 @@ def dashboard(request):
             'end_date':end_date,
             'main_train':main_train,
             'rgd':rgd,
-            'rncc':rncc
+            'rncc':rncc,
+            'checked':checked,
+            'check_type':check_type,
         }
     return render(request, 'dashboard.html',context)
 
@@ -430,6 +437,10 @@ def rating(request):
     for rgd_train in train_type_rgd:
         rgd.append(rgd_train.train_number)
 
+    checked = []
+
+    
+
     ########
 
    ########## Bar Graph rating ###############
@@ -438,6 +449,11 @@ def rating(request):
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
+        for train in request.POST.getlist('train_number'):
+            checked.append(int(train))
+        
+        check_type = request.POST.getlist('check-type')
+        
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
@@ -499,7 +515,9 @@ def rating(request):
             'end_date':end_date,
             'rncc':rncc,
             'rgd':rgd,
-            'total':total
+            'total':total,
+            'checked':checked,
+            'check_type':check_type,
         }
 
     else:
@@ -575,6 +593,9 @@ def trend(request):
     rgd = []
     for rgd_train in train_type_rgd:
         rgd.append(rgd_train.train_number)
+    
+    checked = []
+    check_type = []
     #####
 
     if request.method == "POST":
@@ -590,6 +611,12 @@ def trend(request):
 
         sdate = date(int(start_month.year), int(start_month.month), int(start_month.day))
         edate = date(int(end_month.year), int(end_month.month), int(end_month.day))
+        
+
+        for train in request.POST.getlist('train_number'):
+            checked.append(int(train))
+        
+        check_type = request.POST.getlist('check-type')
 
 
 
@@ -847,7 +874,9 @@ def trend(request):
         'end_date':end_date,
         'main_train':main_train,
         'rncc':rncc,
-        'rgd':rgd
+        'rgd':rgd,
+        'checked':checked,
+        'check_type':check_type,
         }
     return render(request, 'trends.html',context)
 
@@ -1159,6 +1188,8 @@ def bottom_train_data_pie(request):
     for rgd_train in train_type_rgd:
         rgd.append(rgd_train.train_number)
     #####
+    checked = []
+    check_type = None
 
     if request.method == "POST":
         post=True
@@ -1166,7 +1197,7 @@ def bottom_train_data_pie(request):
         train_count  = int(request.POST.get('train_count',''))
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
-
+        check_type = request.POST.getlist('check-type')
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
@@ -1191,6 +1222,7 @@ def bottom_train_data_pie(request):
         str_train_number = [] 
         for t_n in train_number:
             str_train_number.append(str(t_n))
+            checked.append(int(t_n))
 
         problem_types = set(Type)
 
@@ -1203,6 +1235,8 @@ def bottom_train_data_pie(request):
         for r in a1_sorted_keys:
             bottom_train.append(int(float(r)))
             bottom_data_count.append(make_dict[r])
+        
+        
 
     else:
         train_count = 10
@@ -1248,7 +1282,10 @@ def bottom_train_data_pie(request):
                 'end_date':end_date,
                 'rgd':rgd,
                 'rncc':rncc,
-                'main_train':main_train
+                'main_train':main_train,
+                'checked': checked,
+                'train_count': train_count,
+                'check_type':check_type,
                }
     return render(request, "bottom_train_data_pie.html",context)
 
@@ -1280,13 +1317,15 @@ def bottom_train_data_bar(request):
     for rgd_train in train_type_rgd:
         rgd.append(rgd_train.train_number)
     #####
+    checked=[]
+    check_type = None
 
     if request.method == "POST":
         post=True
         train_number = request.POST.getlist('train_number')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
-
+        check_type = request.POST.getlist('check-type')
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
@@ -1311,6 +1350,9 @@ def bottom_train_data_bar(request):
         str_train_number = [] 
         for t_n in train_number:
             str_train_number.append(str(t_n))
+            checked.append(int(t_n))
+        
+        print(checked)
 
         problem_types = set(Type)
 
@@ -1377,7 +1419,9 @@ def bottom_train_data_bar(request):
                 'end_date':end_date,
                 'rgd':rgd,
                 'rncc':rncc,
-                'main_train':main_train
+                'main_train':main_train,
+                'check_type':check_type,
+                'checked':checked,
                }
     return render(request, "bottom_train_data_bar.html",context)
 
@@ -1418,6 +1462,8 @@ def all_complain_train(request):
     for rgd_train in train_type_rgd:
         rgd.append(rgd_train.train_number)
     #####
+    checked = []
+    check_type = None
 
 
     if request.method == "POST":
@@ -1425,7 +1471,7 @@ def all_complain_train(request):
         train_number = request.POST.getlist('train_number')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
-
+        check_type = request.POST.getlist('check-type')
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
@@ -1447,6 +1493,9 @@ def all_complain_train(request):
         miscellaneous = []
         staff_behave = []
         dates = []
+
+        for t_n in train_number:
+            checked.append(int(t_n))
 ########
 
         if delta.days <= 0:
@@ -1586,6 +1635,8 @@ def all_complain_train(request):
         real_train_number = train_numbers
     else:
         real_train_number = train_number
+    
+    
 
     context ={
         'show':True,
@@ -1610,7 +1661,9 @@ def all_complain_train(request):
         'end_date':end_date,
         'main_train':main_train,
         'rgd':rgd,
-        'rncc':rncc
+        'rncc':rncc,
+        'checked':checked,
+        'check_type':check_type
         }
     return render(request, 'all_complain_train.html',context)
 
@@ -1767,7 +1820,10 @@ def max_complain_train(request):
     miscellaneous = []
     staff_behave = []
     total = []
-
+    checked = []
+    check_type = None
+    complain_category = None
+    train_count = None
     trainsss = Main_Data_Upload.objects.all()
     main_trains = []
     for ttt in trainsss:
@@ -1792,7 +1848,9 @@ def max_complain_train(request):
         complain_type = request.POST.getlist('complain_type')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
-
+        check_type = request.POST.getlist('check-type')
+        complain_category = request.POST.get('complain-category')
+        train_count = request.POST.get('train_count')
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
@@ -1800,6 +1858,9 @@ def max_complain_train(request):
 
         sdate = date(int(start_month.year), int(start_month.month), int(start_month.day))
         edate = date(int(end_month.year), int(end_month.month), int(end_month.day))
+
+        for tn in train_number:
+            checked.append(int(tn))
 
         if delta.days <=0:
             return HttpResponse("<center><h1>Please Enter valid date Range</center></h1>")
@@ -1966,7 +2027,12 @@ def max_complain_train(request):
                 'end_date':end_date,
                 'rncc':rncc,
                 'rgd':rgd,
-                'main_train':main_train
+                'main_train':main_train,
+                'checked':checked,
+                'check_type': check_type,
+                'complain_category':complain_category,
+                'complain_type':complain_type,
+                'train_count':train_count,
                 }
     return render(request, 'max_complain_train.html',context)
 
@@ -3218,7 +3284,7 @@ def staff_graph(request):
         post = True
         problem_type = request.POST.getlist('problem_type')
         staff_count = int(request.POST.get('staff_count'))
-        check_type = request.POST.get('check-type')
+        check_type = request.POST.getlist('check-type')
         complain_type = request.POST.getlist('complain_type')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')

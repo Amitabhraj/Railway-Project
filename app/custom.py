@@ -19,3 +19,16 @@ def index(num, i):
 def floatconvert(num):
     return float(num)
     
+
+
+
+
+@register.filter
+def length(lis):
+    return len(lis)
+    
+
+
+
+
+

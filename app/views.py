@@ -3226,7 +3226,6 @@ def staff_graph(request):
     miscellaneous = []
     total_entries = Main_Data_Upload.objects.count()
     staff_behave = []
-    check_type = ""
     complain_category = ""
     complains = []
     trainsss = Main_Data_Upload.objects.all()
@@ -3284,12 +3283,13 @@ def staff_graph(request):
         post = True
         problem_type = request.POST.getlist('problem_type')
         staff_count = int(request.POST.get('staff_count'))
-        check_type = request.POST.getlist('check-type')
+        train_number = request.POST.getlist('train_number')
         complain_type = request.POST.getlist('complain_type')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
-        complain_category = request.POST.get('complain-category')
+        complain_category = request.POST.getlist('complain-category')
         complains = request.POST.getlist('complain-type')
+        check_type = request.POST.getlist('check-type')
 
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
@@ -3301,7 +3301,6 @@ def staff_graph(request):
 
         for tn in request.POST.getlist('train_number'):
             checked.append(int(tn))
-
 
         if delta.days <=0:
             return HttpResponse("<h1>Please Enter valid Date Range</h1>")
@@ -3376,6 +3375,7 @@ def staff_graph(request):
         post = False
         start_date=None
         end_date=None
+        check_type=None
         data_count=[]
         problem_type = Main_Data_Upload.objects.values_list('problem_type')
         train_numbers = Main_Data_Upload.objects.all()
@@ -3507,6 +3507,7 @@ def staff_graph(request):
                 'check_type':check_type,
                 'complain_category':complain_category,
                 'complain_type':complain_type,
+                'train_number':train_number
               }
     print("post : ", post)
     print(complain_type)

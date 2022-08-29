@@ -2017,6 +2017,7 @@ def max_complain_train(request):
         start_date = None
         end_date = None
         post = False
+        complain_type=None
     
     context = {'post':post,
                 'total':total,

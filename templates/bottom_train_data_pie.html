@@ -39,39 +39,55 @@ $(document).ready(function() {
 
 <center>
 <div class="form-check">
-  <input type="checkbox" id="select-all">
-  <label style="margin-right:12px"><h5>Select All</h5></label>
+  {% if 'all' in check_type %}
+  <input type="checkbox" name="check-type" id="select-all" value="all" checked>
+  {% else %}
+  <input type="checkbox" name="check-type" id="select-all" value="all">
+  {% endif %}
+<label style="margin-right:12px"><h5>Select All</h5></label>
+  {% if 'rncc' in check_type %}
+      <input type="checkbox" name="check-type" id="rncc" this="true" value="rncc" checked>
+  {% else %}
+      <input type="checkbox" name="check-type" id="rncc" this="true" value="rncc">
+  {% endif %}
+<label style="margin-right:12px"><h5>RNCC</h5></label>
 
-  <input type="checkbox" id="rncc">
-  <label style="margin-right:12px"><h5>Select RNCC</h5></label>
-
-  <input type="checkbox" id="rgd">
-  <label style="margin-right:12px"><h5>Select RGD</h5></label><br>
-
+  {% if 'rgd' in check_type %}
+      <input type="checkbox" name="check-type" id="rgd" this="true" value="rgd" checked>
+  {% else %}
+      <input type="checkbox" name="check-type" id="rgd" this="true" value="rgd" >
+  {% endif %}
+<label style="margin-right:12px"><h5>RGD</h5></label><br>
 
   <span id="dots"></span><span id="more">
-      {% for train_number in main_train %}
+    {% for train_number in main_train %}
 
       {% if train_number|convertint in rncc %}
+          {% if train_number|convertint in checked %}
+              <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true" this="true" checked>
+          {% else %}
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true" this="true">
+          {% endif %}
 
-            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true">
+      {% elif train_number|convertint in rgd %}
+          {% if train_number|convertint in checked %}
+              <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true" this="true" checked>
+          {% else %}
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true" this="true">
+          {% endif %}
+      {% else %}
+          {% if train_number|convertint in checked %}
+              <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" this="true" checked>
+          {% else %}
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" this="true">
+          {% endif %}
+      {% endif %}
+      <label> {{train_number|convertint}}&nbsp;&nbsp;</label>
 
-        {% elif train_number|convertint in rgd %}
-
-            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true">
-
-        {% else %}
-        <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}">
-
-        {% endif %}
-            <label>
-            {{train_number|convertint}}&nbsp;&nbsp;
-            </label>
-
-      {% endfor %}
+  {% endfor %}
 </div></center>
 </span>
-<center><button onclick="myFunction()" id="myBtn" type="button">Read more</button></center><br>
+<center><button onclick="myFunction()" id="myBtn" class="btn btn-primary btn-sm" type="button">Read more</button></center><br>
 
 <script>
 function myFunction() {
@@ -95,20 +111,21 @@ function myFunction() {
 
   <center class="center">
 
-    <label for="train_count"><b>Enter Train Count:</b></label>
-    <input type="number" name="train_count" required>
-
-   {% if post %}
-    <label for="start_date"><b>From:</b></label>
-    <input id = "start-date" type="date" name="start_date" value="{{start_date}}">
-    <label for="end_date"><b>To:</b></label>
-    <input id="end-date" type="date" name="end_date" value="{{end_date}}">
- {% else %}
-    <label for="start_date"><b>From:</b></label>
-    <input id = "start-date" type="date" name="start_date">
-    <label for="end_date"><b>To:</b></label>
-    <input id="end-date" type="date" name="end_date">
- {% endif %}
+    {% if post %}
+        <label for="train_count"><b>Enter Train Count:</b></label>
+        <input id="staff" type="number" name="train_count" value={{train_count}} required>
+        <label for="start_date"><b>From:</b></label>
+        <input id = "start-date" type="date" name="start_date" value="{{start_date}}" required>
+        <label for="end_date"><b>To:</b></label>
+        <input id="end-date" type="date" name="end_date" value="{{end_date}}" required>
+    {% else %}
+        <label for="staff_count"><b>Enter Staff Count:</b></label>
+        <input id="staff" type="number" name="train_count" required>
+        <label for="start_date"><b>From:</b></label>
+        <input id = "start-date" type="date" name="start_date" required>
+        <label for="end_date"><b>To:</b></label>
+        <input id="end-date" type="date" name="end_date" required>
+    {% endif %}
 
 
     <button type="submit" class="btn btn-danger">Submit</button>
@@ -116,21 +133,22 @@ function myFunction() {
 </form>
 
 <br>
-<div class="col-xl-8 col-md-12">
+<div class="col-xl-12 col-md-12 ">
 <div class="card">
 <div class="card-header">
 <h4>Railway Data</h4>
 <span class="text-muted">This is Graph Show for Railway </span>
 </div>
 
-<div class="card-blockk">
+<div class="card-block">
 <div id="sales-analytics" style="height:100%;">
 
 <div class="chart-container">
   <center><h4><u>Data Show Graph For Bottom {{train_count}} Train Number Complaint Wise</u></h4></center>
 
-
-<button onClick="download()">Download Data-Graph</button>
+<div class="my-4 container-fluid d-flex justify-content-center">
+  <button class="btn btn-success btn-sm" onClick="download()">Download Data-Graph</button>
+</div>
 <canvas id="myChart" height="57px" width="100%"></canvas>
 <br>
 

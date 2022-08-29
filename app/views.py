@@ -34,7 +34,11 @@ from railway.settings import BASE_DIR
 from django.views.decorators.csrf import csrf_exempt
 import os
 from twilio.rest import Client
-
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions
+import time
 # Create your views here.
 
 
@@ -89,7 +93,8 @@ def upload_data(request):
             convert_data = str(csv_data).split(" ")
             main_csv_data = "_".join(convert_data)
             data = CsvFile(csv_data=csv_data).save()
-            df = pd.read_csv(str(BASE_DIR)+"/media/data/railway/" + str(main_csv_data))
+            df = pd.read_csv(str(BASE_DIR)+"/data/railway/" + str(main_csv_data))
+            print(df['Registration Date'])
             length = len(df)
             for i in range(0, length):
                 if df['Registration Date'][i] == " " or type(df['Registration Date'][i]) == float:
@@ -330,17 +335,22 @@ def dashboard(request):
     for rgd_train in train_type_rgd:
         rgd.append(rgd_train.train_number)
 
+
+    checked = []
+    check_type = None
     ########
 
     if request.method == "POST":
         post = True
         train_numbers = request.POST.getlist('train_number')
+        for train_number in train_numbers:
+            checked.append(int(train_number))
+        check_type = request.POST.getlist('check-type')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
-
+        
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
-
         delta = end_month - start_month
 
         if delta.days <= 0:
@@ -394,7 +404,9 @@ def dashboard(request):
             'end_date':end_date,
             'main_train':main_train,
             'rgd':rgd,
-            'rncc':rncc
+            'rncc':rncc,
+            'checked':checked,
+            'check_type':check_type,
         }
     return render(request, 'dashboard.html',context)
 
@@ -425,6 +437,10 @@ def rating(request):
     for rgd_train in train_type_rgd:
         rgd.append(rgd_train.train_number)
 
+    checked = []
+
+    
+
     ########
 
    ########## Bar Graph rating ###############
@@ -433,6 +449,11 @@ def rating(request):
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
+        for train in request.POST.getlist('train_number'):
+            checked.append(int(train))
+        
+        check_type = request.POST.getlist('check-type')
+        
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
@@ -494,7 +515,9 @@ def rating(request):
             'end_date':end_date,
             'rncc':rncc,
             'rgd':rgd,
-            'total':total
+            'total':total,
+            'checked':checked,
+            'check_type':check_type,
         }
 
     else:
@@ -570,6 +593,9 @@ def trend(request):
     rgd = []
     for rgd_train in train_type_rgd:
         rgd.append(rgd_train.train_number)
+    
+    checked = []
+    check_type = []
     #####
 
     if request.method == "POST":
@@ -585,6 +611,12 @@ def trend(request):
 
         sdate = date(int(start_month.year), int(start_month.month), int(start_month.day))
         edate = date(int(end_month.year), int(end_month.month), int(end_month.day))
+        
+
+        for train in request.POST.getlist('train_number'):
+            checked.append(int(train))
+        
+        check_type = request.POST.getlist('check-type')
 
 
 
@@ -842,7 +874,9 @@ def trend(request):
         'end_date':end_date,
         'main_train':main_train,
         'rncc':rncc,
-        'rgd':rgd
+        'rgd':rgd,
+        'checked':checked,
+        'check_type':check_type,
         }
     return render(request, 'trends.html',context)
 
@@ -1154,6 +1188,8 @@ def bottom_train_data_pie(request):
     for rgd_train in train_type_rgd:
         rgd.append(rgd_train.train_number)
     #####
+    checked = []
+    check_type = None
 
     if request.method == "POST":
         post=True
@@ -1161,7 +1197,7 @@ def bottom_train_data_pie(request):
         train_count  = int(request.POST.get('train_count',''))
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
-
+        check_type = request.POST.getlist('check-type')
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
@@ -1186,6 +1222,7 @@ def bottom_train_data_pie(request):
         str_train_number = [] 
         for t_n in train_number:
             str_train_number.append(str(t_n))
+            checked.append(int(t_n))
 
         problem_types = set(Type)
 
@@ -1198,6 +1235,8 @@ def bottom_train_data_pie(request):
         for r in a1_sorted_keys:
             bottom_train.append(int(float(r)))
             bottom_data_count.append(make_dict[r])
+        
+        
 
     else:
         train_count = 10
@@ -1243,7 +1282,10 @@ def bottom_train_data_pie(request):
                 'end_date':end_date,
                 'rgd':rgd,
                 'rncc':rncc,
-                'main_train':main_train
+                'main_train':main_train,
+                'checked': checked,
+                'train_count': train_count,
+                'check_type':check_type,
                }
     return render(request, "bottom_train_data_pie.html",context)
 
@@ -1275,13 +1317,15 @@ def bottom_train_data_bar(request):
     for rgd_train in train_type_rgd:
         rgd.append(rgd_train.train_number)
     #####
+    checked=[]
+    check_type = None
 
     if request.method == "POST":
         post=True
         train_number = request.POST.getlist('train_number')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
-
+        check_type = request.POST.getlist('check-type')
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
@@ -1306,6 +1350,9 @@ def bottom_train_data_bar(request):
         str_train_number = [] 
         for t_n in train_number:
             str_train_number.append(str(t_n))
+            checked.append(int(t_n))
+        
+        print(checked)
 
         problem_types = set(Type)
 
@@ -1372,7 +1419,9 @@ def bottom_train_data_bar(request):
                 'end_date':end_date,
                 'rgd':rgd,
                 'rncc':rncc,
-                'main_train':main_train
+                'main_train':main_train,
+                'check_type':check_type,
+                'checked':checked,
                }
     return render(request, "bottom_train_data_bar.html",context)
 
@@ -1413,6 +1462,8 @@ def all_complain_train(request):
     for rgd_train in train_type_rgd:
         rgd.append(rgd_train.train_number)
     #####
+    checked = []
+    check_type = None
 
 
     if request.method == "POST":
@@ -1420,7 +1471,7 @@ def all_complain_train(request):
         train_number = request.POST.getlist('train_number')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
-
+        check_type = request.POST.getlist('check-type')
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
@@ -1442,6 +1493,9 @@ def all_complain_train(request):
         miscellaneous = []
         staff_behave = []
         dates = []
+
+        for t_n in train_number:
+            checked.append(int(t_n))
 ########
 
         if delta.days <= 0:
@@ -1581,6 +1635,8 @@ def all_complain_train(request):
         real_train_number = train_numbers
     else:
         real_train_number = train_number
+    
+    
 
     context ={
         'show':True,
@@ -1605,7 +1661,9 @@ def all_complain_train(request):
         'end_date':end_date,
         'main_train':main_train,
         'rgd':rgd,
-        'rncc':rncc
+        'rncc':rncc,
+        'checked':checked,
+        'check_type':check_type
         }
     return render(request, 'all_complain_train.html',context)
 
@@ -1762,7 +1820,10 @@ def max_complain_train(request):
     miscellaneous = []
     staff_behave = []
     total = []
-
+    checked = []
+    check_type = None
+    complain_category = None
+    train_count = None
     trainsss = Main_Data_Upload.objects.all()
     main_trains = []
     for ttt in trainsss:
@@ -1787,7 +1848,9 @@ def max_complain_train(request):
         complain_type = request.POST.getlist('complain_type')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
-
+        check_type = request.POST.getlist('check-type')
+        complain_category = request.POST.get('complain-category')
+        train_count = request.POST.get('train_count')
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
@@ -1795,6 +1858,9 @@ def max_complain_train(request):
 
         sdate = date(int(start_month.year), int(start_month.month), int(start_month.day))
         edate = date(int(end_month.year), int(end_month.month), int(end_month.day))
+
+        for tn in train_number:
+            checked.append(int(tn))
 
         if delta.days <=0:
             return HttpResponse("<center><h1>Please Enter valid date Range</center></h1>")
@@ -1961,7 +2027,12 @@ def max_complain_train(request):
                 'end_date':end_date,
                 'rncc':rncc,
                 'rgd':rgd,
-                'main_train':main_train
+                'main_train':main_train,
+                'checked':checked,
+                'check_type': check_type,
+                'complain_category':complain_category,
+                'complain_type':complain_type,
+                'train_count':train_count,
                 }
     return render(request, 'max_complain_train.html',context)
 
@@ -2509,12 +2580,11 @@ def min_complain_coach(request):
               'Miscellaneous','Staff Behaviour']
     critical_type = ['Coach - Cleanliness','Bed Roll', 'Water Availability',
                      'Electrical Equipment','Coach - Maintenance',]
+                     
     coaches_set = set(coach)
     coaches = list(coaches_set)
 
-    
-
-
+   
     coach_clean = []
     bed_roll = []
     security = []
@@ -2852,6 +2922,7 @@ def mix_chart(request):
         post=True
         train_number = request.POST.getlist("train_number")
         complain_type = request.POST.getlist('complain_type')
+        
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
@@ -3142,14 +3213,6 @@ def add_staff_name(request):
         return redirect('/user/show_staff_name')
 
 
-
-
-
-
-
-
-
-
 def staff_graph(request):
 
     coach_clean = []
@@ -3163,7 +3226,9 @@ def staff_graph(request):
     miscellaneous = []
     total_entries = Main_Data_Upload.objects.count()
     staff_behave = []
-
+    check_type = ""
+    complain_category = ""
+    complains = []
     trainsss = Main_Data_Upload.objects.all()
     main_trains = []
     for ttt in trainsss:
@@ -3175,15 +3240,17 @@ def staff_graph(request):
     rncc = []
     for rncc_train in train_type_rncc:
         rncc.append(rncc_train.train_number)
-
+    
     train_type_rgd = Train_Type.objects.filter(Type="RGD")
     rgd = []
     for rgd_train in train_type_rgd:
         rgd.append(rgd_train.train_number)
     #####
-
+    # print(f'rncc: {rncc}')
+    # print(f'rgd: {rgd}')
     bottom_staff=[]
     bottom_staff_count=[]
+    checked = []
 
 
 
@@ -3213,14 +3280,16 @@ def staff_graph(request):
         staff_name.remove("None")
 
     if request.method == "POST":
+        
         post = True
         problem_type = request.POST.getlist('problem_type')
         staff_count = int(request.POST.get('staff_count'))
-        train_number = request.POST.getlist('train_number')
+        check_type = request.POST.getlist('check-type')
         complain_type = request.POST.getlist('complain_type')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
-
+        complain_category = request.POST.get('complain-category')
+        complains = request.POST.getlist('complain-type')
 
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
@@ -3229,6 +3298,10 @@ def staff_graph(request):
 
         sdate = date(int(start_month.year), int(start_month.month), int(start_month.day))
         edate = date(int(end_month.year), int(end_month.month), int(end_month.day))
+
+        for tn in request.POST.getlist('train_number'):
+            checked.append(int(tn))
+
 
         if delta.days <=0:
             return HttpResponse("<h1>Please Enter valid Date Range</h1>")
@@ -3328,6 +3401,8 @@ def staff_graph(request):
         make_dict = dict(zip(staff_name,data_count))
         a1_sorted_keys = dict(sorted(make_dict.items(), key=operator.itemgetter(1),reverse=True))
         first_n = sorted(a1_sorted_keys, key=a1_sorted_keys.get, reverse=True)[:staff_count]
+        
+        
         for staff_name in first_n:
             bottom_staff.append(staff_name)
             bottom_staff_count.append(make_dict[staff_name])
@@ -3411,6 +3486,7 @@ def staff_graph(request):
             show = False
         if len(total)>=1:
             show = True
+
     context = {
                 'all_type':all_type,
                 'critical_type':critical_type,
@@ -3425,14 +3501,17 @@ def staff_graph(request):
                 'post':post,
                 'complain_type':complain_type,
                 'start_date':start_date,
-                'end_date':end_date
+                'end_date':end_date,
+                'staff_count':staff_count,
+                'checked':checked,
+                'check_type':check_type,
+                'complain_category':complain_category,
+                'complain_type':complain_type,
               }
+    print("post : ", post)
+    print(complain_type)
+    print(complains)
     return render(request, 'staff_graph.html',context)
-
-
-
-
-
 
 
 
@@ -3538,3 +3617,44 @@ def add_staff_csv(request):
 
 
 
+
+def upload_file_on_site():
+    driver = webdriver.Chrome(executable_path="./chromedriver.exe")
+    driver.implicitly_wait(0.5)
+    driver.maximize_window()
+    driver.get("http://localhost:8000/user/data_upload")
+    driver.find_element("id","username").send_keys("shubham")
+    driver.find_element("id","password").send_keys("1234")
+    driver.find_element("xpath","/html/body/section/div/div/div/div/div/div[1]/form/button").click()
+    time.sleep(2)
+    driver.execute_script("arguments[0].scrollIntoView();", driver.find_element(By.ID,"data-upload-click"))
+    driver.find_element(By.ID,"data-upload-click").click()
+    #to identify element
+    s = driver.find_element("xpath","//input[@type='file']")
+    #file path specified with send_keys
+    s.send_keys("D:/Internship/Railway-Project/downloads/annual-enterprise-survey-2021-financial-year-provisional-csv.csv")
+    driver.find_element(By.ID, "upload-csv").click()
+    time.sleep(300)
+
+def download_csv(request):
+    if request.method != "POST":
+        return render(request, "download_csv.html")
+
+    else:
+        driver = webdriver.Chrome(executable_path="./chromedriver.exe")
+        driver.implicitly_wait(0.5)
+        _path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "\downloads"
+        print("Downloading CSV file")
+        chrome_options = webdriver.ChromeOptions()
+        prefs = {"download.default_directory": _path}
+        chrome_options.add_experimental_option("prefs", prefs)
+        chrome_options.add_argument("--headless") # start chrome without opening browser.
+        driver = webdriver.Chrome(executable_path="D:\Railway-Project\chromedriver.exe", options=chrome_options)
+        driver.get("https://www.stats.govt.nz/large-datasets/csv-files-for-download/")
+        driver.find_element("xpath", "/html/body/div[12]/div/div/main/section/div/div/div/article/div/div[2]/article/ul/li[1]/div/div/h3/a").click()
+        time.sleep(10)
+        driver.quit()
+        upload_file_on_site()
+        return redirect("/user/download_csv")
+
+        # D:\Internship\Railway-Project\downloads\annual-enterprise-survey-2021-financial-year-provisional-csv.csv

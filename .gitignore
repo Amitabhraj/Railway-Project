@@ -1,6 +1,6 @@
 db.sqlite3
 migrations/
-media/data/
-/myenv/
-
+/data/
+/venv/
+/downloads/
 app/__pycache__/

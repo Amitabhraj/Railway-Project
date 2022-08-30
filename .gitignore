@@ -4,3 +4,4 @@ migrations/
 /venv/
 /downloads/
 app/__pycache__/
+.prettierrc

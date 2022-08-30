@@ -28,19 +28,10 @@ $(document).ready(function() {
         this.checked = checked;
     });
     })
-});
-</script>
 
-<style>
-#more {display: none;}
-</style>
-
-
-<script>
-$(document).ready(function() {
     $('#select-all-2').click(function() {
         var checked = this.checked;
-        $('input[that="true"]').each(function() {
+        $('input[r_all="true"]').each(function() {
         this.checked = checked;
     });
     })
@@ -53,6 +44,13 @@ $(document).ready(function() {
 });
 </script>
 
+<style>
+#more {display: none;}
+</style>
+
+
+
+
 
 <form action="/user/mix_chart/" method="POST">{% csrf_token %}
 
@@ -60,36 +58,99 @@ $(document).ready(function() {
 
 <center>
 <div class="form-check">
-  <input type="checkbox" id="select-all">
-  <label style="margin-right:12px"><h5>Select All</h5></label>
+    {% if 'all' in check_type %}
+    <input type="checkbox" name="check-type" id="select-all" value="all" checked>
+    <label style="margin-right:12px"><h5>Select All</h5></label>
+    
 
-  <input type="checkbox" id="rncc" this="true">
-  <label style="margin-right:12px"><h5>RNCC</h5></label>
+    <input this="true" type="checkbox" name="check-type" id="rncc" this="true" value="rncc" checked>
+    <label style="margin-right:12px"><h5>RNCC</h5></label>
+    
 
-  <input type="checkbox" id="rgd" this="true">
-  <label style="margin-right:12px"><h5>RGD</h5></label><br>
+    <input this="true" type="checkbox" name="check-type" id="rgd" this="true" value="rgd" checked>
+    <label style="margin-right:12px"><h5>RGD</h5></label><br>
+
+    {% elif "rgd" in check_type and "rncc" in check_type %}
+
+    <input  type="checkbox" name="check-type" id="select-all" value="all">
+    <label style="margin-right:12px"><h5>Select All</h5></label>
+    
+
+    <input this="true" type="checkbox" name="check-type" id="rncc" value="rncc" checked>
+    <label style="margin-right:12px"><h5>RNCC</h5></label>
+    
+
+    <input this="true" type="checkbox" name="check-type" id="rgd" value="rgd" checked>
+    <label style="margin-right:12px"><h5>RGD</h5></label><br>
+
+    {% elif "rncc" in check_type %}
+
+    <input type="checkbox" name="check-type" id="select-all" value="all">
+    <label style="margin-right:12px"><h5>Select All</h5></label>
+    
+
+    <input this="true" type="checkbox" name="check-type" id="rncc" value="rncc" checked>
+    <label style="margin-right:12px"><h5>RNCC</h5></label>
+    
+
+    <input this="true" type="checkbox" name="check-type" id="rgd" value="rgd">
+    <label style="margin-right:12px"><h5>RGD</h5></label><br>
+    
+    {% elif "rgd" in check_type %}
+
+    <input type="checkbox" name="check-type" id="select-all" value="all">
+    <label style="margin-right:12px"><h5>Select All</h5></label>
+    
+
+    <input this="true" type="checkbox" name="check-type" id="rncc" value="rncc">
+    <label style="margin-right:12px"><h5>RNCC</h5></label>
+    
+
+    <input this="true" type="checkbox" name="check-type" id="rgd" value="rgd" checked>
+    <label style="margin-right:12px"><h5>RGD</h5></label><br>
+    
+    {% else %}
+    <input type="checkbox" name="check-type" id="select-all" value="all">
+    <label style="margin-right:12px"><h5>Select All</h5></label>
+    
+
+    <input this="true" type="checkbox" name="check-type" id="rncc" value="rncc">
+    <label style="margin-right:12px"><h5>RNCC</h5></label>
+    
+
+    <input this="true" type="checkbox" name="check-type" id="rgd" value="rgd">
+    <label style="margin-right:12px"><h5>RGD</h5></label><br>
+    
+    {% endif %}
 
 
   <span id="dots"></span><span id="more">
-      {% for train_number in main_train %}
+    {% for train_number in main_train %}
 
-      {% if train_number|convertint in rncc %}
-
-            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true" this="true">
-
-        {% elif train_number|convertint in rgd %}
-
-            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true" this="true">
-
+    {% if train_number|convertint in rncc %}
+        {% if train_number|convertint in checked %}
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true" this="true" checked>
         {% else %}
-        <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" this="true">
-
+           <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true" this="true">
         {% endif %}
-            <label>
-            {{train_number|convertint}}&nbsp;&nbsp;
-            </label>
 
-      {% endfor %}
+    {% elif train_number|convertint in rgd %}
+        {% if train_number|convertint in checked %}
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true" this="true" checked>
+        {% else %}
+           <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true" this="true">
+        {% endif %}
+    {% else %}
+        {% if train_number|convertint in checked %}
+            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" this="true" checked>
+        {% else %}
+           <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" this="true">
+        {% endif %}
+    {% endif %}
+        <label>
+        {{train_number|convertint}}&nbsp;&nbsp;
+        </label>
+  {% endfor %} 
 </div></center>
 </span>
 <center><button onclick="myFunction()" id="myBtn" type="button">Show more</button></center><br>
@@ -120,21 +181,37 @@ function myFunction() {
     <div class="select-type d-flex justify-content-center">
         <div class="select-all">
             <label><h5>Select All</h5></label>
-            <input type="checkbox" id="select-all-2"><br>
+            {% if 'all' in complain_category %}
+                <input type="checkbox" name="complain-category" value="all" id="select-all-2" complain="true" checked>
+            {% else %}
+                <input type="checkbox" name="complain-category" value="all" id="select-all-2">
+            {% endif %}
         </div>
 
         <div class="select-critical mx-3">
             <label><h5>Select Critical</h5></label>
-            <input type="checkbox" id="select-critical" that="true"><br>
+            {% if 'critical' in complain_category %}
+                <input type="checkbox" name="complain-category" critical="true" complain="true" value="critical" id="select-critical" checked>
+            {% else %}
+                <input type="checkbox" critical="true" complain="true" name="complain-category" value="critical" id="select-critical">
+            {% endif %}
         </div>
-        
     </div>
-
+    
       {% for all_t in all_type %}
         {% if all_t in critical_type %}
-            <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="true" that="true">
+            {% if all_t in complain_type and post %}
+                <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" complain="true" r_all="true" critical="true" checked>
+            {% else %}
+                <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" complain="true" r_all="true" critical="true">
+            {% endif %}
         {% else %}
-            <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="false" that="true">
+            {% if all_t in complain_type and post %}
+                <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="false" complain="true" r_all="true" checked>
+            {% else %}
+                <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="false" complain="true" r_all="true">
+            {% endif %}
+            
         {% endif %}
             <label>
             {{all_t}}&nbsp;&nbsp;

@@ -44,35 +44,98 @@ $(document).ready(function() {
 <center>
 <div class="form-check">
 
-  <input type="checkbox" id="select-all">
+  {% if 'all' in check_type %}
+  <input type="checkbox" name="check-type" id="select-all" value="all" checked>
   <label style="margin-right:12px"><h5>Select All</h5></label>
+  
 
-  <input type="checkbox" id="rncc">
+  <input this="true" type="checkbox" name="check-type" id="rncc" this="true" value="rncc" checked>
   <label style="margin-right:12px"><h5>RNCC</h5></label>
+  
 
-
-  <input type="checkbox" id="rgd">
+  <input this="true" type="checkbox" name="check-type" id="rgd" this="true" value="rgd" checked>
   <label style="margin-right:12px"><h5>RGD</h5></label><br>
+
+  {% elif "rgd" in check_type and "rncc" in check_type %}
+
+  <input  type="checkbox" name="check-type" id="select-all" value="all">
+  <label style="margin-right:12px"><h5>Select All</h5></label>
+  
+
+  <input this="true" type="checkbox" name="check-type" id="rncc" value="rncc" checked>
+  <label style="margin-right:12px"><h5>RNCC</h5></label>
+  
+
+  <input this="true" type="checkbox" name="check-type" id="rgd" value="rgd" checked>
+  <label style="margin-right:12px"><h5>RGD</h5></label><br>
+
+  {% elif "rncc" in check_type %}
+
+  <input type="checkbox" name="check-type" id="select-all" value="all">
+  <label style="margin-right:12px"><h5>Select All</h5></label>
+  
+
+  <input this="true" type="checkbox" name="check-type" id="rncc" value="rncc" checked>
+  <label style="margin-right:12px"><h5>RNCC</h5></label>
+  
+
+  <input this="true" type="checkbox" name="check-type" id="rgd" value="rgd">
+  <label style="margin-right:12px"><h5>RGD</h5></label><br>
+  
+  {% elif "rgd" in check_type %}
+
+  <input type="checkbox" name="check-type" id="select-all" value="all">
+  <label style="margin-right:12px"><h5>Select All</h5></label>
+  
+
+  <input this="true" type="checkbox" name="check-type" id="rncc" value="rncc">
+  <label style="margin-right:12px"><h5>RNCC</h5></label>
+  
+
+  <input this="true" type="checkbox" name="check-type" id="rgd" value="rgd" checked>
+  <label style="margin-right:12px"><h5>RGD</h5></label><br>
+  
+  {% else %}
+  <input type="checkbox" name="check-type" id="select-all" value="all">
+  <label style="margin-right:12px"><h5>Select All</h5></label>
+  
+
+  <input this="true" type="checkbox" name="check-type" id="rncc" value="rncc">
+  <label style="margin-right:12px"><h5>RNCC</h5></label>
+  
+
+  <input this="true" type="checkbox" name="check-type" id="rgd" value="rgd">
+  <label style="margin-right:12px"><h5>RGD</h5></label><br>
+  
+  {% endif %}
 
   <span id="dots"></span><span id="more">
       {% for t_n in train_number %}
       {% for train_number in t_n %}
 
-        {% if train_number|convertint in rncc %}
+      {% if train_number|convertint in rncc %}
+      {% if train_number|convertint in checked %}
+          <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true" this="true" checked>
+      {% else %}
+         <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true" this="true">
+      {% endif %}
 
-            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rncc="true">
-
-        {% elif train_number|convertint in rgd %}
-
-            <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true">
-
-        {% else %}
-        <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}">
-
-        {% endif %}
-            <label>
-            {{train_number|convertint}}&nbsp;&nbsp;
-            </label>
+  {% elif train_number|convertint in rgd %}
+      {% if train_number|convertint in checked %}
+          <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true" this="true" checked>
+      {% else %}
+         <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" rgd="true" this="true">
+      {% endif %}
+  {% else %}
+      {% if train_number|convertint in checked %}
+          <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" this="true" checked>
+      {% else %}
+         <input type="checkbox" name="train_number" class="check-box" value="{{train_number|convertint}}" this="true">
+      {% endif %}
+  {% endif %}
+      <label>
+      {{train_number|convertint}}&nbsp;&nbsp;
+      </label>
 
       {% endfor %}
       {% endfor %}

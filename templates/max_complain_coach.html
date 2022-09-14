@@ -6,63 +6,90 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
 
 <script>
-  $(document).ready(function() {
-      $('#select-all').click(function() {
-          var checked = this.checked;
-          $('input[type="checkbox"]').each(function() {
-          this.checked = checked;
+  $(document).ready(function () {
+    $('#select-all').click(function () {
+      var checked = this.checked;
+      $('input[type="checkbox"]').each(function () {
+        this.checked = checked;
       });
-      })
-      $('#select-critical').click(function() {
-          var checked = this.checked;
-          $('input[critical="true"]').each(function() {
-          this.checked = checked;
+    })
+    $('#select-critical').click(function () {
+      var checked = this.checked;
+      $('input[critical="true"]').each(function () {
+        this.checked = checked;
       });
-      })
+    })
   });
-  </script>
+</script>
 
 
 <form action="/user/max_complain_coach/" method="POST">{% csrf_token %}
 
-<center>
-<div class="form-check">
-  <div class="select-type d-flex justify-content-center">
-    <div class="select-all">
-        <label><h5>Select All</h5></label>
-        <input type="checkbox" id="select-all"><br>
-    </div>
+  <center>
+    <div class="form-check">
+      <div class="select-type d-flex justify-content-center">
+        <div class="select-all">
+          <label>
+            <h5>Select All</h5>
+          </label>
+          {% if 'all' in complain_category %}
+          <input type="checkbox" name="complain-category" value="all" id="select-all" complain="true" checked>
+          {% else %}
+          <input type="checkbox" name="complain-category" value="all" id="select-all">
+          {% endif %}
+        </div>
 
-    <div class="select-critical mx-3">
-        <label><h5>Select Critical</h5></label>
-        <input type="checkbox" id="select-critical"><br>
-    </div>
-</div>
+        <div class="select-critical mx-3">
+          <label>
+            <h5>Select Critical</h5>
+          </label>
+          {% if 'critical' in complain_category %}
+          <input type="checkbox" name="complain-category" critical="true" complain="true" value="critical"
+            id="select-critical" checked>
+          {% else %}
+          <input type="checkbox" critical="true" complain="true" name="complain-category" value="critical"
+            id="select-critical">
+          {% endif %}
+        </div>
+      </div>
 
-  {% for all_t in all_type %}
-    {% if all_t in critical_type %}
-        <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="true">
-    {% else %}
-        <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="false">
-    {% endif %}
-        <label>
+      {% for all_t in all_type %}
+      {% if all_t in critical_type %}
+      {% if all_t in complain_type and post %}
+      <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" complain="true" critical="true"
+        checked>
+      {% else %}
+      <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" complain="true" critical="true">
+      {% endif %}
+      {% else %}
+      {% if all_t in complain_type and post %}
+      <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="false" complain="true"
+        r_all="true" checked>
+      {% else %}
+      <input type="checkbox" name="complain_type" class="check-box" value="{{all_t}}" critical="false" complain="true"
+        r_all="true">
+      {% endif %}
+
+      {% endif %}
+      <label>
         {{all_t}}&nbsp;&nbsp;
-        </label>
-  {% endfor %}
-</div></center>
+      </label>
+      {% endfor %}
+    </div>
+  </center>
 
   <center class="center">
 
     {% if post %}
-      <label for="start_date"><b>From:</b></label>
-      <input id = "start-date" type="date" name="start_date" value="{{start_date}}">
-      <label for="end_date"><b>To:</b></label>
-      <input id="end-date" type="date" name="end_date" value="{{end_date}}">
+    <label for="start_date"><b>From:</b></label>
+    <input id="start-date" type="date" name="start_date" value="{{start_date}}">
+    <label for="end_date"><b>To:</b></label>
+    <input id="end-date" type="date" name="end_date" value="{{end_date}}">
     {% else %}
-      <label for="start_date"><b>From:</b></label>
-      <input id = "start-date" type="date" name="start_date">
-      <label for="end_date"><b>To:</b></label>
-      <input id="end-date" type="date" name="end_date">
+    <label for="start_date"><b>From:</b></label>
+    <input id="start-date" type="date" name="start_date">
+    <label for="end_date"><b>To:</b></label>
+    <input id="end-date" type="date" name="end_date">
     {% endif %}
 
     <button type="submit" class="btn btn-danger">Submit</button>
@@ -70,85 +97,85 @@
 </form>
 
 <div class="col-xl-10 col-md-12">
-<div class="card">
-<div class="card-header">
-<h4>Railway Data</h4>
-<span class="text-muted">This is Graph Show for Railway </span>
-</div>
+  <div class="card">
+    <div class="card-header">
+      <h4>Railway Data</h4>
+      <span class="text-muted">This is Graph Show for Railway </span>
+    </div>
 
-<div class="card-blockk">
-<div id="sales-analytics" style="height:100%;">
+    <div class="card-blockk">
+      <div id="sales-analytics" style="height:100%;">
 
-<div class="chart-container">
-  <center><h4><u>Data Show Graph For Maximum Complain from Each Complain Type</b></u></h4></center>
+        <div class="chart-container">
+          <center>
+            <h4><u>Data Show Graph For Maximum Complain from Each Complain Type</b></u></h4>
+          </center>
 
-    <canvas id="myChart" height="45px" width="100%"></canvas>
+          <canvas id="myChart" height="45px" width="100%"></canvas>
 
 
 
 
 
-<script>
-var canvasP = document.getElementById("myChart");
-var ctxP = canvasP.getContext('2d');
-var myPieChart = new Chart(ctxP, {
-   type: 'bar',
-   data: {
-      labels: [{% for t in total %}'{{t.1}}-({{t.2}})',{% endfor %}],
-      datasets: [
-        {   
-            label:'Maximum Number',
-            data: [{% for t in total %} {{t.0}}, {% endfor %}],
-            backgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"],
-            hoverBackgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA","#8C006C","#828C00","#00838C"]
+          <script>
+            var canvasP = document.getElementById("myChart");
+            var ctxP = canvasP.getContext('2d');
+            var myPieChart = new Chart(ctxP, {
+              type: 'bar',
+              data: {
+                labels: [{% for t in total %}'{{t.1}}-({{t.2}})',{% endfor %}],
+            datasets: [
+              {
+                label: 'Maximum Number',
+                data: [{% for t in total %} {{ t.0}}, {% endfor %}],
+              backgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA", "#8C006C", "#828C00", "#00838C"],
+                hoverBackgroundColor: ["#FF3838", "#C3792B", "#2196F3", "#A70101", "#36A701", "#0148A7", "#2BC3BA", "#8C006C", "#828C00", "#00838C"]
        }]
    },
-   options: {
-    legend: {
-         display: true,
-         position: "top"
-      },
-      scales: {
-          yAxes: [{
-              ticks: {
-                  beginAtZero: true
+            options: {
+              legend: {
+                display: true,
+                  position: "top"
+              },
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    beginAtZero: true
+                  }
+                }]
               }
-          }]
-      }
 
-}
+            }
 });
 
-canvasP.onclick = function(e) {
-   var slice = myPieChart.getElementAtEvent(e);
-   if (!slice.length) return; // return if not clicked on slice
-   var label = slice[0]._model.label;
-   switch (label) {
+            canvasP.onclick = function (e) {
+              var slice = myPieChart.getElementAtEvent(e);
+              if (!slice.length) return; // return if not clicked on slice
+              var label = slice[0]._model.label;
+              switch (label) {
       // add case for each label/slice
       {% for t in total %}
       case '{{t.1}}-({{t.2}})':
-         window.open('/user/complain/{{t.1}}');
-         break;
-      {% endfor %}
-   }
+              window.open('/user/complain/{{t.1}}');
+              break;
+              {% endfor %}
+            }
 }
 
 
 
-</script>
+          </script>
 
 
 
 
-</div>
-</div>
-</div>
-</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 
 
 
 
-{% endblock %}
-
-
+  {% endblock %}

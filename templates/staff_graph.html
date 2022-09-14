@@ -61,6 +61,7 @@ $(document).ready(function() {
         this.checked = checked;
     });
     })
+
     $('#select-all').click(function() {
         var checked = this.checked;
         $('input[this="true"]').each(function() {
@@ -175,7 +176,6 @@ $(document).ready(function() {
             <label>
             {{train_number|convertint}}&nbsp;&nbsp;
             </label>
-
       {% endfor %}
 </div></center>
 </span>

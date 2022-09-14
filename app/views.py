@@ -33,11 +33,6 @@ import datetime as DT
 from railway.settings import BASE_DIR
 from django.views.decorators.csrf import csrf_exempt
 import os
-from twilio.rest import Client
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions
 import time
 # Create your views here.
 
@@ -46,6 +41,25 @@ def redircte(request):
     return redirect('/login')
 
 ##############################################################################################
+
+
+
+####### Update Train Category #####
+train_number_rncc = ['12332','3283','12309','1665','12141','13228','22354']
+train_number_rgd = ['18420','12791','12792','13209','19435','12948','12947','3222','3229','13483','13484','14003','15028']
+
+for rncc in train_number_rncc:
+    if Train_Type.objects.filter(train_number = int(rncc)):
+        pass
+    else:
+        Train_Type.objects.create(train_number=int(rncc),Type='RNCC')
+
+for rgd in train_number_rgd:
+    if Train_Type.objects.filter(train_number = int(rgd)):
+        pass
+    else:
+        Train_Type.objects.create(train_number=int(rgd),Type='RGD')
+#######
 
 
 
@@ -86,101 +100,81 @@ def change_password(request):
 def upload_data(request):
     if request.method == "POST":
         user = User.objects.get(id=request.user.id)
-        if user.groups.filter(name='Moderator').exists():
-            now = datetime.datetime.now()
-            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-            csv_data = request.FILES.get('csv')
-            convert_data = str(csv_data).split(" ")
-            main_csv_data = "_".join(convert_data)
-            data = CsvFile(csv_data=csv_data).save()
-            df = pd.read_csv(str(BASE_DIR)+"/data/railway/" + str(main_csv_data))
-            print(df['Registration Date'])
-            length = len(df)
-            for i in range(0, length):
-                if df['Registration Date'][i] == " " or type(df['Registration Date'][i]) == float:
-                    register_date = None
-                else:
-                    split_date = df['Registration Date'][i].split(' ')
-                    register_datee = datetime.datetime.strptime(f'{split_date[0]}', '%d-%m-%y')
-                    register_time =  f'{split_date[1]}'
-                    register_date = dateutil.parser.parse(f'{register_datee} {register_time}:00-00')
-                if df['Closing Date'][i] == " " or type(df['Closing Date'][i]) == float:
-                    closing_date = None
-                else:
-                    split_date_2 = df['Closing Date'][i].split(' ')
-                    closing_datee = datetime.datetime.strptime(f'{split_date_2[0]}', '%d-%m-%y')
-                    closing_time = f'{split_date_2[1]}'
-                    closing_date =  dateutil.parser.parse(f'{closing_datee} {closing_time}:00-00')
+        now = datetime.datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        csv_data = request.FILES.get('csv')
+        convert_data = str(csv_data).split(" ")
+        main_csv_data = "_".join(convert_data)
+        data = CsvFile(csv_data=csv_data).save()
+        df = pd.read_csv(str(BASE_DIR)+"/data/railway/" + str(main_csv_data))
+        print(df['Registration Date'])
+        length = len(df)
+        for i in range(0, length):
+            if df['Registration Date'][i] == " " or type(df['Registration Date'][i]) == float:
+                register_date = None
+            else:
+                split_date = df['Registration Date'][i].split(' ')
+                register_datee = datetime.datetime.strptime(f'{split_date[0]}', '%d-%m-%y')
+                register_time =  f'{split_date[1]}'
+                register_date = dateutil.parser.parse(f'{register_datee} {register_time}:00-00')
+            if df['Closing Date'][i] == " " or type(df['Closing Date'][i]) == float:
+                closing_date = None
+            else:
+                split_date_2 = df['Closing Date'][i].split(' ')
+                closing_datee = datetime.datetime.strptime(f'{split_date_2[0]}', '%d-%m-%y')
+                closing_time = f'{split_date_2[1]}'
+                closing_date =  dateutil.parser.parse(f'{closing_datee} {closing_time}:00-00')
 
-             
-                if df['Physical Coach No'][i] == None or str(df['Physical Coach No'][i]) == "nan":
-                    real_coach_number = 00000.0
-                else:
-                    real_coach_number = df['Physical Coach No'][i].item()
+            
+            if df['Physical Coach No'][i] == None or str(df['Physical Coach No'][i]) == "nan":
+                real_coach_number = 00000.0
+            else:
+                real_coach_number = df['Physical Coach No'][i].item()
 
-                main_data = Main_Data_Upload(
-                    sl_no = df['Sl. No.'][i],
-                    reference_no = df['Ref. No.'][i],
-                    registration_date = register_date,
-                    closing_date = closing_date,
-                    disposal_time = df['Disposal Time'][i],
-                    # mode = df['Mode'][i],
-                    train_station = df['Train'][i],
-                    channel = df['Channel'][i],
-                    # Type = df['Type'][i],
-                    coach_number = real_coach_number,
-                    # rake_number = df['Rake no'][i],
-                    # staff_name = df['Escort staff'][i],
-                    problem_type = df['Type'][i],
-                    sub_type = df['Sub Type'][i],
-                    commodity = df['Commodity'][i],
-                    zone = df['Zone'][i],
-                    div = df['Div'][i],
-                    dept = df['Dept'][i],
-                    breach = df['Breach'][i],
-                    rating = df['Rating'][i],
-                    status = df['Status'][i],
-                    complaint_discription = df['Complaint Description'][i],
-                    remark = df['Remarks'][i],
-                    number_of_time_forwarded = df['No. of times forwarded'][i],
-                    pnr_utc_number = df['PNR/UTS No'][i],
-                    coach_type = df['Coach Type'][i],
-                    # coach_number_no = df['Coach no'][i],
-                    # coach_type_2 = df['Coach Type'][i],
-                    coach_number_no_2 = df['Coach No.'][i],
-                    feedback_remark = df['Feedback Remarks'][i],
-                    upcoming_station = df['Upcoming Station'][i],
-                    mobile_number_or_email = df['Mobile No./Email Id'][i],
-                    # physical_coach_number = df['Physical Coach No'][i],
-                    train_name = df['Train Name'][i]
-                )
-                if Main_Data_Upload.objects.filter(reference_no=main_data.reference_no):
-                    print("this will not upload")
-                else:
-                    print("this file get uploaded")
-                    main_data.save()
+            main_data = Main_Data_Upload(
+                sl_no = df['Sl. No.'][i],
+                reference_no = df['Ref. No.'][i],
+                registration_date = register_date,
+                closing_date = closing_date,
+                disposal_time = df['Disposal Time'][i],
+                # mode = df['Mode'][i],
+                train_station = df['Train'][i],
+                channel = df['Channel'][i],
+                # Type = df['Type'][i],
+                coach_number = real_coach_number,
+                # rake_number = df['Rake no'][i],
+                # staff_name = df['Escort staff'][i],
+                problem_type = df['Type'][i],
+                sub_type = df['Sub Type'][i],
+                commodity = df['Commodity'][i],
+                zone = df['Zone'][i],
+                div = df['Div'][i],
+                dept = df['Dept'][i],
+                breach = df['Breach'][i],
+                rating = df['Rating'][i],
+                status = df['Status'][i],
+                complaint_discription = df['Complaint Description'][i],
+                remark = df['Remarks'][i],
+                number_of_time_forwarded = df['No. of times forwarded'][i],
+                pnr_utc_number = df['PNR/UTS No'][i],
+                coach_type = df['Coach Type'][i],
+                # coach_number_no = df['Coach no'][i],
+                # coach_type_2 = df['Coach Type'][i],
+                coach_number_no_2 = df['Coach No.'][i],
+                feedback_remark = df['Feedback Remarks'][i],
+                upcoming_station = df['Upcoming Station'][i],
+                mobile_number_or_email = df['Mobile No./Email Id'][i],
+                # physical_coach_number = df['Physical Coach No'][i],
+                train_name = df['Train Name'][i]
+            )
+            if Main_Data_Upload.objects.filter(reference_no=main_data.reference_no):
+                print("uploding")
+            else:
+                print("it is duplicate")
+                main_data.save()
 
-            mobile_number = PhoneNumber.objects.all()
-            phone_number = []
-            for m_n in mobile_number:
-                phone_number.append("whatsapp:+91"+str(m_n))
-
-            account_sid = 'AC37cad0e9482615a332fce6a6b3d96a5a' 
-            auth_token = 'd57b5cff62922c9769603303cd3cf825' 
-            client = Client(account_sid, auth_token) 
-
-            for p_n in phone_number:
-                message = client.messages.create( 
-                                              from_='whatsapp:+14155238886',  
-                                              body=f'File has been uploaded on the Server--> on date:- {dt_string}',
-                                              to= f'{p_n}'
-                                          ) 
-
-
-            return redirect(request.path)
-        else:
-            messages.error(request,"You Cannot Upload Data")
-            return redirect(request.path)
+        messages.success(request,"Successfully Uploaded")
+        return redirect(request.path)
 
     return render(request, 'data_upload.html')
 
@@ -1106,6 +1100,14 @@ def train_wise_data(request):
     rgd = []
     for rgd_train in train_type_rgd:
         rgd.append(rgd_train.train_number)
+    
+    checked = []
+    check_type = []
+    complain_category = []
+    
+    
+    # print("RNCC: ",rncc)
+    # print("RGD: ",rgd)
 
     ########
 
@@ -1114,7 +1116,8 @@ def train_wise_data(request):
         train_number = request.POST.getlist('train_number')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
-
+        complain_category = request.POST.getlist('complain_category')
+        check_type = request.POST.getlist('check-type')
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
@@ -1129,6 +1132,7 @@ def train_wise_data(request):
         trains = []
         for t_r in train_number:
             trains.append(int(t_r))
+            checked.append(int(t_r))
 
         for p_t in problem_type:
             data = Main_Data_Upload.objects.filter(train_station__in=trains,problem_type=p_t,registration_date__gte=start_date,registration_date__lte=end_date)
@@ -1154,7 +1158,10 @@ def train_wise_data(request):
                     'start_date':start_date,
                     'end_date':end_date,
                     'rncc':rncc,
-                    'rgd':rgd
+                    'rgd':rgd,
+                    'checked':checked,
+                    'check_type':check_type,
+                    'complain_category':complain_category,
                    }
 
     else:
@@ -1352,7 +1359,7 @@ def bottom_train_data_bar(request):
             str_train_number.append(str(t_n))
             checked.append(int(t_n))
         
-        print(checked)
+        # print(checked)
 
         problem_types = set(Type)
 
@@ -2068,7 +2075,10 @@ def min_complain_train(request):
     miscellaneous = []
     staff_behave = []
     total = []
-
+    checked = []
+    complain_type = []
+    check_type = []
+    complain_category = []
     trainsss = Main_Data_Upload.objects.all()
     main_trains = []
     for ttt in trainsss:
@@ -2093,7 +2103,8 @@ def min_complain_train(request):
         complain_type = request.POST.getlist('complain_type')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
-
+        check_type = request.POST.getlist('check-type')
+        complain_category = request.POST.getlist('complain-category')
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
@@ -2101,6 +2112,11 @@ def min_complain_train(request):
 
         sdate = date(int(start_month.year), int(start_month.month), int(start_month.day))
         edate = date(int(end_month.year), int(end_month.month), int(end_month.day))
+
+        for train in train_number:
+            checked.append(int(train))
+        
+        
 
         if delta.days <=0:
             return HttpResponse("<center><h1>Please Enter valid date Range</center></h1>")
@@ -2339,7 +2355,11 @@ def min_complain_train(request):
                 'end_date':end_date,
                 'rgd':rgd,
                 'rncc':rncc,
-                'main_train':main_train
+                'main_train':main_train,
+                'checked':checked,
+                'check_type':check_type,
+                'complain_type':complain_type,
+                'complain_category':complain_category,
                }
     return render(request, 'min_complain_train.html',context)
 
@@ -2380,12 +2400,13 @@ def max_complain_coach(request):
     miscellaneous = []
     staff_behave = []
     total = []
+    complain_category = []
     if request.method == "POST":
         post = True
         complain_type = request.POST.getlist('complain_type')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
-
+        complain_category = request.POST.getlist('complain-category')
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
@@ -2554,7 +2575,7 @@ def max_complain_coach(request):
         post = False
     
     context = {'post':post,'total':total,'show':show,'all_type':all_type, 'critical_type': critical_type,'start_date':start_date,
-                'end_date':end_date}
+                'end_date':end_date, 'complain_type': complain_type, 'complain_category':complain_category}
     return render(request, 'max_complain_coach.html',context)
 
 
@@ -2585,7 +2606,7 @@ def min_complain_coach(request):
     coaches_set = set(coach)
     coaches = list(coaches_set)
 
-   
+    train_number = []
     coach_clean = []
     bed_roll = []
     security = []
@@ -2597,6 +2618,10 @@ def min_complain_coach(request):
     miscellaneous = []
     staff_behave = []
     total = []
+    checked = []
+    check_type = []
+    complain_category = []
+    complain_type = []
 
     trainsss = Main_Data_Upload.objects.all()
     main_trains = []
@@ -2604,6 +2629,7 @@ def min_complain_coach(request):
         main_trains.append(float(ttt.train_station))
     set_train = set(main_trains)
     main_train = list(set_train)
+    # print(main_train)
     ######
     train_type_rncc = Train_Type.objects.filter(Type="RNCC")
     rncc = []
@@ -2621,7 +2647,9 @@ def min_complain_coach(request):
         complain_type = request.POST.getlist('complain_type')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
-
+        train_number = request.POST.getlist('train_number')
+        check_type = request.POST.getlist('check-type')
+        complain_category = request.POST.getlist('complain-category')
         start_month = datetime.datetime.strptime(start_date, "%Y-%m-%d")
         end_month = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
@@ -2629,6 +2657,10 @@ def min_complain_coach(request):
 
         sdate = date(int(start_month.year), int(start_month.month), int(start_month.day))
         edate = date(int(end_month.year), int(end_month.month), int(end_month.day))
+
+        for train in train_number:
+            checked.append(int(train))
+
 
         if delta.days <=0:
             return HttpResponse("<center><h1>Please Enter valid date Range</center></h1>")
@@ -2866,7 +2898,11 @@ def min_complain_coach(request):
                 'end_date':end_date,
                 'rncc':rncc,
                 'rgd':rgd,
-                'main_train':main_train
+                'main_train':main_train,
+                'checked':checked,
+                'check_type':check_type,
+                'complain_category':complain_category,
+                'complain_type':complain_type,
                }
     return render(request, 'min_complain_coach.html',context)
 
@@ -2899,6 +2935,11 @@ def mix_chart(request):
     miscellaneous = []
     total_entries = Main_Data_Upload.objects.count()
     staff_behave = []
+    checked = []
+    check_type = []
+    complain_category = []
+    complain_type = []
+
 
 
     trainsss = Main_Data_Upload.objects.all()
@@ -2923,7 +2964,8 @@ def mix_chart(request):
         post=True
         train_number = request.POST.getlist("train_number")
         complain_type = request.POST.getlist('complain_type')
-        
+        check_type = request.POST.getlist('check-type')
+        complain_category = request.POST.getlist('complain-category')
         start_date = request.POST.get('start_date','')
         end_date = request.POST.get('end_date','')
 
@@ -2958,6 +3000,9 @@ def mix_chart(request):
         for tr_n in train_number:
             a = Main_Data_Upload.objects.filter(problem_type__in=problem_types,train_station=tr_n,registration_date__range=[f"{start_date} 00:00:00+00:00", f"{end_date} 00:00:00+00:00"])
             data_count.append(a.count())
+            
+        for train in train_number:
+            checked.append(int(train))
 
         make_dict = dict(zip(str_train_number,data_count))
         a1_sorted_keys = dict(sorted(make_dict.items(), key=operator.itemgetter(1),reverse=True))
@@ -3143,7 +3188,11 @@ def mix_chart(request):
                 'complain_type':complain_type,
                 'rgd':rgd,
                 'rncc':rncc,
-                'main_train':main_train
+                'main_train':main_train,
+                'checked':checked,
+                'check_type':check_type,
+                'complain_category':complain_category,
+                'complain_type':complain_type,
                }
     return render(request, "responsive.html",context)
 
@@ -3510,9 +3559,9 @@ def staff_graph(request):
                 'complain_type':complain_type,
                 'train_number':train_number
               }
-    print("post : ", post)
-    print(complain_type)
-    print(complains)
+    # print("post : ", post)
+    # print(complain_type)
+    # print(complains)
     return render(request, 'staff_graph.html',context)
 
 
@@ -3616,47 +3665,3 @@ def add_staff_csv(request):
 
 
 
-
-
-
-
-def upload_file_on_site():
-    driver = webdriver.Chrome(executable_path="./chromedriver.exe")
-    driver.implicitly_wait(0.5)
-    driver.maximize_window()
-    driver.get("http://localhost:8000/user/data_upload")
-    driver.find_element("id","username").send_keys("shubham")
-    driver.find_element("id","password").send_keys("1234")
-    driver.find_element("xpath","/html/body/section/div/div/div/div/div/div[1]/form/button").click()
-    time.sleep(2)
-    driver.execute_script("arguments[0].scrollIntoView();", driver.find_element(By.ID,"data-upload-click"))
-    driver.find_element(By.ID,"data-upload-click").click()
-    #to identify element
-    s = driver.find_element("xpath","//input[@type='file']")
-    #file path specified with send_keys
-    s.send_keys("D:/Internship/Railway-Project/downloads/annual-enterprise-survey-2021-financial-year-provisional-csv.csv")
-    driver.find_element(By.ID, "upload-csv").click()
-    time.sleep(300)
-
-def download_csv(request):
-    if request.method != "POST":
-        return render(request, "download_csv.html")
-
-    else:
-        driver = webdriver.Chrome(executable_path="./chromedriver.exe")
-        driver.implicitly_wait(0.5)
-        _path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "\downloads"
-        print("Downloading CSV file")
-        chrome_options = webdriver.ChromeOptions()
-        prefs = {"download.default_directory": _path}
-        chrome_options.add_experimental_option("prefs", prefs)
-        chrome_options.add_argument("--headless") # start chrome without opening browser.
-        driver = webdriver.Chrome(executable_path="D:\Railway-Project\chromedriver.exe", options=chrome_options)
-        driver.get("https://www.stats.govt.nz/large-datasets/csv-files-for-download/")
-        driver.find_element("xpath", "/html/body/div[12]/div/div/main/section/div/div/div/article/div/div[2]/article/ul/li[1]/div/div/h3/a").click()
-        time.sleep(10)
-        driver.quit()
-        upload_file_on_site()
-        return redirect("/user/download_csv")
-
-        # D:\Internship\Railway-Project\downloads\annual-enterprise-survey-2021-financial-year-provisional-csv.csv

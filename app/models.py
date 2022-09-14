@@ -59,18 +59,6 @@ class Main_Data_Upload(models.Model):
 
 
 
-
-
-class PhoneNumber(models.Model):
-    mobile_number = models.IntegerField(default=None, null=True, blank=True)
-
-    def __str__(self):
-        return str(self.mobile_number)
-
-
-
-
-
 class CsvFile(models.Model):
     csv_data = models.FileField(upload_to="data/railway/", null=True, blank=True)
 
